@@ -110,8 +110,8 @@
   #main-content {
     display: flex;
     flex-direction: column;
-    gap: var(--space-section);
-    padding-bottom: var(--space-section);
+    gap: var(--space-section-gap);
+    padding-bottom: var(--space-section-gap);
   }
   .section-heading {
     text-align: center;

@@ -20,6 +20,7 @@ import employeesIcon from '../assets/images/employees.svg';
 import winstock from '../assets/images/winstock.png';
 import winvest from '../assets/images/winvest.png';
 import { links } from './site';
+import { winvestApp } from './apps';
 
 interface Service {
   title: string;
@@ -117,13 +118,9 @@ export const apps = [
     google: links.winstockGoogle,
   },
   {
-    name: 'WINVEST',
+    ...winvestApp,
     image: winvest,
     alt: 'WINVEST login and mutual fund portfolio screens on two phones',
-    description:
-      'Manage your mutual fund investments directly from your smartphone or tablet with Winvest. Our free mobile app lets you invest, track and manage all your mutual funds anytime, anywhere. Check performance, access detailed reports, get real-time updates and make better investment decisions with Winvest.',
-    apple: links.winvestApple,
-    google: links.winvestGoogle,
   },
 ];
 interface Testimonial {

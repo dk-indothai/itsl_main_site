@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import { vision, values } from '../../data/about';
+---
+
+<section class="content-blue vision" aria-labelledby="vision-title">
+  <div class="page-shell content-shell">
+    <h2 id="vision-title" class="content-title">Vision</h2>
+    <blockquote>{vision}</blockquote>
+  </div>
+</section>
+<section class="page-shell content-shell" aria-labelledby="values-title">
+  <h2 id="values-title" class="content-title">Values</h2>
+  <ul class="content-grid values-grid" role="list">
+    {
+      values.map((value) => (
+        <li>
+          <Image src={value.icon} alt="" width={50} height={50} />
+          <h3>{value.title}</h3>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+<style>
+  .vision {
+    text-align: center;
+  }
+  blockquote {
+    max-width: var(--vision-copy-max);
+    margin-inline: auto;
+    font-size: var(--text-vision);
+    line-height: var(--leading-body);
+  }
+  .values-grid {
+    text-align: center;
+  }
+  .values-grid li {
+    padding: var(--space-lg) var(--space-md);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-card);
+  }
+  #values-title {
+    color: var(--color-ink);
+  }
+  img {
+    width: var(--value-icon);
+    height: var(--value-icon);
+    margin: 0 auto var(--space-md);
+  }
+  h3 {
+    font-size: var(--text-content-card);
+  }
+</style>

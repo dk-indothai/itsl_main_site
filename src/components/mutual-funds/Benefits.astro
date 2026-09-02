@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import { benefits } from '../../data/mutual-funds';
+import { links } from '../../data/site';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<section
+  class="content-blue fund-benefits"
+  aria-labelledby="fund-benefits-title"
+>
+  <div class="page-shell content-shell">
+    <h2 id="fund-benefits-title" class="content-title">
+      Why Mutual Funds From IndoThai ?
+    </h2>
+    <ul class="content-grid benefit-cards" role="list">
+      {
+        benefits.map((benefit) => (
+          <li>
+            <Image src={benefit.icon} alt="" />
+            <h3>{benefit.title}</h3>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="benefit-action">
+      <ActionLink href={links.mfStartInvesting} variant="outline"
+        >Start Investing</ActionLink
+      >
+    </div>
+  </div>
+</section>
+<style>
+  .fund-benefits {
+    border-radius: 0 0 var(--radius-image) var(--radius-image);
+  }
+  .fund-benefits h2 {
+    font-size: var(--text-fund-benefits);
+    font-weight: var(--font-weight-normal);
+  }
+  .benefit-cards li {
+    background: var(--color-fund-card);
+    border: var(--border-thin) solid currentColor;
+    border-radius: var(--radius-card);
+    min-height: var(--fund-benefit-height);
+    padding: var(--space-xl);
+    text-align: center;
+    display: grid;
+    place-content: center;
+    gap: var(--space-md);
+  }
+  img {
+    width: var(--value-icon);
+    height: var(--value-icon);
+    object-fit: contain;
+    margin-inline: auto;
+  }
+  h3 {
+    font-family: var(--font-body);
+    font-size: var(--text-fund-benefit-card);
+    line-height: var(--leading-content-heading);
+  }
+  .benefit-action {
+    text-align: center;
+    margin-top: var(--space-2xl);
+  }
+</style>

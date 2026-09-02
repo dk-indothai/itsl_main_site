@@ -1,0 +1,85 @@
+---
+import { Image, getImage } from 'astro:assets';
+import background from '../../assets/images/mutual-funds/banner-bg-4.png';
+import artwork from '../../assets/images/mutual-funds/fund.png';
+import mobileArtwork from '../../assets/images/mutual-funds/mutual-funds-mob.png';
+import ActionLink from '../ui/ActionLink.astro';
+import { links } from '../../data/site';
+const mobile = await getImage({ src: mobileArtwork, format: 'webp' });
+---
+
+<section aria-labelledby="funds-title" class="funds-hero">
+  <div class="hero-intro">
+    <Image src={background} alt="" class="hero-pattern" loading="eager" />
+    <div class="page-shell content-shell hero-copy">
+      <h1 id="funds-title">Master your Mutual Funds<br /> with IndoThai</h1>
+      <p>Creating wealth for you everday</p>
+      <ActionLink href={links.mfLogin} variant="outline">Log in</ActionLink>
+    </div>
+  </div>
+  <div class="page-shell content-shell investment-art">
+    <picture>
+      <source
+        media="(max-width: 767px)"
+        srcset={mobile.src}
+        width={mobileArtwork.width}
+        height={mobileArtwork.height}
+      />
+      <Image
+        src={artwork}
+        alt="WINVEST welcome screen and mutual fund portfolio displayed on two phones"
+        widths={[700, 1100, 1400]}
+        sizes="(max-width: 767px) 90vw, 85vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </picture>
+  </div>
+</section>
+<style>
+  .hero-intro {
+    position: relative;
+    text-align: center;
+    padding-block: var(--funds-hero-padding);
+  }
+  .hero-pattern {
+    position: absolute;
+    inset: auto 0 var(--fund-pattern-offset);
+    width: 100%;
+  }
+  .hero-copy {
+    position: relative;
+  }
+  h1 {
+    font-size: var(--text-funds-hero);
+    line-height: var(--leading-funds-hero);
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+    background: var(--gradient-hero);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p {
+    font-size: var(--text-content-lead);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--fund-subtitle-tracking);
+    margin-block: var(--space-md) var(--space-lg);
+  }
+  .investment-art img {
+    width: 100%;
+  }
+  .investment-art {
+    margin-top: var(--space-xl);
+  }
+  .hero-copy :global(.action) {
+    font-size: var(--text-fund-login);
+    line-height: 1;
+    padding: var(--fund-action-py) var(--fund-login-px);
+  }
+  @media (forced-colors: active) {
+    h1 {
+      background: none;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+</style>

@@ -7,6 +7,7 @@ import {
   mobileAccountNavigation,
 } from '../../data/nav';
 import ActionLink from '../ui/ActionLink.astro';
+const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 ---
 
 <header class="site-header" data-header>
@@ -27,7 +28,7 @@ import ActionLink from '../ui/ActionLink.astro';
             <li>
               <a
                 href={item.href}
-                aria-current={item.href === '/' ? 'page' : undefined}
+                aria-current={item.href === currentPath ? 'page' : undefined}
               >
                 {item.label}
               </a>
@@ -63,7 +64,9 @@ import ActionLink from '../ui/ActionLink.astro';
                 <li class="desktop:hidden">
                   <a
                     href={item.href}
-                    aria-current={item.href === '/' ? 'page' : undefined}
+                    aria-current={
+                      item.href === currentPath ? 'page' : undefined
+                    }
                   >
                     {item.label}
                   </a>

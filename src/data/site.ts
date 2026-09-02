@@ -2,8 +2,8 @@
 const staging = 'https://staging-e356-indothaiweb.wpcomstaging.com';
 export const links = {
   home: '/',
-  about: `${staging}/about-us/`,
-  mutualFunds: `${staging}/mutual-funds/`,
+  about: '/about-us/',
+  mutualFunds: '/mutual-funds/',
   careers: `${staging}/careers/`,
   investors: `${staging}/investors/`,
   blog: `${staging}/blog/`,
@@ -13,6 +13,8 @@ export const links = {
   transfer: 'https://money-transfer.indothai.co.in',
   mobileTransfer: 'https://fund-transfer.indothai.co.in/',
   mfLogin: 'https://indothai.investwell.app/app/#/login',
+  mfStartInvesting:
+    'https://play.google.com/store/search?q=Winvest&c=apps&pli=1',
   mfBackOffice: 'https://indothai.my-portfolio.in/',
   closeAccount: `${staging}/close-account/`,
   closeProcedure: `${staging}/procedure-of-closing-account/`,
@@ -47,6 +49,8 @@ export const links = {
   twitter: 'https://x.com/IndoThaiLtd',
   linkedin: 'https://www.linkedin.com/company/indo-thai-securities-ltd/',
   femto: 'http://femtogreenhydrogen.com/',
+  // The About page uses HTTPS; the original footer deliberately remains HTTP.
+  femtoAbout: 'https://femtogreenhydrogen.com/',
   remigos: 'https://remigos.com/',
   skyspace: 'https://www.skyspaceoffices.com/',
   kisha: 'https://www.kishadiamonds.com/',

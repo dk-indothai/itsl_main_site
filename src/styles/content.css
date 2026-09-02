@@ -1,0 +1,63 @@
+@reference './tokens.css';
+
+/* Shared secondary-page patterns; deliberately do not override homepage styles. */
+.content-page {
+  font-size: var(--text-content-body);
+  color: var(--color-ink);
+}
+.content-page .content-shell {
+  max-width: var(--content-max);
+}
+.content-page h2 {
+  font-size: var(--text-content-heading);
+  line-height: var(--leading-content-heading);
+}
+.content-page .content-title {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+.content-page .content-copy {
+  display: grid;
+  gap: var(--space-md);
+}
+.content-page .content-image {
+  width: 100%;
+  border-radius: var(--content-image-radius);
+}
+.content-page .content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+.content-page .content-blue {
+  background: var(--color-brand);
+  color: var(--color-white);
+  border-radius: var(--radius-image);
+  padding-block: var(--space-section);
+}
+.content-page .content-blue h2 {
+  color: inherit;
+}
+.content-page .content-blue :focus-visible {
+  outline-color: var(--color-white);
+}
+.content-page .content-blue .action-outline {
+  border-color: currentColor;
+  color: inherit;
+  font-size: var(--text-fund-action);
+  line-height: 1;
+  padding: var(--fund-action-py) var(--fund-action-px);
+}
+.content-page .content-blue .action-outline:hover {
+  background: var(--color-white);
+  color: var(--color-brand);
+  border-color: var(--color-white);
+}
+@media (width < theme(--breakpoint-tablet)) {
+  .content-page .content-title {
+    margin-bottom: var(--space-xl);
+  }
+  .content-page .content-grid {
+    grid-template-columns: 1fr;
+  }
+}

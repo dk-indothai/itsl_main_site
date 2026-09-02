@@ -1,0 +1,38 @@
+---
+import { introduction } from '../../data/mutual-funds';
+import { links } from '../../data/site';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<section
+  class="content-blue fund-introduction"
+  aria-labelledby="fund-introduction-title"
+>
+  <div class="page-shell content-shell">
+    <h2 id="fund-introduction-title" class="content-title">
+      What are Mutual <span class="whitespace-nowrap">Funds ?</span>
+    </h2>
+    <div class="content-copy">{introduction.map((text) => <p>{text}</p>)}</div>
+    <div class="intro-action">
+      <ActionLink href={links.mfStartInvesting} variant="outline"
+        >Start Investing</ActionLink
+      >
+    </div>
+  </div>
+</section>
+<style>
+  .fund-introduction {
+    border-radius: var(--radius-image) var(--radius-image) 0 0;
+  }
+  h2 {
+    font-weight: var(--font-weight-normal);
+  }
+  .content-copy {
+    font-weight: var(--font-weight-light);
+    line-height: var(--fund-introduction-leading);
+  }
+  .intro-action {
+    text-align: center;
+    margin-top: var(--space-xl);
+  }
+</style>

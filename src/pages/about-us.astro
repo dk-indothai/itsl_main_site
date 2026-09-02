@@ -1,0 +1,24 @@
+---
+import '../styles/content.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/about/Hero.astro';
+import Company from '../components/about/Company.astro';
+import Leadership from '../components/about/Leadership.astro';
+import Milestones from '../components/about/Milestones.astro';
+import VisionValues from '../components/about/VisionValues.astro';
+import BusinessProfile from '../components/about/BusinessProfile.astro';
+import CompanyGroup from '../components/about/CompanyGroup.astro';
+import Gallery from '../components/about/Gallery.astro';
+import { aboutMeta } from '../data/about';
+---
+
+<BaseLayout {...aboutMeta} contentPage>
+  <Hero />
+  <Company />
+  <Leadership />
+  <Milestones />
+  <VisionValues />
+  <BusinessProfile />
+  <CompanyGroup />
+  <Gallery />
+</BaseLayout>

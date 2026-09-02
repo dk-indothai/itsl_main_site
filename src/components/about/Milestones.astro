@@ -1,0 +1,69 @@
+---
+import timeline from '../../assets/images/about-us/milestone.svg';
+import mobileTimeline from '../../assets/images/about-us/milestone-mob.svg';
+import { milestones, mobileMilestones } from '../../data/about';
+---
+
+<section class="page-shell" aria-labelledby="milestones-title">
+  <h2 id="milestones-title" class="content-title">Milestone</h2>
+  <figure>
+    <picture aria-hidden="true">
+      <source
+        media="(max-width: 767px)"
+        srcset={mobileTimeline.src}
+        width={mobileTimeline.width}
+        height={mobileTimeline.height}
+      />
+      <img
+        src={timeline.src}
+        width={timeline.width}
+        height={timeline.height}
+        alt=""
+        loading="lazy"
+      />
+    </picture>
+    <figcaption class="sr-only">
+      <ol
+        class="desktop-transcript"
+        aria-label="Milestones from the desktop artwork"
+      >
+        {
+          milestones.map((item) => (
+            <li>
+              <time>{item.year}</time>: {item.event}
+            </li>
+          ))
+        }
+      </ol>
+      <ol
+        class="mobile-transcript"
+        aria-label="Milestones from the mobile artwork"
+      >
+        {
+          mobileMilestones.map((item) => (
+            <li>
+              <time>{item.year}</time>: {item.event}
+            </li>
+          ))
+        }
+      </ol>
+    </figcaption>
+  </figure>
+</section>
+<style>
+  @reference '../../styles/tokens.css';
+  .mobile-transcript {
+    display: none;
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .mobile-transcript {
+      display: block;
+    }
+    .desktop-transcript {
+      display: none;
+    }
+  }
+  img {
+    width: 100%;
+  }
+</style>

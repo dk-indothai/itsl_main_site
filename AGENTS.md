@@ -2,15 +2,19 @@
 
 ## Project status
 
-The static Astro + TypeScript + Tailwind v4 homepage (`/`) is implemented.
-About Us and Mutual Funds are pending and still link to staging. The previous
-project remains read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
+The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`)
+and Mutual Funds (`/mutual-funds/`) pages are implemented and link locally.
+All other unbuilt pages still link to staging. The previous project remains
+read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
 
 Owner-approved refinements include aligned statistic cards, quote-first testimonial
 cards with compact controls, SVG disclosure icons, compact header actions and a
-centralized homepage section gap. Preserve these changes rather than restoring
+centralized section gaps across all three pages. Preserve these changes rather than restoring
 the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
+The NRI header now uses a shallow, card-aligned flight path and a consistently sized
+original plane icon. Keep the decoration clear of the heading and do not restore
+the rejected miniature flight-strip treatment.
 
 ## Scope and sources of truth
 
@@ -42,6 +46,18 @@ the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
 - Keep repeated content in readable, typed data files. Centralize company details
   and external URLs in `src/data/site.ts`, navigation in `src/data/nav.ts`, and
   repeated page content in the corresponding page data file.
+- About Us content belongs in `src/data/about.ts`; Mutual Funds content belongs
+  in `src/data/mutual-funds.ts`. `src/data/apps.ts` owns the shared WINVEST copy
+  and destinations. Reuse shared Contact and StoreBadges rather than duplicating them.
+- Preserve all six directors, the 11-event milestone transcript, three values,
+  four company links and five gallery images. The timeline uses the original
+  responsive SVG artwork plus matching desktop/mobile text equivalents, not inferred
+  history. Preserve and document their conflicting currency year and raised amount
+  until the owner approves a correction; expose only the applicable transcript.
+- Mutual Funds has five steps, six benefits and six NRI cards. Preserve the
+  distinct login and Start Investing destinations and both original artwork variants.
+  Do not introduce a calculator, financial transactions, gallery lightbox or new
+  backend integrations without approval.
 - Tailwind does not require React or shadcn/ui. Do not introduce either, a CMS,
   a state-management library, a server adapter, or another additional dependency
   without a concrete requirement and approval.
@@ -67,6 +83,10 @@ the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
 - Do not bypass central tokens with repeated arbitrary color, font-size, or spacing
   values. Use complete, statically detectable utility names rather than building
   partial class names dynamically; avoid generating large sets of unused classes.
+- Secondary pages import `src/styles/content.css`; its selectors are scoped to
+  `.content-page`. Keep their measured type scales separate from the homepage.
+  Preserve the shared outer section rhythm; do not restore WordPress animation
+  overlaps or unusable line heights merely to match a broken source state.
 - Derive initial values from the reference website. Do not substitute a new visual
   direction. Documentation explains the tokens rather than maintaining a second
   independent set of values.
@@ -104,7 +124,7 @@ the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build static HTML into `dist/`; only Home exists in this phase.
+  Build the three approved static routes into `dist/`.
 - Inspect `package.json` before running commands. Run `npm run format:check`,
   `npm run check`, `npm test`, and `npm run test:browser` after application changes.
   Browser tests need the development-only Playwright Chromium installation.

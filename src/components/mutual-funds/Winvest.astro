@@ -1,0 +1,100 @@
+---
+import { Image, getImage } from 'astro:assets';
+import artwork from '../../assets/images/mutual-funds/about-fund.png';
+import banner from '../../assets/images/mutual-funds/start-head.png';
+import mobileBanner from '../../assets/images/mutual-funds/mf-headbg.png';
+import StoreBadges from '../shared/StoreBadges.astro';
+import { winvestApp } from '../../data/apps';
+const smallBanner = await getImage({ src: mobileBanner, format: 'webp' });
+---
+
+<section class="page-shell content-shell" aria-labelledby="winvest-title">
+  <h2 id="winvest-title" class="content-title">
+    From Where I can Start Mutual Funds ?
+  </h2>
+  <div class="download-banner">
+    <picture aria-hidden="true"
+      ><source media="(max-width: 767px)" srcset={smallBanner.src} /><Image
+        src={banner}
+        alt=""
+      /></picture
+    >
+    <p>You Just Need To Download Winvest From Play Store</p>
+  </div>
+  <div class="winvest-layout">
+    <h3>About <span>Winvest</span></h3>
+    <Image
+      src={artwork}
+      alt="WINVEST app and mutual fund portfolio displayed on two phones"
+      widths={[400, 600, 900]}
+      sizes="(max-width: 767px) 90vw, 40vw"
+      class="winvest-art"
+    />
+    <div class="winvest-copy">
+      <p>{winvestApp.description}</p><p class="download-label">
+        Download our app from
+      </p><StoreBadges {...winvestApp} />
+    </div>
+  </div>
+</section>
+<style>
+  @reference '../../styles/tokens.css';
+  .download-banner {
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-2xl);
+    position: relative;
+    color: var(--color-white);
+    padding: var(--space-md) var(--space-xl);
+  }
+  .download-banner picture {
+    position: absolute;
+    inset: 0;
+  }
+  .download-banner img {
+    width: 100%;
+    height: 100%;
+  }
+  .download-banner p {
+    position: relative;
+    font-family: var(--font-heading);
+    font-size: var(--text-fund-download);
+    text-align: center;
+  }
+  .winvest-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    column-gap: var(--space-xl);
+  }
+  h3 {
+    font-size: var(--text-content-heading);
+    line-height: var(--leading-content-heading);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: var(--space-md);
+  }
+  h3 span {
+    color: var(--color-brand);
+  }
+  .winvest-art {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: 100%;
+  }
+  .winvest-copy {
+    grid-column: 1;
+  }
+  .download-label {
+    margin-block: var(--space-xl) var(--space-sm);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .winvest-layout {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .download-banner {
+      padding: var(--space-md);
+    }
+  }
+</style>

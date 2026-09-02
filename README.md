@@ -4,9 +4,11 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-The **homepage (`/`) is implemented**. About Us and Mutual Funds are pending; their links, and all other unbuilt pages, still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`) and Mutual Funds (`/mutual-funds/`) are implemented.** Navigation between these pages is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
-The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact preview, and regulatory/company footer. Shared layout, SEO, navigation data, and design tokens are ready for the next two pages.
+The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact preview, and regulatory/company footer.
+
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact preview. All three pages reuse the layout, header, footer, SEO and design tokens.
 
 The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS, server adapter or carousel package is required. Playwright and the HTML parser are development-only test dependencies.
 
@@ -41,6 +43,12 @@ Open the URL printed by Astro (normally `http://127.0.0.1:4321`; another free po
 
 Before the first browser test, run `npx playwright install chromium`. On a Linux machine missing browser system libraries, follow Playwright’s OS dependency instructions. Browser testing is optional for simply starting the site; it is part of change verification.
 
+Capture commands cover all three routes. To inspect one route, use, for example,
+`npm run capture:local -- about-us` or `npm run capture:reference -- mutual-funds`.
+Screenshots and measurements are saved in route-named folders under `artifacts/local/`
+and `artifacts/reference/`; they are ignored by Git and never deployed. Source
+entrance animations can distort full-page captures; review the section captures too.
+
 Astro may start a background process in an agent environment. Inspect or stop **this project’s** process with `npm run dev -- status` and `npm run dev -- stop`; equivalent preview subcommands exist. The browser suite uses Astro’s public preview API in the foreground, independent of AI tooling.
 
 Keep `package-lock.json` in version control and use `npm ci` for reproducible installations. No environment variables, WordPress connection, agent tools, or accounts are needed to build. Dependency installation and the optional reference capture require network access; normal builds use local files only.
@@ -73,41 +81,49 @@ src/
 ├── assets/images/             Original local artwork, icons and portraits
 ├── components/
 │   ├── home/                  Named homepage sections
-│   ├── shared/                Header, Footer and SEO
+│   ├── about/                 Company, leadership, milestones, values and gallery
+│   ├── mutual-funds/          Introduction, steps, benefits, WINVEST and NRI sections
+│   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
 │   ├── site.ts                Company details, destinations and home metadata
 │   ├── nav.ts                 Primary, utility, legal and venture navigation
-│   └── home.ts                Typed services, statistics, steps, apps and testimonials
+│   ├── home.ts                Typed services, statistics, steps, apps and testimonials
+│   ├── about.ts               Company story, directors, timeline, values and gallery
+│   ├── mutual-funds.ts        Introduction, investment steps, benefits and NRI copy
+│   └── apps.ts                Shared WINVEST copy and store destinations
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/index.astro          Homepage composition only
+├── pages/                     index.astro, about-us.astro and mutual-funds.astro
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
-    └── global.css             Imports, font faces, base styles and shared actions
+    ├── global.css             Imports, font faces, base styles and shared actions
+    └── content.css            Scoped secondary-page layout patterns
 public/
 ├── fonts/                     Local variable WOFF2 fonts
 └── favicon.png
 scripts/                       Browser preview and screenshot helpers
 tests/
 ├── static-output.test.mjs     Generated HTML assertions
-└── browser/home.spec.ts       Responsive and behavior checks
+├── content-pages.test.mjs     About Us and Mutual Funds static assertions
+└── browser/                   Responsive, navigation, asset and safety checks
 DESIGN.md                      Reference-led design guidance, not duplicate tokens
 AGENTS.md                      Coding-agent rules
 astro.config.mjs               Static output and Tailwind Vite integration
 ```
 
-The future About Us and Mutual Funds route/data files do **not** exist yet. Add them when those pages are approved for implementation; do not create placeholder routes.
+Each route file only composes named sections and supplies its metadata. No placeholder
+routes, CMS, fund calculator, financial transactions or server-side form handler are included.
 
 ## Maintenance
 
-- **Repeated content:** edit `src/data/home.ts`. Keep the arrays typed and the six original testimonials intact.
-- **One-off content and order:** edit the named component in `src/components/home/`; reorder imports/components in `src/pages/index.astro`.
+- **Repeated content:** edit `src/data/home.ts`, `src/data/about.ts` or `src/data/mutual-funds.ts`. Keep the arrays typed and all original entries intact. Shared WINVEST text belongs in `src/data/apps.ts`.
+- **One-off content and order:** edit the named component in the appropriate page folder; reorder imports/components in its `src/pages/` route. Contact and store badges are shared components.
 - **Company information and destinations:** edit `src/data/site.ts`. Avoid repeated literal URLs in components. `nav.ts` controls navigation labels and grouping.
 - **Images:** replace/import files in `src/assets/images/`, keeping accurate alt text, intrinsic dimensions and responsive `sizes`. Astro generates optimized images at build time. Decorative icons/backgrounds do not need descriptive alt text.
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
-- **Section spacing and header buttons:** the responsive `--space-section` token drives the gap between homepage sections in `#main-content`. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action.
-- **Page metadata:** `homeMeta` in `site.ts` feeds `BaseLayout.astro` and shared `SEO.astro`. Later pages should pass their own title and description.
+- **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on all three pages through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
+- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`.
 - **Browser behavior:** navigation enhancement lives with Header; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
@@ -121,6 +137,21 @@ CSS. Keep responsive image `sizes` descriptions aligned with the resulting layou
 The local logo, Capital Tower photograph, statistical icons, app screenshots, contact illustration and six portraits were compared byte-for-byte with staging before reusing matching previous-project assets. The graph-paper hero, account backgrounds and store badges came from staging. Service icons were extracted from the homepage’s embedded original PNGs. Raleway and Inter provide the measured heading/body typography; Roboto preserves the reference’s small actions/footer. All font files are local variable fonts.
 
 Source image filenames include `banner-bg.png`, `galleryb1-1-1.png`, `winstock-1.png`, `winvest.png`, `get-tuch.png`, and `Group-1399-1.png` under staging’s `wp-content/uploads/`. The existing brand imagery and customer portraits remain subject to IndoThai’s publication approval. No new promotional claims or invented testimonials were added.
+
+The secondary-page originals live in `src/assets/images/about-us/` and
+`src/assets/images/mutual-funds/`. Their 42 assets include the office photographs,
+six director portraits, timeline variants, group logos, five gallery photos,
+investment/app artwork and original icons. Thirty-two matched the previous project
+byte-for-byte; the remaining originals were obtained from staging, including its
+embedded SVG icons. No runtime fetch from WordPress is required. The milestone
+text in `about.ts` is a transcription of the artwork: if approved history changes,
+update both visual variants and the text equivalent together.
+
+The owner-requested NRI header refinement uses a shallow inline SVG flight path
+and `flight-plane.svg`, which reuses the original embedded plane from `fund-bg.svg`.
+The original full-width and mobile flight artwork files remain untouched as
+reference assets. Flight geometry is controlled by the NRI tokens in `tokens.css`;
+the icon keeps its proportions and size independently of the line's width.
 
 ## Interaction and safety rules
 
@@ -140,15 +171,27 @@ Preserved intentionally, not endorsed as correct:
 - WINVEST’s Google Play badge points to the same app ID as WINSTOCK.
 - The source says “What our clients says”, “Filing compliant”, “desiganted”, uses “Aadhar”, omits a space in “experience.As”, and retains a 2024 copyright.
 - Source mobile navigation uses a different Fund Transfer host and MF Back Office destination from desktop. Destinations are recorded separately in site data; do not merge them without approval.
-- SCORES displays an old URL label but links to the current source destination; Femto’s approved source link uses HTTP.
+- SCORES displays an old URL label but links to the current source destination. Femto uses HTTP in the footer but HTTPS in the About Us company band; the destinations remain separate in site data.
 - Source mobile and desktop footer copies differ, including contact numbers, capitalization, legal links and hidden regulatory notices. This build uses the complete desktop company/regulatory copy at every width rather than hiding disclosures on phones.
 - The source has slight phone overflow and cramped tablet statistics. The owner approved aligned statistic cards, quote-first testimonials with compact controls, and clearer menu/chevron icons. These are intentional departures from the source, documented in `DESIGN.md`; wording, figures and destinations remain unchanged.
+- About Us preserves “Board of Director”, unusual capitalization in the vision,
+  the missing punctuation at “audience Every service”, and source age/experience
+  claims. These are not independently verified company-history or performance claims.
+- The milestone SVGs disagree: desktop shows the currency launch in 2008 and
+  “Raised 155cr for growth” in 2024; mobile shows 2006 and “Raised 160cr for growth”.
+  Both source images are preserved. Each has a matching 11-event accessible
+  transcript, with only the applicable transcript exposed at its breakpoint.
+  Reconcile the facts and both artwork variants only after owner approval.
+- Mutual Funds preserves “Creating wealth for you everday” and “achive”. Both
+  Start Investing buttons use the source Google Play search URL, distinct from
+  the WINVEST badge’s app-detail URL and the Investwell login. The source's desktop
+  “Log in” capitalization is used consistently across widths.
 
 Content or destination corrections need the website owner’s approval, especially financial/regulatory wording.
 
 ## SEO and deployment status
 
-The generated page includes one meaningful H1, logical section headings, a title, description, social text metadata, image alternatives, and explicit **`noindex, nofollow`**. It deliberately has no production canonical, `og:url`, sitemap, production robots policy, or domain-dependent structured data. An absolute social sharing image also awaits the approved public origin.
+Each generated page includes one meaningful H1, logical section headings, a unique title and description, social text metadata, image alternatives, and explicit **`noindex, nofollow`**. There is deliberately no production canonical, `og:url`, sitemap, production robots policy, or domain-dependent structured data. An absolute social sharing image also awaits the approved public origin.
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
@@ -163,7 +206,7 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [ ] Migrate and verify About Us and Mutual Funds when scheduled.
+- [x] Implement the three approved static routes; release acceptance remains separate.
 - [ ] Approve source-copy/link anomalies and verify external service destinations and availability.
 - [ ] Choose the contact service; implement and test validation, pending, success and failure states, privacy and spam controls.
 - [ ] Complete accessibility/compliance review, including the deferred floating toolbar; test screen readers, contrast, zoom/reflow and supported physical devices.

@@ -1,0 +1,34 @@
+---
+import { Image } from 'astro:assets';
+import office from '../../assets/images/about-us/about-main.jpg';
+import { companyStory } from '../../data/about';
+---
+
+<section class="page-shell content-shell" aria-labelledby="company-title">
+  <h2 id="company-title" class="content-title">Our Company</h2>
+  <div class="company-layout">
+    <Image
+      src={office}
+      alt="IndoThai’s Capital Tower office building"
+      widths={[400, 640, 900]}
+      sizes="(max-width: 1024px) 90vw, 40vw"
+      class="content-image"
+    />
+    <div class="content-copy">{companyStory.map((text) => <p>{text}</p>)}</div>
+  </div>
+</section>
+<style>
+  @reference '../../styles/tokens.css';
+  .company-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+    font-size: var(--text-story-body);
+  }
+  @media (width < theme(--breakpoint-desktop)) {
+    .company-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

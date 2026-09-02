@@ -1,0 +1,103 @@
+---
+import { Image } from 'astro:assets';
+import plane from '../../assets/images/mutual-funds/flight-plane.svg';
+import { nriBenefits } from '../../data/mutual-funds';
+---
+
+<section class="nri-support" aria-labelledby="nri-title">
+  <div class="nri-heading">
+    <h2 id="nri-title" class="page-shell">
+      Why Indothai is the Premier Partner for <span
+        >NRI to Invest in Mutual Fund</span
+      >
+    </h2>
+    <div class="nri-flight page-shell content-shell" aria-hidden="true">
+      <div class="nri-flight-track">
+        <svg
+          class="nri-flight-path"
+          viewBox="0 0 1000 80"
+          preserveAspectRatio="none"
+          focusable="false"
+        >
+          <path
+            d="M2 42 C140 80 260 8 400 40 S640 76 780 40 S930 8 998 22"
+            vector-effect="non-scaling-stroke"></path>
+        </svg>
+        <Image class="nri-flight-plane" src={plane} alt="" />
+      </div>
+    </div>
+  </div>
+  <ul class="page-shell content-shell content-grid nri-cards" role="list">
+    {
+      nriBenefits.map((item) => (
+        <li>
+          <>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+<style>
+  .nri-heading {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+  }
+  .nri-heading h2 {
+    color: var(--color-ink);
+    max-width: var(--nri-title-max);
+    font-size: var(--text-fund-nri);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--fund-nri-line-height);
+  }
+  .nri-heading h2 span {
+    display: block;
+    color: var(--color-brand);
+  }
+  .nri-flight {
+    /* The entire decoration stays in flow, below wrapped heading text. */
+    margin-top: var(--space-sm);
+    pointer-events: none;
+  }
+  .nri-flight-track {
+    position: relative;
+    height: var(--nri-flight-height);
+  }
+  .nri-flight-path {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: var(--nri-flight-stroke);
+    stroke-dasharray: var(--nri-flight-dash);
+    stroke-linecap: round;
+  }
+  .nri-flight-plane {
+    position: absolute;
+    left: var(--nri-plane-position);
+    top: 50%;
+    translate: -50% -50%;
+    width: var(--nri-plane-size);
+    height: var(--nri-plane-size);
+    background: var(--color-white);
+    border-radius: var(--radius-pill);
+  }
+  .nri-cards li {
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+  }
+  h3 {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand);
+    font-size: var(--text-content-card);
+    margin-bottom: var(--space-xs);
+  }
+  p {
+    font-size: var(--text-small);
+  }
+</style>

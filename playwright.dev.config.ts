@@ -6,7 +6,7 @@ import previewConfig from './playwright.config';
 export default defineConfig({
   ...previewConfig,
   outputDir: 'test-results/dev',
-  grep: /homepage has no overflow or missing assets/,
+  grep: /has no overflow or missing assets/,
   use: { ...previewConfig.use, baseURL: 'http://127.0.0.1:4327' },
   webServer: {
     command: 'node scripts/dev-for-tests.mjs',

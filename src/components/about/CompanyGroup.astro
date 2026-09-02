@@ -1,0 +1,62 @@
+---
+import { Image } from 'astro:assets';
+import { groupCompanies } from '../../data/about';
+---
+
+<section aria-labelledby="group-title">
+  <h2 id="group-title" class="page-shell content-title">Group of Companies</h2>
+  <div class="company-band">
+    <ul class="page-shell content-shell company-logos" role="list">
+      {
+        groupCompanies.map((company) => (
+          <li>
+            <a
+              href={company.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${company.name} (opens in a new tab)`}
+            >
+              <Image src={company.image} alt={company.name} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+<style>
+  @reference '../../styles/tokens.css';
+  #group-title {
+    font-size: var(--text-group-heading);
+  }
+  .company-band {
+    background: var(--color-company-band);
+    padding-block: var(--space-xl);
+  }
+  .company-logos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    gap: var(--space-xl);
+  }
+  a {
+    display: grid;
+    place-items: center;
+    padding: var(--space-sm);
+    border-radius: var(--radius-card);
+  }
+  a:hover {
+    background: var(--color-white);
+  }
+  img {
+    width: 100%;
+    max-width: var(--company-logo-width);
+    max-height: var(--company-logo-height);
+    object-fit: contain;
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .company-logos {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

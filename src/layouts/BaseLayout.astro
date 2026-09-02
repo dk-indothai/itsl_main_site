@@ -6,7 +6,9 @@ import Footer from '../components/shared/Footer.astro';
 interface Props {
   title: string;
   description: string;
+  contentPage?: boolean;
 }
+const { contentPage = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -34,7 +36,13 @@ interface Props {
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <Header />
-    <main id="main-content" tabindex="-1"><slot /></main>
+    <main
+      id="main-content"
+      class:list={{ 'content-page': contentPage }}
+      tabindex="-1"
+    >
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>

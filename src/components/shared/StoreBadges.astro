@@ -1,0 +1,46 @@
+---
+import { Image } from 'astro:assets';
+import appleBadge from '../../assets/images/app-store.jpeg';
+import googleBadge from '../../assets/images/google-play.jpeg';
+interface Props {
+  name: string;
+  apple: string;
+  google: string;
+}
+const { name, apple, google } = Astro.props;
+---
+
+<div class="store-links flex flex-wrap items-center gap-5">
+  <a
+    href={apple}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Download ${name} on the App Store (opens in a new tab)`}
+  >
+    <Image
+      src={appleBadge}
+      alt="Download on the App Store"
+      class="store-badge"
+    />
+  </a>
+  <a
+    href={google}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Get ${name} on Google Play (opens in a new tab)`}
+  >
+    <Image src={googleBadge} alt="Get it on Google Play" class="store-badge" />
+  </a>
+</div>
+<style>
+  @reference '../../styles/tokens.css';
+  .store-badge {
+    width: var(--badge-width);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .store-links {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

@@ -12,6 +12,8 @@
   --color-footer: #f6f7f9;
   --color-muted: #54545e;
   --color-panel-border: #dce3ef;
+  --color-company-band: #e9ecf7;
+  --color-fund-card: #2440a8;
   --font-body: 'Inter', Arial, sans-serif;
   --font-heading: 'Raleway', Arial, sans-serif;
   --font-action: 'Roboto', Arial, sans-serif;
@@ -70,6 +72,8 @@
   --space-xl: 2.5rem;
   --space-2xl: 3.75rem;
   --space-section: 6rem;
+  /* Outer section separation; independent of padding inside colored bands. */
+  --space-section-gap: 8rem;
   --page-gutter: 2.5rem;
   --page-max: 90rem;
   --hero-max: 71.25rem;
@@ -117,10 +121,76 @@
   --scrollbar-track: var(--color-footer);
   --layer-header: 20;
   --layer-skip: 30;
+  /* About Us and Mutual Funds: independent scales preserve the homepage. */
+  --content-max: 75rem;
+  --text-content-heading: 3rem;
+  --leading-content-heading: 1.23;
+  --text-content-body: 1.125rem;
+  --text-content-card: 1.25rem;
+  --text-content-lead: 1.25rem;
+  --text-group-heading: 3rem;
+  --text-fund-benefit-card: 1.25rem;
+  --text-fund-login: 1.25rem;
+  --text-fund-action: 0.9375rem;
+  --fund-login-px: 4.375rem;
+  --fund-action-px: 4rem;
+  --fund-action-py: 0.9375rem;
+  --fund-subtitle-tracking: 0.20625rem;
+  --about-introduction-max: 51rem;
+  --fund-introduction-leading: 1.3334;
+  --fund-pattern-offset: 10rem;
+  --text-director: 1.625rem;
+  --text-about-hero: 5rem;
+  --text-funds-hero: 5rem;
+  --leading-about-hero: 1;
+  --leading-funds-hero: 1.25;
+  --about-hero-height: 45rem;
+  --funds-hero-padding: 5rem;
+  --text-vision: 1.125rem;
+  --text-story-body: 1rem;
+  --text-business-subheading: 1.75rem;
+  --vision-copy-max: 64rem;
+  --content-image-radius: 1.25rem;
+  --director-ratio: 342 / 397;
+  --director-gap: 5rem;
+  --value-icon: 3.125rem;
+  --company-logo-height: 10.375rem;
+  --company-logo-width: 18.75rem;
+  --gallery-gap: 0.75rem;
+  --director-column-gap: 3.125rem;
+  --fund-step-max: 61.25rem;
+  --fund-nri-line-height: 1.35;
+  --fund-step-icon: 5.0625rem;
+  --fund-step-height: 7.5rem;
+  --fund-step-text: 1.375rem;
+  --fund-benefit-height: 11.875rem;
+  --text-fund-benefits: 2.75rem;
+  --text-fund-download: 2.125rem;
+  --text-fund-nri: 3.25rem;
+  --nri-title-max: 68.75rem;
+  --nri-flight-height: 5rem;
+  --nri-plane-size: 4rem;
+  --nri-plane-position: 78%;
+  --nri-flight-stroke: 1.25px;
+  --nri-flight-dash: 4 6;
+  --hero-shade: rgb(0 0 0 / 10%);
 }
 
 @media (width < theme(--breakpoint-desktop)) {
   :root {
+    --text-content-heading: 2.25rem;
+    --text-group-heading: 2.25rem;
+    --text-fund-benefit-card: 1.125rem;
+    --text-business-subheading: 1.625rem;
+    --leading-funds-hero: 1.6667;
+    --text-about-hero: 3.75rem;
+    --text-funds-hero: 3.75rem;
+    --text-director: 1.375rem;
+    --text-vision: 1.125rem;
+    --text-fund-benefits: 2.25rem;
+    --text-fund-download: 1.375rem;
+    --text-fund-nri: 2.25rem;
+    --director-gap: 2.5rem;
     --text-hero: 3.625rem;
     --leading-hero: 1.5;
     --text-section: 2.25rem;
@@ -136,6 +206,7 @@
     --text-testimonial-heading: 2.25rem;
     --page-gutter: 1.5rem;
     --space-section: 5rem;
+    --space-section-gap: 6rem;
     --carousel-gap: 1.25rem;
     --testimonial-padding: 1.5rem;
     --carousel-visible: 2;
@@ -144,6 +215,33 @@
 }
 @media (width < theme(--breakpoint-tablet)) {
   :root {
+    --text-content-heading: 2rem;
+    --text-group-heading: 1.75rem;
+    --text-content-lead: 0.875rem;
+    --text-story-body: 0.9375rem;
+    --text-fund-benefit-card: 1.375rem;
+    --text-fund-login: 0.9375rem;
+    --fund-login-px: 3.75rem;
+    --fund-subtitle-tracking: 0.15rem;
+    --fund-introduction-leading: 1.5;
+    --fund-pattern-offset: 2.5rem;
+    --leading-content-heading: 1.3;
+    --text-content-body: 1rem;
+    --text-about-hero: 2.5rem;
+    --text-funds-hero: 2.75rem;
+    --leading-funds-hero: 1.4;
+    --about-hero-height: 27rem;
+    --funds-hero-padding: 2.5rem;
+    --text-vision: 1rem;
+    --text-fund-benefits: 1.875rem;
+    --text-fund-download: 1.125rem;
+    --text-fund-nri: 2rem;
+    --fund-step-icon: 3.5rem;
+    --fund-step-height: 5.5rem;
+    --fund-step-text: 0.9375rem;
+    --company-logo-height: 7rem;
+    --text-business-subheading: 1.25rem;
+    --director-column-gap: 1.25rem;
     --text-hero: 1.75rem;
     --leading-hero: 1.4;
     --text-lead: 0.75rem;
@@ -161,6 +259,7 @@
     --leading-section: 1.3;
     --text-person: 1rem;
     --space-section: 3.5rem;
+    --space-section-gap: 4.5rem;
     --page-gutter: 1.25rem;
     --hero-min: 45vh;
     --header-height: 4.375rem;

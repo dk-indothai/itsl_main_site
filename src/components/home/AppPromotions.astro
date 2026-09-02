@@ -1,8 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { apps } from '../../data/home';
-import appleBadge from '../../assets/images/app-store.jpeg';
-import googleBadge from '../../assets/images/google-play.jpeg';
+import StoreBadges from '../shared/StoreBadges.astro';
 ---
 
 {
@@ -29,32 +28,7 @@ import googleBadge from '../../assets/images/google-play.jpeg';
         <div class="app-copy">
           <p>{app.description}</p>
           <p class="download-label">Download our app from</p>
-          <div class="store-links flex flex-wrap items-center gap-5">
-            <a
-              href={app.apple}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Download ${app.name} on the App Store (opens in a new tab)`}
-            >
-              <Image
-                src={appleBadge}
-                alt="Download on the App Store"
-                class="store-badge"
-              />
-            </a>
-            <a
-              href={app.google}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Get ${app.name} on Google Play (opens in a new tab)`}
-            >
-              <Image
-                src={googleBadge}
-                alt="Get it on Google Play"
-                class="store-badge"
-              />
-            </a>
-          </div>
+          <StoreBadges name={app.name} apple={app.apple} google={app.google} />
         </div>
       </div>
     </section>
@@ -93,9 +67,6 @@ import googleBadge from '../../assets/images/google-play.jpeg';
     font-size: var(--text-small);
     font-weight: var(--font-weight-medium);
   }
-  .store-badge {
-    width: var(--badge-width);
-  }
   .app-invest {
     border-radius: var(--radius-image) var(--radius-image) 0 0;
     padding-block: var(--space-section);
@@ -114,10 +85,6 @@ import googleBadge from '../../assets/images/google-play.jpeg';
     }
     .app-invest h2 {
       font-size: var(--text-why);
-    }
-    .store-links {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

@@ -1,0 +1,49 @@
+---
+import { Image } from 'astro:assets';
+import { directors } from '../../data/about';
+---
+
+<section class="page-shell content-shell" aria-labelledby="directors-title">
+  <h2 id="directors-title" class="content-title">Board of Director</h2>
+  <ul class="content-grid directors-grid" role="list">
+    {
+      directors.map((director) => (
+        <li class="director-card">
+          <Image
+            src={director.image}
+            alt={director.name}
+            widths={[350, 500, 700]}
+            sizes="(max-width: 767px) 90vw, 30vw"
+          />
+          <>
+            <h3>{director.name}</h3>
+            <p>{director.role}</p>
+          </>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+<style>
+  .directors-grid {
+    row-gap: var(--director-gap);
+    column-gap: var(--director-column-gap);
+  }
+  .director-card {
+    text-align: center;
+  }
+  .director-card img {
+    width: 100%;
+    aspect-ratio: var(--director-ratio);
+    object-fit: cover;
+    border-radius: var(--content-image-radius);
+  }
+  h3 {
+    margin-block: var(--space-md) var(--space-xs);
+    font-size: var(--text-director);
+    line-height: var(--leading-body);
+  }
+  p {
+    font-size: var(--text-small);
+  }
+</style>

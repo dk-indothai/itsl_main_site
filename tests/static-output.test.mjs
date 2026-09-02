@@ -35,12 +35,12 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the homepage is generated', async () => {
+test('only the three approved routes are generated', async () => {
   assert.deepEqual(
-    (await readdir(new URL('../dist/', import.meta.url))).filter((name) =>
-      name.endsWith('.html'),
-    ),
-    ['index.html'],
+    (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
+      .filter((name) => name.endsWith('.html'))
+      .sort(),
+    ['about-us/index.html', 'index.html', 'mutual-funds/index.html'],
   );
   assert.equal(nodes('main').length, 1);
   assert.equal(nodes('h1').length, 1);
@@ -146,7 +146,7 @@ test('images, fonts, styles and browser scripts load from local build output', a
   assert.equal(nodes('astro-island').length, 0);
 });
 
-test('local routes are built and non-home page links remain on staging', () => {
+test('migrated routes link locally and remaining pages stay on staging', () => {
   const ids = new Set(
     all(tree, (node) => !!attr(node, 'id')).map((node) => attr(node, 'id')),
   );
@@ -154,23 +154,19 @@ test('local routes are built and non-home page links remain on staging', () => {
     const href = attr(anchor, 'href');
     assert.ok(href && href !== '#', 'No placeholder links');
     assert.ok(!href.startsWith('javascript:'));
-    if (href.startsWith('/')) assert.equal(href, '/');
+    if (href.startsWith('/'))
+      assert.ok(['/', '/about-us/', '/mutual-funds/'].includes(href));
     if (href.startsWith('#')) assert.ok(ids.has(href.slice(1)));
     if (attr(anchor, 'target') === '_blank')
       assert.ok(attr(anchor, 'rel').includes('noopener'));
   }
+  assert.ok(nodes('a').some((node) => attr(node, 'href') === '/about-us/'));
+  assert.ok(nodes('a').some((node) => attr(node, 'href') === '/mutual-funds/'));
   assert.ok(
     nodes('a').some(
       (node) =>
         attr(node, 'href') ===
-        'https://staging-e356-indothaiweb.wpcomstaging.com/about-us/',
-    ),
-  );
-  assert.ok(
-    nodes('a').some(
-      (node) =>
-        attr(node, 'href') ===
-        'https://staging-e356-indothaiweb.wpcomstaging.com/mutual-funds/',
+        'https://staging-e356-indothaiweb.wpcomstaging.com/careers/',
     ),
   );
 });

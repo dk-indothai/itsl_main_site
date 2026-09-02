@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: IndoThai
-description: Reference-led migration of the IndoThai investment-services homepage.
+description: Reference-led migration of the IndoThai Home, About Us and Mutual Funds pages.
 omitted:
   - section: colors
     reason: Canonical values live only in src/styles/tokens.css.
@@ -24,10 +24,10 @@ components:
 
 ### Creative North Star
 
-Recreate the supplied WordPress homepage: graph-paper hero, generous Raleway
+Recreate the supplied WordPress Home, About Us and Mutual Funds pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
-not a new brand direction. The staging homepage is authoritative; the previous
+not a new brand direction. The corresponding staging pages are authoritative; the previous
 Astro attempt is only a structure/asset reference.
 
 ### Product context and register
@@ -84,12 +84,40 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The homepage main container owns the space between sections using the responsive
-section-spacing token. Do not stack section-specific outer margins/padding on top
-of that rhythm. Internal section spacing (for example the About heading-to-band
-distance or padding inside the WINVEST surface) remains separate. Header actions
+The main container on all three routes owns the space between sections and before
+the footer using `--space-section-gap` from `tokens.css`. The owner requested a
+more generous rhythm across all three pages after their migration. This outer-gap
+token is independent of `--space-section`, which retains internal padding in
+colored bands. Do not stack section-specific outer margins/padding on top of that
+rhythm. Other internal spacing (for example the About heading-to-band distance)
+also remains unchanged. Header actions
 have dedicated compact height/padding tokens, with a larger minimum on coarse
 pointers; other calls to action keep their existing dimensions.
+
+Secondary routes compose sections from their own folders. `content.css` supplies
+patterns scoped to `.content-page`; its independent content-heading and hero tokens
+must not shrink or enlarge the homepage. About Us uses a photographic hero,
+image-and-story introduction that stacks at tablet width, three-column director
+portraits on wider screens, original desktop/mobile timeline artwork, a blue vision
+band, bordered value cards, a full-width business image, company logos and a five-photo
+gallery. Portraits and gallery photos have descriptive alternatives. The timeline
+has visually hidden text equivalents with every source event, with only the matching
+desktop or mobile version exposed. The originals disagree on two facts; see README.
+
+Mutual Funds uses its own larger phone hero scale, original responsive investment
+artwork, blue introduction and benefit bands, five numbered vertical steps, WINVEST
+download banner and app artwork, flight-path illustration and NRI cards. On phones,
+cards and app content stack. Keep the source-specific login and investing button
+styles without changing shared header actions. The NRI heading has a shallow,
+card-aligned flight path with a non-scaling dashed stroke and the original plane
+icon at a consistent size. The owner rejected the preceding tiny, centered image.
+The flight track remains in normal flow below the heading; only the plane is
+positioned inside that reserved track. `--nri-flight-*` and `--nri-plane-*` tokens
+own its geometry, while `--space-sm` owns the heading clearance. Do not scale the
+whole illustration down, stretch the plane, or let decoration overlap the text.
+Both pages remain ordinary readable HTML without animation-dependent
+visibility; do not reproduce the source's broken mobile line heights or timeline
+overlap during entrance animation.
 
 ## Elevation & Depth
 
@@ -123,7 +151,8 @@ new-tab notice. Account and IPO actions navigate to existing approved services.
 Header disclosures are non-modal, not focus-trapped drawers. Native details/summary
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
-Only Home routes locally until the next pages exist.
+Home, About Us and Mutual Funds route locally, with the current page marked in
+desktop and mobile navigation. Other destinations remain on their existing services.
 
 The main menu uses an SVG menu/close pair; nested disclosures have a rotating SVG
 chevron. Open-state styling is driven by native details state and works without
@@ -134,7 +163,7 @@ visible text is shortened. Disabled reduced-motion controls remain readable.
 
 ### Forms and overlays
 
-Contact is a labeled preview group, deliberately not a submitting HTML form.
+Contact, shared by Home and Mutual Funds, is a labeled preview group, deliberately not a submitting HTML form.
 It has no form owner, field names or persistence. The disabled button and status
 explanation remain until the submission service is approved. No modal overlays,
 native alerts or toast messages are needed.
@@ -165,3 +194,5 @@ copy on phones even where the source hides parts of it.
 - Do edit shared visual values only in the token file and keep source images local.
 - Don’t copy old-project counter values or placeholder links.
 - Don’t confuse homepage completion with deployment, compliance or editorial approval.
+- Don’t invent director biographies, gallery interactions, fund calculators or
+  investment integrations. A static migration does not add those product behaviors.

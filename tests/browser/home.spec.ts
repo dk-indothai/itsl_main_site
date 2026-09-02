@@ -45,6 +45,9 @@ for (const width of [1280, 768, 729, 390, 320]) {
         );
         return {
           gap: Number.parseFloat(getComputedStyle(main).rowGap),
+          footerGap:
+            document.querySelector('footer')!.getBoundingClientRect().top -
+            sections.at(-1)!.getBoundingClientRect().bottom,
           distances: sections
             .slice(1)
             .map(
@@ -54,7 +57,9 @@ for (const width of [1280, 768, 729, 390, 320]) {
             ),
         };
       });
-    expect(sectionSpacing.gap).toBeGreaterThanOrEqual(48);
+    const expectedGap = width > 1024 ? 128 : width >= 768 ? 96 : 72;
+    expect(sectionSpacing.gap).toBe(expectedGap);
+    expect(Math.abs(sectionSpacing.footerGap - expectedGap)).toBeLessThan(1);
     for (const distance of sectionSpacing.distances)
       expect(Math.abs(distance - sectionSpacing.gap)).toBeLessThan(1);
     await expect(page.locator('main h1')).toHaveCSS(

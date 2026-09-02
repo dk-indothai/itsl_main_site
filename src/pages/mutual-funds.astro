@@ -1,0 +1,22 @@
+---
+import '../styles/content.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/mutual-funds/Hero.astro';
+import Introduction from '../components/mutual-funds/Introduction.astro';
+import InvestmentSteps from '../components/mutual-funds/InvestmentSteps.astro';
+import Benefits from '../components/mutual-funds/Benefits.astro';
+import Winvest from '../components/mutual-funds/Winvest.astro';
+import NriSupport from '../components/mutual-funds/NriSupport.astro';
+import Contact from '../components/shared/Contact.astro';
+import { mutualFundsMeta } from '../data/mutual-funds';
+---
+
+<BaseLayout {...mutualFundsMeta} contentPage>
+  <Hero />
+  <Introduction />
+  <InvestmentSteps />
+  <Benefits />
+  <Winvest />
+  <NriSupport />
+  <Contact />
+</BaseLayout>

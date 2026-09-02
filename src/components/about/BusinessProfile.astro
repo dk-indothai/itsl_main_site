@@ -1,0 +1,42 @@
+---
+import { Image } from 'astro:assets';
+import profile from '../../assets/images/about-us/profile.jpg';
+import { businessIntroduction, businessSections } from '../../data/about';
+---
+
+<section class="page-shell content-shell" aria-labelledby="business-title">
+  <h2 id="business-title" class="content-title">Business Profile</h2>
+  <Image
+    src={profile}
+    alt="Capital Tower, home of IndoThai’s corporate office"
+    widths={[600, 1000, 1440]}
+    sizes="(max-width: 767px) 90vw, 80vw"
+    class="content-image"
+  />
+  <div class="content-copy business-copy">
+    <p>{businessIntroduction}</p>
+    {
+      businessSections.map((section) => (
+        <div>
+          <>
+            <h3>{section.title}</h3>
+            <p>{section.text}</p>
+          </>
+        </div>
+      ))
+    }
+  </div>
+</section>
+<style>
+  .business-copy {
+    margin-top: var(--space-xl);
+    font-size: var(--text-story-body);
+  }
+  h3 {
+    color: var(--color-brand);
+    font-family: var(--font-body);
+    font-size: var(--text-business-subheading);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: var(--space-sm);
+  }
+</style>
