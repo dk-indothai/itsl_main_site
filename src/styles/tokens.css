@@ -1,0 +1,183 @@
+/* Canonical design values. @theme makes these available to Tailwind utilities. */
+@theme {
+  --color-*: initial;
+  --color-brand: #1f3ca6;
+  --color-brand-hover: #172d80;
+  --color-ink: #2f2e41;
+  --color-body: #29283d;
+  --color-white: #ffffff;
+  --color-soft: #e9f4ff;
+  --color-border: #75757a;
+  --color-subtle: #d8d8d8;
+  --color-footer: #f6f7f9;
+  --color-muted: #54545e;
+  --color-panel-border: #dce3ef;
+  --font-body: 'Inter', Arial, sans-serif;
+  --font-heading: 'Raleway', Arial, sans-serif;
+  --font-action: 'Roboto', Arial, sans-serif;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --spacing: 0.25rem;
+  --radius-control: 0.1875rem;
+  --radius-menu: 0.3125rem;
+  --radius-card: 0.5rem;
+  --radius-testimonial: 0.625rem;
+  --radius-panel: 1rem;
+  --radius-pill: 999px;
+  --shadow-card: 0 5px 5px rgb(0 0 0 / 3%);
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 12%);
+  --shadow-panel: 0 4px 16px rgb(31 60 166 / 4%);
+  --breakpoint-*: initial;
+  --breakpoint-small: 44rem;
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 64.0625rem;
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: ease-out;
+}
+
+:root {
+  --text-hero: 5rem;
+  --leading-hero: 1.25;
+  --text-lead: 1.25rem;
+  --text-body: 1.125rem;
+  --leading-body: 1.5;
+  --text-section: 3rem;
+  --leading-section: 1.23;
+  --text-about: 2.75rem;
+  --leading-about: 1.36;
+  --text-why: 6.625rem;
+  --leading-why: 1.226;
+  --text-service: 1.25rem;
+  --text-app: 3rem;
+  --text-testimonial-heading: 3rem;
+  --text-person: 1rem;
+  --text-quote: 1.0625rem;
+  --leading-quote: 1.65;
+  --text-small: 1rem;
+  --text-caption: 0.875rem;
+  --text-fine: 0.75rem;
+  --text-stat: 2.5rem;
+  --text-stat-label: 1rem;
+  --text-app-body: 1.125rem;
+  --text-about-body: 1.125rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.875rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 3.75rem;
+  --space-section: 6rem;
+  --page-gutter: 2.5rem;
+  --page-max: 90rem;
+  --hero-max: 71.25rem;
+  --hero-min: 90vh;
+  --header-height: 5.125rem;
+  --header-action-height: 2.5rem;
+  --header-action-px: 0.9375rem;
+  --header-action-line-height: 1.25rem;
+  --logo-width: 9.0625rem;
+  --menu-width: 17.5rem;
+  --menu-max-height: calc(100dvh - var(--header-height) - var(--space-md));
+  --action-px: 2.5rem;
+  --action-py: 0.8125rem;
+  --target-min: 2.75rem;
+  --icon-service: 3.125rem;
+  --icon-stat: 2.5rem;
+  --stat-icon-tile: 4rem;
+  --icon-control: 1.125rem;
+  --border-hairline: 0.5px;
+  --border-thin: 1px;
+  --border-focus: 3px;
+  --focus-offset: 3px;
+  --carousel-gap: 1.5rem;
+  --carousel-toggle-width: 7rem;
+  --carousel-position-width: 2.5rem;
+  --carousel-visible: 3;
+  --carousel-interval: 5000;
+  --testimonial-height: 18rem;
+  --testimonial-padding: 1.875rem;
+  --portrait-size: 3.25rem;
+  --badge-width: 8.75rem;
+  --about-min: 37.375rem;
+  --account-min: 30rem;
+  --app-image-width: 35rem;
+  --contact-image-width: 21.125rem;
+  --textarea-height: 9rem;
+  --gradient-hero: linear-gradient(
+    176.66deg,
+    var(--color-ink) 3.41%,
+    var(--color-brand) 102.67%
+  );
+  --radius-account: 2.5rem 2.5rem 0 2.5rem;
+  --radius-image: 2.5rem;
+  --scrollbar-thumb: var(--color-border);
+  --scrollbar-track: var(--color-footer);
+  --layer-header: 20;
+  --layer-skip: 30;
+}
+
+@media (width < theme(--breakpoint-desktop)) {
+  :root {
+    --text-hero: 3.625rem;
+    --leading-hero: 1.5;
+    --text-section: 2.25rem;
+    --leading-section: 1.64;
+    --text-about: 2.25rem;
+    --leading-about: 1.667;
+    --text-why: 4.375rem;
+    --leading-why: 1.57;
+    --text-app: 2.25rem;
+    --text-app-body: 1rem;
+    --text-stat: 2rem;
+    --text-stat-label: 0.875rem;
+    --text-testimonial-heading: 2.25rem;
+    --page-gutter: 1.5rem;
+    --space-section: 5rem;
+    --carousel-gap: 1.25rem;
+    --testimonial-padding: 1.5rem;
+    --carousel-visible: 2;
+    --hero-min: 70vh;
+  }
+}
+@media (width < theme(--breakpoint-tablet)) {
+  :root {
+    --text-hero: 1.75rem;
+    --leading-hero: 1.4;
+    --text-lead: 0.75rem;
+    --text-body: 0.875rem;
+    --text-section: 1.75rem;
+    --text-about: 1.375rem;
+    --leading-about: 1.5;
+    --text-why: 2.625rem;
+    --leading-why: 1.3;
+    --text-app: 2.375rem;
+    --text-testimonial-heading: 1.625rem;
+    --text-stat: 1.75rem;
+    --text-stat-label: 0.875rem;
+    --text-about-body: 1rem;
+    --leading-section: 1.3;
+    --text-person: 1rem;
+    --space-section: 3.5rem;
+    --page-gutter: 1.25rem;
+    --hero-min: 45vh;
+    --header-height: 4.375rem;
+    --logo-width: 6.25rem;
+    --action-px: 1.5rem;
+    --carousel-gap: 1.25rem;
+    --testimonial-padding: 1.25rem;
+    --icon-stat: 2.1875rem;
+    --account-min: auto;
+    --about-min: auto;
+  }
+}
+
+@media (width < theme(--breakpoint-small)) {
+  :root {
+    --carousel-visible: 1;
+    --carousel-gap: 1rem;
+    --testimonial-height: 17rem;
+  }
+}

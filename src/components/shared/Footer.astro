@@ -1,0 +1,372 @@
+---
+import { links, site } from '../../data/site';
+import {
+  legalNavigation,
+  regulatorNavigation,
+  primaryNavigation,
+  ventures,
+} from '../../data/nav';
+---
+
+<footer class="site-footer">
+  <div class="page-shell footer-overview">
+    <div class="regulatory-intro">
+      <p>
+        Filing compliant on SCORES – <a
+          href={links.scores}
+          target="_blank"
+          rel="noopener noreferrer"
+          >http://scores.gov.in<span class="sr-only">
+            (opens in a new tab)</span
+          ></a
+        >
+      </p>
+      <p>
+        Easy &amp; quick a. Register on SCORES portal<br />b. Mandatory details
+        for filing complaints on SCORES Name, PAN, Address, Mobile Number,
+        E-mail ID<br />c. Benefits<br />i. Effective Communication<br />ii.
+        Speedy redressal of the grievances
+      </p>
+      <div class="link-row">
+        <span>Important Links :</span>{
+          regulatorNavigation.map((item) => (
+            <a href={item.href} target="_blank" rel="noopener noreferrer">
+              {item.label}
+              <span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          ))
+        }
+      </div>
+      <div class="link-row legal-links">
+        <span>Copyrights © 2024 All Rights Reserved .</span>{
+          legalNavigation.map((item) => <a href={item.href}>{item.label}</a>)
+        }
+      </div>
+      <p class="attention-note">
+        ATTENTION – A note from the Regulators for Investors
+      </p>
+      <div class="social-row flex flex-wrap justify-between items-center gap-5">
+        <a
+          href={links.voting}
+          class="action action-small"
+          target="_blank"
+          rel="noopener noreferrer"
+          >E-Voting<span class="sr-only"> (opens in a new tab)</span></a
+        >
+        <ul class="flex items-center gap-4" aria-label="Social media">
+          <li>
+            <a
+              href={links.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook (opens in a new tab)"
+              ><span aria-hidden="true">f</span></a
+            >
+          </li>
+          <li>
+            <a
+              href={links.twitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter (opens in a new tab)"
+              ><span aria-hidden="true">𝕏</span></a
+            >
+          </li>
+          <li>
+            <a
+              href={links.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn (opens in a new tab)"
+              ><span aria-hidden="true">in</span></a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <section class="company-details" aria-labelledby="company-details-heading">
+      <h2 id="company-details-heading">Basic Details of Company</h2>
+      <dl>
+        <dt>Stock broker name</dt><dd>{site.legalName}</dd>
+        <dt>Registration number</dt><dd>{site.registration}</dd>
+        <dt>SEBI Research Analyst Reg. No.</dt><dd>
+          {site.researchRegistration}
+        </dd>
+        <dt>Registered address</dt><dd>{site.address}</dd>
+        <dt>Contact number</dt><dd>
+          <a href={site.companyPhone.href}>{site.companyPhone.label}</a>, <a
+            href={site.telephone.href}>{site.telephone.label}</a
+          >
+        </dd>
+        <dt>Email address</dt><dd>
+          <a href={`mailto:${site.marketingEmail}`}>{site.marketingEmail}</a><br
+          /><a href={`mailto:${site.salesEmail}`}>{site.salesEmail}</a>
+        </dd>
+      </dl>
+    </section>
+    <div class="footer-navigation">
+      <nav aria-labelledby="company-heading">
+        <h2 id="company-heading">Company</h2><ul>
+          {
+            primaryNavigation
+              .filter((item) => item.href !== '/')
+              .map((item) => (
+                <li>
+                  <a href={item.href}>
+                    {item.label === 'Careers' ? 'Career' : item.label}
+                  </a>
+                </li>
+              ))
+          }
+        </ul>
+      </nav>
+      <nav aria-labelledby="ventures-heading">
+        <h2 id="ventures-heading">Our Ventures</h2><ul>
+          {
+            ventures.map((item) => (
+              <li>
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  {item.label}
+                  <span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <div class="page-shell regulatory-detail">
+    <section aria-labelledby="odr-heading">
+      <h2 id="odr-heading">Smart ODR</h2>
+      <p>
+        A common Online Dispute Resolution Portal (“ODR Portal”) which harnesses
+        online conciliation and online arbitration for resolution of disputes
+        arising in the Indian Securities Market has been established.<br />SMART
+        ODR Portal (Securities Market Approach for Resolution through ODR
+        Portal) can be <a
+          href={links.smartOdr}
+          target="_blank"
+          rel="noopener noreferrer"
+          >accessed here<span class="sr-only"> (opens in a new tab)</span></a
+        >. And SMART<br />A copy of the <a
+          href={links.sebiCircular}
+          target="_blank"
+          rel="noopener noreferrer"
+          >SEBI circular is here<span class="sr-only">
+            (opens in a new tab)</span
+          ></a
+        >:
+      </p>
+    </section>
+    <section aria-labelledby="grievance-heading">
+      <h2 id="grievance-heading">Procedure to lodge grievances complaint</h2>
+      <p>Kind Attention to all stakeholders:</p>
+      <p>
+        For Register any queries/ grievance/ complaint, kindly write us at <a
+          href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+        >
+      </p>
+      <p>
+        While lodging the complaint kindly mention contact details, e- mail id,
+        user/ client id for ease of reference.
+      </p>
+      <p>
+        Stakeholders are requested to mention their query/ grievance/ complaint
+        in detail for effective resolutions with attaching supportive documents
+        if any.
+      </p>
+      <p>
+        The complaint will be entertained by the company within 2 working days
+        and concrete solutions will be provided through mail only.
+      </p>
+      <p>
+        However in case of non- receipt of any concrete support, stakeholders
+        are requested to write at <a href={`mailto:${site.complianceEmail}`}
+          >{site.complianceEmail}</a
+        > referencing their earlier mail.
+      </p>
+      <p>
+        Further the stakeholders are advised to get the status of their query/
+        grievance/ complaint within 2 working days by writing at <a
+          href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+        >
+      </p>
+      <p>
+        Flow chart for filling/ lodge complaint on desiganted e-mail address and
+        finding out status of the complaint.
+      </p>
+      <p>Welcome to IndoThai</p>
+      <ul class="complaint-steps">
+        <li>Visit our website indothai.co.in</li>
+        <li>
+          Stakeholders who intend to file a complaint should send an email to <a
+            href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+          >
+        </li>
+        <li>
+          Kindly mention contact details, e- mail id, user/ client id for ease
+          of reference
+        </li>
+        <li>
+          The complaint will be entertained by the company within 2 working days
+          and concrete solutions will be provided through mail only.
+        </li>
+        <li>
+          In case of non- receipt of any concrete support, stakeholders are
+          requested to write at <a href={`mailto:${site.complianceEmail}`}
+            >{site.complianceEmail}</a
+          > referencing their earlier mail.
+        </li>
+        <li>
+          stakeholders are advised to get the status of their query/ grievance/
+          complaint within 2 working days by writing at <a
+            href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+          >
+        </li>
+      </ul>
+    </section>
+    <section aria-labelledby="investor-attention-heading">
+      <h2 id="investor-attention-heading">Attention Investors</h2>
+      <ol class="investor-notices">
+        <li>
+          Prevent Unauthorized Transactions in your demat account –&gt; Update
+          your Mobile Number with your Depository Participant. Receive alerts on
+          your Registered Mobile for all debit and other important transactions
+          in your demat account directly from CDSL on the same day………………….issued
+          in the interest of investors.
+        </li>
+        <li>
+          KYC is one time exercise while dealing in securities markets – once
+          KYC is done through a SEBI registered intermediary (broker, DP, Mutual
+          Fund etc.), you need not undergo the same process again when you
+          approach another intermediary
+        </li>
+        <li>
+          No need to issue cheques by investors while subscribing to IPO. Just
+          write the bank account number and sign in the application form to
+          authorise your bank to make payment in case of allotment. No worries
+          for refund as the money remains in investor’s account.
+        </li>
+      </ol>
+    </section>
+  </div>
+</footer>
+<style>
+  @reference "../../styles/tokens.css";
+  .site-footer {
+    font-size: var(--text-small);
+    font-family: var(--font-action);
+    background: var(--color-brand);
+    color: var(--color-white);
+    line-height: var(--leading-body);
+    padding-block: var(--space-xl);
+    border-top: var(--border-thin) solid var(--color-subtle);
+  }
+  .footer-overview {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: var(--space-xl);
+  }
+  .regulatory-intro {
+    font-size: var(--text-small);
+  }
+  .link-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block: var(--space-md);
+  }
+  .link-row a {
+    border-left: var(--border-thin) solid var(--color-border);
+    padding-left: var(--space-xs);
+  }
+  .attention-note {
+    margin-bottom: var(--space-lg);
+  }
+  h2 {
+    font-family: var(--font-body);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-body);
+    margin-bottom: var(--space-md);
+    color: var(--color-white);
+  }
+  dt {
+    font-weight: var(--font-weight-normal);
+  }
+  dd {
+    margin-bottom: var(--space-sm);
+    overflow-wrap: anywhere;
+  }
+  .footer-navigation {
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    gap: var(--space-md);
+  }
+  .footer-navigation li {
+    margin-bottom: var(--space-sm);
+  }
+  .social-row li a {
+    display: grid;
+    place-items: center;
+    width: var(--target-min);
+    height: var(--target-min);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-pill);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-white);
+  }
+  .regulatory-detail {
+    margin-top: var(--space-xl);
+    font-size: var(--text-small);
+  }
+  .regulatory-detail section {
+    margin-top: var(--space-lg);
+  }
+  .regulatory-detail h2 {
+    font-size: var(--text-small);
+    margin-bottom: var(--space-xs);
+  }
+  .regulatory-detail p {
+    margin-bottom: var(--space-sm);
+  }
+  .regulatory-detail a {
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+  }
+  .complaint-steps {
+    list-style: disc;
+    padding-left: var(--space-md);
+  }
+  .investor-notices {
+    list-style: decimal;
+    padding-left: var(--space-md);
+  }
+  .investor-notices li {
+    margin-bottom: var(--space-sm);
+  }
+  @media (width < theme(--breakpoint-desktop)) {
+    .footer-overview {
+      grid-template-columns: 1fr 1fr;
+    }
+    .regulatory-intro {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .footer-overview {
+      grid-template-columns: 1fr;
+    }
+    .company-details {
+      order: -2;
+    }
+    .footer-navigation {
+      order: -1;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .site-footer :global(:focus-visible) {
+    outline-color: var(--color-white);
+  }
+</style>

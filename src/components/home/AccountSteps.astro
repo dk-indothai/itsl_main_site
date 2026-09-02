@@ -1,0 +1,84 @@
+---
+import background from '../../assets/images/account-steps.png';
+import mobileBackground from '../../assets/images/account-background.png';
+import { accountSteps } from '../../data/home';
+import { links } from '../../data/site';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<section class="page-shell account-wrap" aria-labelledby="account-heading">
+  <div
+    class="account-panel rounded-card"
+    style={{
+      '--account-background': `url(${background.src})`,
+      '--account-mobile-background': `url(${mobileBackground.src})`,
+    }}
+  >
+    <h2 id="account-heading">Open Paperless Account Instantly</h2>
+    <ol>
+      {
+        accountSteps.map((step, i) => (
+          <li>
+            Step {i + 1}:{i === 0 ? '' : ' '}
+            {step}
+          </li>
+        ))
+      }
+    </ol>
+    <ActionLink href={links.openAccount}>Open Account</ActionLink>
+  </div>
+</section>
+<style>
+  @reference "../../styles/tokens.css";
+  .account-wrap {
+    padding-bottom: 0;
+  }
+  .account-panel {
+    background-image: var(--account-background);
+    min-height: var(--account-min);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl) var(--space-lg);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-account);
+    background-size: cover;
+    background-position: center;
+  }
+  h2 {
+    margin-bottom: var(--space-lg);
+    text-align: center;
+  }
+  ol {
+    margin-bottom: var(--space-lg);
+    text-align: center;
+  }
+  li {
+    margin-bottom: var(--space-sm);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    ol {
+      text-align: left;
+      font-size: var(--text-small);
+    }
+    h2 {
+      font-size: calc(var(--text-section) + var(--space-xs));
+      margin-bottom: var(--space-xl);
+    }
+    .account-panel {
+      padding: var(--space-xl) var(--space-md);
+    }
+    .account-panel {
+      align-items: flex-start;
+    }
+    h2 {
+      text-align: left;
+    }
+  }
+  @media (width < theme(--breakpoint-desktop)) {
+    .account-panel {
+      background-image: var(--account-mobile-background);
+    }
+  }
+</style>

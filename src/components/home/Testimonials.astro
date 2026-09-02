@@ -1,0 +1,267 @@
+---
+import { Image } from 'astro:assets';
+import { testimonials } from '../../data/home';
+---
+
+<section
+  class="testimonials page-shell"
+  aria-labelledby="testimonials-heading"
+  data-carousel
+>
+  <h2 id="testimonials-heading" class="section-heading">
+    What our clients says
+  </h2>
+  <div
+    id="testimonial-track"
+    class="testimonial-track"
+    tabindex="0"
+    aria-label="Client testimonials; scroll to read all six"
+  >
+    {
+      testimonials.map((testimonial, index) => (
+        <figure
+          class="testimonial-card"
+          data-slide
+          aria-label={`${index + 1} of ${testimonials.length}`}
+        >
+          <blockquote>{testimonial.quote}</blockquote>
+          <figcaption>
+            <Image
+              src={testimonial.image}
+              alt={testimonial.name}
+              width={60}
+              height={60}
+            />
+            <div class="person-details">
+              <span class="person-name">{testimonial.name}</span>
+              <span class="person-role">{testimonial.role}</span>
+            </div>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+  <div class="carousel-controls" hidden>
+    <div class="carousel-navigation">
+      <button
+        type="button"
+        class="carousel-button"
+        data-previous
+        aria-label="Previous testimonial"
+        aria-controls="testimonial-track"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5m7-7-7 7 7 7"></path>
+        </svg>
+      </button>
+      <span class="carousel-position" aria-hidden="true"
+        ><span data-position>1</span> / {testimonials.length}</span
+      >
+      <button
+        type="button"
+        class="carousel-button"
+        data-next
+        aria-label="Next testimonial"
+        aria-controls="testimonial-track"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14m-7-7 7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+    <button
+      type="button"
+      class="carousel-button pause-button"
+      data-pause
+      aria-label="Pause autoplay"
+      aria-controls="testimonial-track"
+    >
+      <svg
+        class="pause-symbol"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M7 5h3v14H7zm7 0h3v14h-3z"></path>
+      </svg>
+      <svg
+        class="play-symbol"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="m8 5 11 7-11 7z"></path>
+      </svg>
+      <span data-pause-label>Pause</span>
+    </button>
+  </div>
+  <p
+    class="carousel-status sr-only"
+    aria-live="polite"
+    aria-atomic="true"
+    data-status
+  >
+  </p>
+  <noscript
+    ><p class="text-center mt-5">
+      Scroll through the testimonials to read all six.
+    </p></noscript
+  >
+</section>
+<style>
+  .testimonials {
+    position: relative;
+  }
+  h2 {
+    font-size: var(--text-testimonial-heading);
+  }
+  .testimonial-track {
+    display: flex;
+    gap: var(--carousel-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-sm);
+    border-radius: var(--radius-panel);
+  }
+  .testimonial-card {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0
+      calc(
+        (100% - (var(--carousel-visible) - 1) * var(--carousel-gap)) /
+          var(--carousel-visible)
+      );
+    min-width: 0;
+    min-height: var(--testimonial-height);
+    scroll-snap-align: start;
+    padding: var(--testimonial-padding);
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-white);
+  }
+  blockquote {
+    flex: 1;
+    color: var(--color-body);
+    font-size: var(--text-quote);
+    line-height: var(--leading-quote);
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: var(--border-thin) solid var(--color-panel-border);
+  }
+  figcaption img {
+    flex-shrink: 0;
+    width: var(--portrait-size);
+    height: var(--portrait-size);
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+  .person-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    min-width: 0;
+  }
+  .person-name {
+    font-size: var(--text-person);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-ink);
+    line-height: var(--leading-body);
+  }
+  .person-role {
+    font-size: var(--text-caption);
+    color: var(--color-muted);
+    line-height: var(--leading-body);
+  }
+  .carousel-controls,
+  .carousel-navigation {
+    display: flex;
+    align-items: center;
+  }
+  .carousel-controls {
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+  .carousel-navigation {
+    gap: var(--space-xs);
+  }
+  .carousel-position {
+    min-width: var(--carousel-position-width);
+    text-align: center;
+    font-size: var(--text-caption);
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .carousel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: var(--space-xs);
+    width: var(--target-min);
+    min-height: var(--target-min);
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-pill);
+    color: var(--color-brand);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-medium);
+    background: var(--color-white);
+    transition:
+      background-color var(--default-transition-duration),
+      border-color var(--default-transition-duration);
+  }
+  .carousel-button:not(:disabled):hover {
+    border-color: var(--color-brand);
+    background: var(--color-soft);
+  }
+  .carousel-button:not(:disabled):active {
+    background: var(--color-panel-border);
+  }
+  .carousel-button:disabled {
+    color: var(--color-muted);
+    background: var(--color-footer);
+  }
+  .carousel-button svg {
+    flex-shrink: 0;
+    width: var(--icon-control);
+    height: var(--icon-control);
+  }
+  .pause-button {
+    width: var(--carousel-toggle-width);
+  }
+  .play-symbol,
+  [data-paused='true'] .pause-symbol {
+    display: none;
+  }
+  [data-paused='true'] .play-symbol {
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-button {
+      transition: none;
+    }
+  }
+</style>
+<script>
+  import { initCarousel } from '../../scripts/carousel';
+  document
+    .querySelectorAll<HTMLElement>('[data-carousel]')
+    .forEach(initCarousel);
+</script>

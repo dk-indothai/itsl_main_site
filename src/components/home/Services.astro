@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import { services } from '../../data/home';
+---
+
+<section class="services page-shell" aria-labelledby="services-heading">
+  <h2 id="services-heading" class="section-heading">Product and services</h2>
+  <p class="intro">
+    Looking for financial success? Check out our range of services designed to
+    meet your investment needs.
+  </p>
+  <div class="grid tablet:grid-cols-2 desktop:grid-cols-3 gap-6">
+    {
+      services.map((service) => (
+        <article class="service-card text-center rounded-card border-border shadow-card">
+          <Image
+            src={service.icon}
+            alt=""
+            width={60}
+            height={60}
+            class="service-icon"
+          />
+          <>
+            <h3>{service.title}</h3>
+            <p>{service.description}</p>
+          </>
+        </article>
+      ))
+    }
+  </div>
+</section>
+<style>
+  @reference "../../styles/tokens.css";
+  .section-heading {
+    margin-bottom: var(--space-md);
+  }
+  .intro {
+    text-align: center;
+    max-width: 60%;
+    margin: 0 auto var(--space-lg);
+  }
+  .service-card {
+    border-width: var(--border-hairline);
+    padding: var(--space-md);
+  }
+  .service-icon {
+    width: var(--icon-service);
+    height: var(--icon-service);
+    object-fit: contain;
+    margin: 0 auto var(--space-md);
+  }
+  h3 {
+    color: var(--color-brand);
+    font-size: var(--text-service);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-section);
+    margin-bottom: var(--space-sm);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .intro {
+      max-width: 100%;
+    }
+  }
+</style>

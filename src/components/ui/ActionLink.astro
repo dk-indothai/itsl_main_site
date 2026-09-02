@@ -1,0 +1,25 @@
+---
+interface Props {
+  href: string;
+  variant?: 'primary' | 'outline' | 'light';
+  small?: boolean;
+  newTab?: boolean;
+}
+const { href, variant = 'primary', small = false, newTab = true } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'action',
+    {
+      'action-outline': variant === 'outline',
+      'action-light': variant === 'light',
+      'action-small': small,
+    },
+  ]}
+  target={newTab ? '_blank' : undefined}
+  rel={newTab ? 'noopener noreferrer' : undefined}
+>
+  <slot />{newTab && <span class="sr-only"> (opens in a new tab)</span>}
+</a>

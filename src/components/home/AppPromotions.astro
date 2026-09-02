@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import { apps } from '../../data/home';
+import appleBadge from '../../assets/images/app-store.jpeg';
+import googleBadge from '../../assets/images/google-play.jpeg';
+---
+
+{
+  apps.map((app, index) => (
+    <section
+      class:list={['app-section', { 'bg-soft app-invest': index === 1 }]}
+      aria-labelledby={`app-${index}`}
+    >
+      <div class="page-shell app-layout">
+        <h2 id={`app-${index}`}>
+          <span>
+            {index === 0 ? 'Start Trading With' : 'Invest in Mutual Funds With'}
+          </span>
+          {index === 0 ? <br /> : ' '}
+          {app.name}
+        </h2>
+        <Image
+          src={app.image}
+          alt={app.alt}
+          widths={[350, 550, 800]}
+          sizes="(max-width: 767px) 90vw, 45vw"
+          class="app-art"
+        />
+        <div class="app-copy">
+          <p>{app.description}</p>
+          <p class="download-label">Download our app from</p>
+          <div class="store-links flex flex-wrap items-center gap-5">
+            <a
+              href={app.apple}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Download ${app.name} on the App Store (opens in a new tab)`}
+            >
+              <Image
+                src={appleBadge}
+                alt="Download on the App Store"
+                class="store-badge"
+              />
+            </a>
+            <a
+              href={app.google}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Get ${app.name} on Google Play (opens in a new tab)`}
+            >
+              <Image
+                src={googleBadge}
+                alt="Get it on Google Play"
+                class="store-badge"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  ))
+}
+<style>
+  @reference "../../styles/tokens.css";
+  .app-layout {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    column-gap: var(--space-xl);
+  }
+  .app-art {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: min(100%, var(--app-image-width));
+    margin: auto;
+  }
+  .app-copy {
+    grid-column: 1;
+    font-size: var(--text-app-body);
+  }
+  h2 {
+    grid-column: 1;
+    align-self: end;
+    font-size: var(--text-app);
+    margin-bottom: var(--space-sm);
+  }
+  h2 span {
+    color: var(--color-ink);
+  }
+  .download-label {
+    margin-block: var(--space-xl) var(--space-md);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-medium);
+  }
+  .store-badge {
+    width: var(--badge-width);
+  }
+  .app-invest {
+    border-radius: var(--radius-image) var(--radius-image) 0 0;
+    padding-block: var(--space-section);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .app-copy {
+      padding-bottom: var(--space-md);
+    }
+    .app-art {
+      width: 100%;
+    }
+    .app-invest h2 {
+      font-size: var(--text-why);
+    }
+    .store-links {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

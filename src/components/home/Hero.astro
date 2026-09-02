@@ -1,0 +1,92 @@
+---
+import background from '../../assets/images/hero-background.png';
+import { links } from '../../data/site';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<section
+  class="hero"
+  aria-labelledby="hero-heading"
+  style={{ backgroundImage: `url(${background.src})` }}
+>
+  <div class="page-shell hero-content">
+    <h1 id="hero-heading">
+      Tailored Financial Solutions For Your Unique Needs
+    </h1>
+    <p>
+      Investing big but feeling overlooked? HNIs, corporations, and mega traders
+      experience<br class="hidden desktop:block" /> our dedicated, priority investment
+      service tailored just for you.
+    </p>
+    <div class="hero-actions flex flex-wrap justify-center gap-3">
+      <ActionLink href={links.openAccount}>Open Account</ActionLink>
+      <ActionLink href={links.login} variant="outline">Log in</ActionLink>
+      <ActionLink href={links.transfer} variant="outline"
+        >Transfer Funds</ActionLink
+      >
+    </div>
+  </div>
+</section>
+<style>
+  @reference "../../styles/tokens.css";
+  .hero {
+    min-height: var(--hero-min);
+    display: grid;
+    place-items: center;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    padding-block: var(--space-xl);
+  }
+  .hero-content {
+    width: 100%;
+  }
+  h1 {
+    max-width: var(--hero-max);
+    margin: 0 auto var(--space-md);
+    color: var(--color-brand);
+    font-size: var(--text-hero);
+    line-height: var(--leading-hero);
+    background: var(--gradient-hero);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p {
+    font-size: var(--text-lead);
+    line-height: var(--leading-body);
+    margin-inline: auto;
+  }
+  .hero-actions {
+    margin-top: var(--space-lg);
+  }
+  .hero-actions :global(.action-outline) {
+    padding-inline: calc(var(--action-px) + var(--space-lg));
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .hero-content {
+      padding-inline: var(--space-sm);
+    }
+    .hero-actions {
+      max-width: 100%;
+      gap: var(--space-sm);
+    }
+    .hero-actions :global(.action) {
+      padding-inline: var(--space-md);
+    }
+    .hero-actions :global(.action:first-child) {
+      margin-right: var(--space-lg);
+    }
+    .hero-actions :global(.action:last-child) {
+      margin-inline: 25%;
+    }
+    h1 {
+      margin-bottom: var(--space-md);
+    }
+  }
+  @media (forced-colors: active) {
+    h1 {
+      background: none;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+</style>

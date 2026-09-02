@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+import contact from '../../assets/images/contact.png';
+import { site } from '../../data/site';
+---
+
+<section class="page-shell contact" aria-labelledby="contact-heading">
+  <h2 id="contact-heading" class="section-heading">Get in touch</h2>
+  <div class="grid tablet:grid-cols-2 items-center gap-10">
+    <!-- Intentionally not a <form>. No action, names, submit control or data persistence. -->
+    <div
+      role="form"
+      aria-label="Contact preview"
+      aria-describedby="contact-preview-note"
+      class="contact-preview"
+    >
+      <p id="contact-preview-note">
+        Preview only — this form cannot send messages yet. Please call or email
+        us using the details alongside.
+      </p>
+      <label for="contact-name">Name</label><input
+        id="contact-name"
+        type="text"
+        autocomplete="name"
+        placeholder="Name"
+      />
+      <label for="contact-phone">Contact no.</label><input
+        id="contact-phone"
+        type="tel"
+        autocomplete="tel"
+        placeholder="Contact no."
+      />
+      <label for="contact-email">Email address</label><input
+        id="contact-email"
+        type="email"
+        autocomplete="email"
+        placeholder="Email address"
+      />
+      <label for="contact-message">Message</label><textarea
+        id="contact-message"
+        rows="5"
+        placeholder="Type something...."></textarea>
+      <button
+        class="action"
+        type="button"
+        disabled
+        aria-describedby="contact-preview-note">Submit</button
+      >
+    </div>
+    <div class="contact-details">
+      <Image
+        src={contact}
+        alt="Two people finding an office location on a map"
+        width={338}
+      />
+      <address>
+        <p><span aria-hidden="true">⌖</span><span>{site.address}</span></p>
+        <p>
+          <span aria-hidden="true">☎</span><span
+            >Helpdesk - <a href={site.helpdesk.href}>{site.helpdesk.label}</a>, <a
+              href={site.telephone.href}>{site.telephone.label}</a
+            ></span
+          >
+        </p>
+        <p>
+          <span aria-hidden="true">✉</span><span
+            ><a href={`mailto:${site.marketingEmail}`}>{site.marketingEmail}</a
+            >, <a href={`mailto:${site.salesEmail}`}>{site.salesEmail}</a></span
+          >
+        </p>
+      </address>
+    </div>
+  </div>
+</section>
+<style>
+  @reference "../../styles/tokens.css";
+  .section-heading {
+    margin-bottom: var(--space-2xl);
+  }
+  #contact-preview-note {
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    margin-bottom: var(--space-md);
+  }
+  label {
+    display: block;
+    font-size: var(--text-caption);
+    margin-bottom: var(--spacing);
+  }
+  input,
+  textarea {
+    display: block;
+    width: 100%;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+    padding: var(--space-sm);
+    margin-bottom: var(--space-md);
+    font-size: var(--text-small);
+    background: var(--color-white);
+    color: var(--color-body);
+  }
+  textarea {
+    min-height: var(--textarea-height);
+    resize: vertical;
+  }
+  .contact-details > :global(img) {
+    width: var(--contact-image-width);
+    margin: 0 auto var(--space-lg);
+  }
+  address {
+    font-size: var(--text-small);
+    font-style: normal;
+  }
+  address p {
+    display: flex;
+    gap: var(--space-sm);
+    margin-block: var(--space-md);
+    overflow-wrap: anywhere;
+  }
+  address p > span:first-child {
+    color: var(--color-brand);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    h2 {
+      font-size: calc(var(--text-section) + var(--spacing));
+    }
+  }
+  .contact-details {
+    padding: var(--space-md) var(--space-xl);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-control);
+    font-family: var(--font-action);
+  }
+  .contact-preview .action {
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,114 @@
+---
+import { Image } from 'astro:assets';
+import team from '../../assets/images/about-team.png';
+import { links } from '../../data/site';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<section aria-labelledby="about-heading">
+  <div class="page-shell about-intro">
+    <h2 id="about-heading" class="text-center">About IndoThai</h2>
+  </div>
+  <div class="about-band bg-brand text-white">
+    <div
+      class="page-shell about-grid grid desktop:grid-cols-2 items-center gap-10"
+    >
+      <div>
+        <h3>
+          IndoThai: A Trusted, Long-Time Leading Player Offering Tailored
+          Financial Solutions
+        </h3>
+        <p>
+          Established in 1995, IndoThai is a NSE-BSE leading full-service broker
+          in India with over 30 years of experience.As a group of 16 companies
+          including ventures in real estate, green technology (Femto), and IFSC
+          – we offer personalized investment and financial services to
+          high-net-worth individuals, corporations and mega traders. Our
+          tailored strategies, expert guidance, and innovative tools are
+          designed to help you achieve your financial goals and maximize your
+          investment potential.
+        </p>
+        <div class="about-action">
+          <ActionLink href={links.about} variant="outline" newTab={false}
+            >Know More</ActionLink
+          >
+        </div>
+      </div>
+      <Image
+        src={team}
+        alt="IndoThai’s Capital Tower office building in Indore"
+        widths={[400, 600, 900, 1200]}
+        sizes="(max-width: 1024px) 100vw, 50vw"
+      />
+    </div>
+  </div>
+</section>
+<style>
+  @reference "../../styles/tokens.css";
+  .about-intro {
+    padding-bottom: var(--space-2xl);
+  }
+  .about-band {
+    padding-block: var(--space-2xl);
+  }
+  .about-grid {
+    min-height: calc(var(--about-min) - 2 * var(--space-2xl));
+    padding-right: 0;
+  }
+  .about-grid > :global(img) {
+    border-radius: var(--radius-image) 0 0 var(--radius-image);
+    width: 100%;
+  }
+  .about-action {
+    text-align: right;
+    padding-right: var(--space-md);
+  }
+  .about-action :global(.action) {
+    background: transparent;
+    border-color: var(--color-white);
+    color: var(--color-white);
+    font-size: var(--text-body);
+    padding: var(--space-xs) var(--space-md);
+  }
+  .about-action :global(.action:hover) {
+    background: var(--color-brand-hover);
+  }
+  h3 {
+    font-size: var(--text-about);
+    line-height: var(--leading-about);
+    font-weight: var(--font-weight-light);
+    margin-bottom: var(--space-md);
+  }
+  p {
+    margin-bottom: var(--space-lg);
+    font-size: var(--text-about-body);
+  }
+  .about-band :global(:focus-visible) {
+    outline-color: var(--color-white);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .about-band {
+      padding-block: var(--space-xs) var(--space-xl);
+    }
+    .about-grid {
+      padding-inline: var(--space-xs);
+    }
+    .about-grid > div {
+      padding-inline: var(--space-md);
+    }
+    .about-grid > :global(img) {
+      order: -1;
+      border-radius: var(--radius-image);
+    }
+    .about-action {
+      text-align: left;
+      padding: 0;
+    }
+    .about-action :global(.action) {
+      font-size: var(--text-caption);
+    }
+    h2 {
+      font-size: calc(var(--text-section) + var(--spacing));
+    }
+  }
+</style>

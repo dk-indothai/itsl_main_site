@@ -1,0 +1,316 @@
+---
+import logo from '../../assets/images/logo.png';
+import { links } from '../../data/site';
+import {
+  primaryNavigation,
+  utilityNavigation,
+  mobileAccountNavigation,
+} from '../../data/nav';
+import ActionLink from '../ui/ActionLink.astro';
+---
+
+<header class="site-header" data-header>
+  <div class="page-shell header-inner flex items-center justify-between gap-5">
+    <a href={links.home} class="brand" aria-label="IndoThai home"
+      ><img
+        src={logo.src}
+        width={logo.width}
+        height={logo.height}
+        alt="IndoThai — Trade with confidence"
+        fetchpriority="high"
+      /></a
+    >
+    <nav class="primary-nav hidden desktop:block" aria-label="Primary">
+      <ul class="flex items-center gap-6">
+        {
+          primaryNavigation.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={item.href === '/' ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="flex items-center gap-2">
+      <div class="header-actions hidden tablet:flex gap-2">
+        <ActionLink href={links.openAccount} small>Open Account</ActionLink>
+        <ActionLink href={links.applyIpo} small>Apply IPO</ActionLink>
+      </div>
+      <details class="utility-menu" data-nav-disclosure>
+        <summary class="menu-toggle" role="button" aria-label="Navigation menu">
+          <svg
+            class="menu-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path class="menu-lines" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path class="menu-close" d="m6 6 12 12M18 6 6 18"></path>
+          </svg>
+        </summary>
+        <nav class="menu-panel" aria-label="More navigation">
+          <ul>
+            {
+              primaryNavigation.map((item) => (
+                <li class="desktop:hidden">
+                  <a
+                    href={item.href}
+                    aria-current={item.href === '/' ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+            <li class="tablet:hidden">
+              <a
+                href={links.openAccount}
+                target="_blank"
+                rel="noopener noreferrer"
+                >Open Account<span class="sr-only">
+                  (opens in a new tab)</span
+                ></a
+              >
+            </li>
+            <li class="tablet:hidden">
+              <a href={links.applyIpo} target="_blank" rel="noopener noreferrer"
+                >Apply IPO<span class="sr-only"> (opens in a new tab)</span></a
+              >
+            </li>
+            {
+              mobileAccountNavigation.map((item) => (
+                <li class="desktop:hidden">
+                  <a href={item.href} target="_blank" rel="noopener noreferrer">
+                    {item.label}
+                    <span class="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))
+            }
+            {
+              utilityNavigation.map((item) => (
+                <li>
+                  {'children' in item ? (
+                    <details class="nested-menu" data-nav-disclosure>
+                      <summary role="button">
+                        {item.label}
+                        <svg
+                          class="disclosure-chevron"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </summary>
+                      <ul>
+                        {item.children.map((child) => (
+                          <li>
+                            <a
+                              href={child.href}
+                              target={child.newTab ? '_blank' : undefined}
+                              rel={
+                                child.newTab ? 'noopener noreferrer' : undefined
+                              }
+                            >
+                              {child.label}
+                              {child.newTab && (
+                                <span class="sr-only">
+                                  {' '}
+                                  (opens in a new tab)
+                                </span>
+                              )}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : (
+                    <a
+                      href={item.href}
+                      target={item.newTab ? '_blank' : undefined}
+                      rel={item.newTab ? 'noopener noreferrer' : undefined}
+                    >
+                      {item.label}
+                      {item.newTab && (
+                        <span class="sr-only"> (opens in a new tab)</span>
+                      )}
+                    </a>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--layer-header);
+    background: var(--color-white);
+  }
+  .header-inner {
+    min-height: var(--header-height);
+  }
+  .brand {
+    flex-shrink: 0;
+    width: var(--logo-width);
+  }
+  .primary-nav {
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-medium);
+  }
+  [aria-current='page'] {
+    color: var(--color-brand);
+  }
+  .utility-menu {
+    position: relative;
+  }
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--target-min);
+    height: var(--target-min);
+    border-radius: var(--radius-menu);
+    border: var(--border-thin) solid var(--color-panel-border);
+    color: var(--color-brand);
+  }
+  .menu-toggle:hover {
+    background: var(--color-soft);
+  }
+  .menu-icon {
+    width: var(--space-md);
+    height: var(--space-md);
+  }
+  .menu-close,
+  .utility-menu[open] .menu-lines {
+    display: none;
+  }
+  .utility-menu[open] .menu-close {
+    display: block;
+  }
+  .utility-menu[open] > .menu-toggle {
+    background: var(--color-soft);
+    border-color: var(--color-brand);
+  }
+  .disclosure-chevron {
+    flex-shrink: 0;
+    width: var(--icon-control);
+    height: var(--icon-control);
+    color: var(--color-brand);
+    transition: transform var(--default-transition-duration);
+  }
+  .nested-menu[open] > summary .disclosure-chevron {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .disclosure-chevron {
+      transition: none;
+    }
+  }
+  .menu-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--space-sm));
+    width: min(var(--menu-width), calc(100vw - 2 * var(--page-gutter)));
+    max-height: var(--menu-max-height);
+    overflow-y: auto;
+    background: var(--color-white);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-menu);
+    box-shadow: var(--shadow-menu);
+    padding: var(--space-xs);
+    font-size: var(--text-caption);
+  }
+  .menu-panel a,
+  .nested-menu summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--target-min);
+    padding: var(--space-xs) var(--space-sm);
+  }
+  .menu-panel a:hover,
+  .nested-menu summary:hover {
+    background: var(--color-soft);
+    text-decoration: none;
+  }
+  .nested-menu ul {
+    padding-left: var(--space-sm);
+    border-left: var(--border-thin) solid var(--color-subtle);
+    margin-left: var(--space-sm);
+  }
+</style>
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const disclosures = [
+    ...document.querySelectorAll<HTMLDetailsElement>('[data-nav-disclosure]'),
+  ];
+  const close = (detail: HTMLDetailsElement, restoreFocus: boolean) => {
+    detail
+      .querySelectorAll<HTMLDetailsElement>('details[open]')
+      .forEach((child) => {
+        child.open = false;
+      });
+    detail.open = false;
+    if (restoreFocus)
+      detail.querySelector<HTMLElement>(':scope > summary')?.focus();
+  };
+  disclosures.forEach((detail) => {
+    const summary = detail.querySelector<HTMLElement>(':scope > summary');
+    summary?.setAttribute('aria-expanded', String(detail.open));
+    detail.addEventListener('toggle', () =>
+      summary?.setAttribute('aria-expanded', String(detail.open)),
+    );
+    detail.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && detail.open) {
+        event.stopPropagation();
+        event.preventDefault();
+        close(detail, true);
+      }
+    });
+  });
+  document.addEventListener('pointerdown', (event) => {
+    const menu = disclosures[0];
+    if (event.target instanceof Node && !menu?.contains(event.target)) {
+      disclosures
+        .filter((detail) => detail.open)
+        .forEach((detail) =>
+          close(detail, detail.contains(document.activeElement)),
+        );
+    }
+  });
+  header?.addEventListener('focusout', (event) => {
+    if (
+      event.relatedTarget instanceof Node &&
+      !header.contains(event.relatedTarget)
+    )
+      disclosures
+        .filter((detail) => detail.open)
+        .forEach((detail) => close(detail, false));
+  });
+</script>

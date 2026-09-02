@@ -1,0 +1,193 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: Raleway;
+  src: url('/fonts/raleway-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: Roboto;
+  src: url('/fonts/roboto-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@layer base {
+  html {
+    scroll-padding-top: calc(var(--header-height) + var(--space-md));
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: auto;
+  }
+  body {
+    margin: 0;
+    background: var(--color-white);
+    color: var(--color-body);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-medium);
+  }
+  h2 {
+    color: var(--color-brand);
+    font-size: var(--text-section);
+    line-height: var(--leading-section);
+  }
+  p,
+  ul,
+  ol,
+  blockquote {
+    margin: 0;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  button,
+  summary,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  a {
+    text-underline-offset: var(--spacing);
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  :focus-visible {
+    outline: var(--border-focus) solid var(--color-brand);
+    outline-offset: var(--focus-offset);
+  }
+  [hidden] {
+    display: none !important;
+  }
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-white);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  @media (forced-colors: active) {
+    html {
+      scrollbar-color: auto;
+    }
+  }
+}
+
+@layer components {
+  .page-shell {
+    width: 100%;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+  }
+  #main-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-section);
+    padding-bottom: var(--space-section);
+  }
+  .section-heading {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+  }
+  .skip-link {
+    position: fixed;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    z-index: var(--layer-skip);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-white);
+    color: var(--color-brand);
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    transform: none;
+  }
+  .action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--target-min);
+    padding: var(--action-py) var(--action-px);
+    border: var(--border-thin) solid var(--color-brand);
+    border-radius: var(--radius-control);
+    background: var(--color-brand);
+    color: var(--color-white);
+    font-size: var(--text-caption);
+    line-height: var(--leading-body);
+    transition: background var(--default-transition-duration)
+      var(--default-transition-timing-function);
+  }
+  .action:hover {
+    background: var(--color-brand-hover);
+    text-decoration: none;
+  }
+  .action-outline {
+    background: transparent;
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .action-outline:hover {
+    background: var(--color-soft);
+  }
+  .action-light {
+    background: var(--color-white);
+    color: var(--color-brand);
+    border-color: var(--color-white);
+  }
+  .action-light:hover {
+    background: var(--color-soft);
+  }
+  .action-small {
+    font-family: var(--font-action);
+    min-height: var(--header-action-height);
+    height: var(--header-action-height);
+    padding: 0 var(--header-action-px);
+    line-height: var(--header-action-line-height);
+  }
+  @media (pointer: coarse) {
+    .action-small {
+      min-height: var(--target-min);
+    }
+  }
+  .action:disabled {
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
