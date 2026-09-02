@@ -5,18 +5,18 @@ not deployment readiness or regulatory/accessibility approval.
 
 ## Checks completed
 
-| Check                        | Result                                                                                                                                                                                   |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run format:check`       | Passed.                                                                                                                                                                                  |
-| `npm run check`              | Passed: zero errors, warnings or hints.                                                                                                                                                  |
-| `npm test`                   | Passed, including a production static build.                                                                                                                                             |
-| Direct static test execution | Eight homepage/shared groups and ten secondary-page groups passed (18 total).                                                                                                            |
-| `npm run test:browser`       | All 32 Chromium tests passed, including the 16 homepage regressions and NRI flight-path separation.                                                                                      |
-| `npm run test:dev`           | All 15 development-mode viewport/image tests passed across three routes.                                                                                                                 |
-| `npm run build`              | Three static routes generated in `dist/`: Home, About Us and Mutual Funds.                                                                                                               |
-| Design-document lint         | Zero errors or warnings; token groups intentionally reference the CSS owner.                                                                                                             |
-| Frontend static audit        | Strict audit passed with zero findings; not a substitute for browser/accessibility review.                                                                                               |
-| Version control              | Homepage initial commit retained. This changeset contains the secondary-page migration and layout refinements; generated artifacts, dependencies and environment secrets remain ignored. |
+| Check                        | Result                                                                                                                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run format:check`       | Passed.                                                                                                                                                                                               |
+| `npm run check`              | Passed: zero errors, warnings or hints.                                                                                                                                                               |
+| `npm test`                   | Passed, including a production static build.                                                                                                                                                          |
+| Direct static test execution | Eight homepage/shared groups and ten secondary-page groups passed (18 total).                                                                                                                         |
+| `npm run test:browser`       | All 33 Chromium tests passed, including the 16 homepage regressions, static NRI overlay and About Us viewport/header checks.                                                                          |
+| `npm run test:dev`           | All 15 development-mode viewport/image tests passed across three routes.                                                                                                                              |
+| `npm run build`              | Three static routes generated in `dist/`: Home, About Us and Mutual Funds.                                                                                                                            |
+| Design-document lint         | Zero errors or warnings; token groups intentionally reference the CSS owner.                                                                                                                          |
+| Frontend static audit        | Strict audit passed with zero findings; not a substitute for browser/accessibility review.                                                                                                            |
+| Version control              | Homepage and secondary-page commits retained. This changeset contains the NRI illustration and About Us hero/header refinements. Generated artifacts remain ignored; no push or deployment performed. |
 
 Browser asset tests used 1280px, 768px, 729px, 390px and 320px widths on every route. At each width the
 document fit within the viewport, every tested image loaded, and no page-level
@@ -68,7 +68,39 @@ refreshed from the completed build.
 
 ## Visual comparison
 
-### Card-aligned NRI flight-path refinement
+### Static NRI overlay and full-screen About Us follow-up
+
+The owner requested a left-to-right flight trajectory crossing the NRI heading
+and cards, then clarified that it must not animate. The resulting illustration
+is a static, subtle foreground overlay with the original plane at its right
+endpoint. It has no script, animation or pointer hit target and is hidden from
+assistive technology. The earlier experimental animation was removed, not paused.
+This explicitly supersedes the separated-divider treatments recorded below.
+
+The regression checks eight widths from 320px to 1920px, including the reported
+1327px viewport: overlay depth, heading/card overlap, zero animations, the 64px
+plane box, containment, 60px heading-to-card gap and no horizontal overflow.
+Live development screenshots at 1327px, 768px and 390px were captured; desktop
+and phone captures were inspected for the line crossing content and the card layout.
+
+About Us now fills the small viewport height with the cover-cropped office photo.
+Its sticky header overlays the photo with a 50%-opaque white background; the header
+itself has opacity 1, so its logo, text and actions are not faded. The menu remains
+solid white. Automated checks at 1327px, 768px, 390px and 320px confirmed the hero
+starts at y=0 and fills a 926px-high viewport, the photograph fills the hero,
+the header remains sticky, and Escape restores focus after opening the menu.
+Home and Mutual Funds retain solid header backgrounds.
+
+Formatting, Astro checks (50 files, zero diagnostics), static-output tests,
+the three-route production build, all 33 production browser tests and all 15
+development asset/layout tests passed. Design lint and the strict frontend audit
+reported zero errors or warnings. Screenshot evidence is ignored under
+`artifacts/flight-and-about/` and browser test output. An initial capture was
+interrupted by hot reload; a later lazy-image capture was corrected to scroll
+the plane into view before decoding it. The final capture completed successfully.
+These checks remain Chromium-only, not full contrast/compliance certification.
+
+### Previous card-aligned NRI flight-path refinement (superseded)
 
 After the owner rejected the miniature divider, the heading decoration was
 recomposed as a wide, shallow SVG route aligned with the card grid. The line has

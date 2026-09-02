@@ -10,7 +10,13 @@ import ActionLink from '../ui/ActionLink.astro';
 const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 ---
 
-<header class="site-header" data-header>
+<header
+  class:list={[
+    'site-header',
+    { 'site-header--about': currentPath === links.about },
+  ]}
+  data-header
+>
   <div class="page-shell header-inner flex items-center justify-between gap-5">
     <a href={links.home} class="brand" aria-label="IndoThai home"
       ><img
@@ -167,6 +173,13 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
     position: sticky;
     top: 0;
     z-index: var(--layer-header);
+    background: var(--color-white);
+  }
+  .site-header--about {
+    background: var(--header-about-surface);
+    margin-bottom: calc(-1 * var(--header-height));
+  }
+  .site-header--about .menu-toggle {
     background: var(--color-white);
   }
   .header-inner {

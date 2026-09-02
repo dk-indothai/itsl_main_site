@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-test('Mutual Funds flight path aligns with the cards and stays clear of the heading', async ({
+test('Mutual Funds flight is a static, non-interactive overlay across the heading and cards', async ({
   page,
 }, testInfo) => {
   await page.goto('/mutual-funds/');
   await page.evaluate(() => document.fonts.ready);
-  for (const width of [1920, 1679, 1280, 1081, 768, 729, 390, 320]) {
+  for (const width of [1920, 1679, 1327, 1081, 768, 729, 390, 320]) {
     await page.setViewportSize({ width, height: 926 });
     const artwork = page.locator('.nri-flight-plane');
     await artwork.scrollIntoViewIfNeeded();
@@ -13,22 +13,21 @@ test('Mutual Funds flight path aligns with the cards and stays clear of the head
     const layout = await page.locator('.nri-support').evaluate((section) => {
       const title = section.querySelector('h2')!.getBoundingClientRect();
       const image = section.querySelector('img')!.getBoundingClientRect();
-      const track = section
-        .querySelector('.nri-flight-track')!
-        .getBoundingClientRect();
+      const overlay = section.querySelector('.nri-flight')!;
+      const track = overlay.getBoundingClientRect();
       const cardList = section.querySelector('.nri-cards')!;
       const cards = cardList.getBoundingClientRect();
-      const cardStyle = getComputedStyle(cardList);
       return {
-        headingGap: track.top - title.bottom,
-        cardsGap: cards.top - track.bottom,
-        trackHeight: track.height,
+        cardsGap: cards.top - title.bottom,
         imageHeight: image.height,
         imageWidth: image.width,
-        leftAlignment:
-          track.left - cards.left - Number.parseFloat(cardStyle.paddingLeft),
-        rightAlignment:
-          cards.right - Number.parseFloat(cardStyle.paddingRight) - track.right,
+        overlapsHeading: track.top < title.bottom && track.bottom > title.top,
+        overlapsCards: track.top < cards.bottom && track.bottom > cards.top,
+        isAboveContent:
+          Number(getComputedStyle(overlay).zIndex) >
+          Number(getComputedStyle(cardList).zIndex),
+        pointerEvents: getComputedStyle(overlay).pointerEvents,
+        animations: section.getAnimations({ subtree: true }).length,
         planeContained:
           image.top >= track.top &&
           image.bottom <= track.bottom &&
@@ -37,19 +36,19 @@ test('Mutual Funds flight path aligns with the cards and stays clear of the head
         hasOverflow: document.documentElement.scrollWidth > innerWidth,
       };
     });
-    expect(layout.headingGap, `Heading/artwork clearance at ${width}px`).toBe(
-      12,
-    );
-    expect(
-      layout.cardsGap,
-      `Artwork/card clearance at ${width}px`,
-    ).toBeGreaterThanOrEqual(40);
-    expect(layout.trackHeight).toBe(80);
+    expect(layout.cardsGap, `Heading/card spacing at ${width}px`).toBe(60);
+    expect(layout.overlapsHeading).toBe(true);
+    expect(layout.overlapsCards).toBe(true);
+    expect(layout.isAboveContent).toBe(true);
+    expect(layout.pointerEvents).toBe('none');
+    expect(layout.animations).toBe(0);
     expect(layout.imageWidth).toBe(64);
     expect(layout.imageHeight).toBe(64);
     expect(layout.planeContained).toBe(true);
-    expect(Math.abs(layout.leftAlignment)).toBeLessThan(1);
-    expect(Math.abs(layout.rightAlignment)).toBeLessThan(1);
+    await expect(page.locator('.nri-flight')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
     await expect(page.locator('.nri-flight-path path')).toHaveAttribute(
       'vector-effect',
       'non-scaling-stroke',
@@ -58,6 +57,71 @@ test('Mutual Funds flight path aligns with the cards and stays clear of the head
     await page.locator('.nri-support').screenshot({
       path: testInfo.outputPath(`nri-flight-${width}.png`),
     });
+  }
+});
+
+test('About Us has a full-viewport photo and a translucent header background only', async ({
+  page,
+}, testInfo) => {
+  for (const width of [1327, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: 926 });
+    await page.goto('/about-us/');
+    await page.evaluate(() => document.fonts.ready);
+    await page
+      .locator('.hero-photo')
+      .evaluate((img) => (img as HTMLImageElement).decode());
+    const layout = await page.locator('.about-hero').evaluate((hero) => {
+      const rect = hero.getBoundingClientRect();
+      const photo = hero.querySelector('img')!.getBoundingClientRect();
+      return {
+        top: rect.top,
+        height: rect.height,
+        viewport: innerHeight,
+        photoWidth: photo.width,
+        width: rect.width,
+        photoHeight: photo.height,
+      };
+    });
+    expect(layout.top).toBe(0);
+    expect(layout.height).toBe(layout.viewport);
+    expect(layout.photoWidth).toBe(layout.width);
+    expect(layout.photoHeight).toBe(layout.height);
+    await expect(page.locator('.hero-photo')).toHaveCSS('object-fit', 'cover');
+    await expect(page.locator('.site-header')).toHaveCSS(
+      'background-color',
+      'rgba(255, 255, 255, 0.5)',
+    );
+    await expect(page.locator('.site-header')).toHaveCSS('opacity', '1');
+    await page.screenshot({
+      path: testInfo.outputPath(`about-fullscreen-${width}.png`),
+    });
+    await page.evaluate(() => scrollTo(0, 400));
+    await expect
+      .poll(() =>
+        page
+          .locator('.site-header')
+          .evaluate((header) => header.getBoundingClientRect().top),
+      )
+      .toBe(0);
+    await page.getByRole('button', { name: 'Navigation menu' }).click();
+    await expect(page.locator('.menu-panel')).toHaveCSS(
+      'background-color',
+      'rgb(255, 255, 255)',
+    );
+    await page.keyboard.press('Escape');
+    await expect(
+      page.getByRole('button', { name: 'Navigation menu' }),
+    ).toBeFocused();
+  }
+  for (const route of ['/', '/mutual-funds/']) {
+    await page.goto(route);
+    await expect(page.locator('.site-header')).toHaveCSS(
+      'background-color',
+      'rgb(255, 255, 255)',
+    );
+    await expect(page.locator('.site-header')).not.toHaveClass(
+      /site-header--about/,
+    );
   }
 });
 

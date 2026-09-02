@@ -121,6 +121,7 @@
   --scrollbar-track: var(--color-footer);
   --layer-header: 20;
   --layer-skip: 30;
+  --header-about-surface: rgb(255 255 255 / 50%);
   /* About Us and Mutual Funds: independent scales preserve the homepage. */
   --content-max: 75rem;
   --text-content-heading: 3rem;
@@ -144,7 +145,7 @@
   --text-funds-hero: 5rem;
   --leading-about-hero: 1;
   --leading-funds-hero: 1.25;
-  --about-hero-height: 45rem;
+  --about-hero-height: 100svh;
   --funds-hero-padding: 5rem;
   --text-vision: 1.125rem;
   --text-story-body: 1rem;
@@ -168,9 +169,12 @@
   --text-fund-download: 2.125rem;
   --text-fund-nri: 3.25rem;
   --nri-title-max: 68.75rem;
-  --nri-flight-height: 5rem;
+  --nri-flight-height: 26rem;
+  --nri-plane-y: 8%;
   --nri-plane-size: 4rem;
-  --nri-plane-position: 78%;
+  --nri-flight-layer: 2;
+  --nri-flight-opacity: 0.55;
+  --nri-content-layer: 1;
   --nri-flight-stroke: 1.25px;
   --nri-flight-dash: 4 6;
   --hero-shade: rgb(0 0 0 / 10%);
@@ -230,7 +234,7 @@
     --text-about-hero: 2.5rem;
     --text-funds-hero: 2.75rem;
     --leading-funds-hero: 1.4;
-    --about-hero-height: 27rem;
+    --nri-flight-height: 32rem;
     --funds-hero-padding: 2.5rem;
     --text-vision: 1rem;
     --text-fund-benefits: 1.875rem;

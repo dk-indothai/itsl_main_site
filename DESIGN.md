@@ -96,7 +96,11 @@ pointers; other calls to action keep their existing dimensions.
 
 Secondary routes compose sections from their own folders. `content.css` supplies
 patterns scoped to `.content-page`; its independent content-heading and hero tokens
-must not shrink or enlarge the homepage. About Us uses a photographic hero,
+must not shrink or enlarge the homepage. About Us uses a viewport-filling photographic
+hero with a cover crop behind its sticky header. The About-only header surface uses
+`--header-about-surface`; never apply opacity to the whole header. Its text, logo,
+buttons and dropdown stay opaque. `--about-hero-height` owns the viewport sizing;
+content may grow beyond it on unusually short screens. About continues with an
 image-and-story introduction that stacks at tablet width, three-column director
 portraits on wider screens, original desktop/mobile timeline artwork, a blue vision
 band, bordered value cards, a full-width business image, company logos and a five-photo
@@ -108,13 +112,14 @@ Mutual Funds uses its own larger phone hero scale, original responsive investmen
 artwork, blue introduction and benefit bands, five numbered vertical steps, WINVEST
 download banner and app artwork, flight-path illustration and NRI cards. On phones,
 cards and app content stack. Keep the source-specific login and investing button
-styles without changing shared header actions. The NRI heading has a shallow,
-card-aligned flight path with a non-scaling dashed stroke and the original plane
-icon at a consistent size. The owner rejected the preceding tiny, centered image.
-The flight track remains in normal flow below the heading; only the plane is
-positioned inside that reserved track. `--nri-flight-*` and `--nri-plane-*` tokens
-own its geometry, while `--space-sm` owns the heading clearance. Do not scale the
-whole illustration down, stretch the plane, or let decoration overlap the text.
+styles without changing shared header actions. The NRI section has a static,
+left-to-right flight trajectory layered across its heading and cards, explicitly
+requested by the owner after the separated-divider experiments. Its light dashed
+stroke crosses the content; the original plane sits at the right endpoint with
+an independent, consistent size. The overlay adds no layout height and cannot
+intercept pointer events. `--nri-flight-*`, `--nri-plane-*` and `--nri-content-layer`
+own its geometry and depth. Do not animate the plane, stretch the icon, or restore
+the miniature centered divider. The decoration is hidden from assistive technology.
 Both pages remain ordinary readable HTML without animation-dependent
 visibility; do not reproduce the source's broken mobile line heights or timeline
 overlap during entrance animation.

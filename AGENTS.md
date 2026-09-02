@@ -12,9 +12,11 @@ Owner-approved refinements include aligned statistic cards, quote-first testimon
 cards with compact controls, SVG disclosure icons, compact header actions and a
 centralized section gaps across all three pages. Preserve these changes rather than restoring
 the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
-The NRI header now uses a shallow, card-aligned flight path and a consistently sized
-original plane icon. Keep the decoration clear of the heading and do not restore
-the rejected miniature flight-strip treatment.
+The owner requested a static left-to-right NRI flight overlay crossing the heading
+and cards, superseding the earlier separated divider. Keep its line subtle,
+non-interactive and decorative; do not animate the plane or shrink the original icon.
+About Us alone has a full-viewport photographic hero behind a translucent header
+background. Header text, logo, actions and dropdown remain fully opaque.
 
 ## Scope and sources of truth
 

@@ -123,6 +123,7 @@ routes, CMS, fund calculator, financial transactions or server-side form handler
 - **Images:** replace/import files in `src/assets/images/`, keeping accurate alt text, intrinsic dimensions and responsive `sizes`. Astro generates optimized images at build time. Decorative icons/backgrounds do not need descriptive alt text.
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on all three pages through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
+- **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
 - **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`.
 - **Browser behavior:** navigation enhancement lives with Header; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
 
@@ -147,11 +148,13 @@ embedded SVG icons. No runtime fetch from WordPress is required. The milestone
 text in `about.ts` is a transcription of the artwork: if approved history changes,
 update both visual variants and the text equivalent together.
 
-The owner-requested NRI header refinement uses a shallow inline SVG flight path
+The owner-requested NRI refinement uses a static inline SVG flight path over the heading and cards
 and `flight-plane.svg`, which reuses the original embedded plane from `fund-bg.svg`.
 The original full-width and mobile flight artwork files remain untouched as
 reference assets. Flight geometry is controlled by the NRI tokens in `tokens.css`;
 the icon keeps its proportions and size independently of the line's width.
+The subtle dashed trajectory and plane are decorative, ignore pointer events,
+and use no animation or browser script. This supersedes the earlier separated divider.
 
 ## Interaction and safety rules
 
