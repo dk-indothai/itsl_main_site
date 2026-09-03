@@ -15,7 +15,7 @@
     "build": "astro build",
     "preview": "astro preview --host 127.0.0.1",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "test:browser": "npm run build && playwright test",
+    "test:browser": "playwright test",
     "test:dev": "playwright test --config playwright.dev.config.ts",
     "capture:reference": "node scripts/capture-reference.mjs",
     "capture:local": "npm run build && node scripts/capture-local.mjs"

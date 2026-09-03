@@ -2,51 +2,114 @@
 import { Image } from 'astro:assets';
 import contact from '../../assets/images/contact.png';
 import { site } from '../../data/site';
+import { PUBLIC_STRAPI_URL } from 'astro:env/client';
+
+let endpoint: string | undefined;
+try {
+  const url = new URL(PUBLIC_STRAPI_URL ?? '');
+  if (
+    ['http:', 'https:'].includes(url.protocol) &&
+    !url.username &&
+    !url.password &&
+    !url.search &&
+    !url.hash
+  ) {
+    endpoint = `${url.href.replace(/\/+$/, '')}/api/contact-forms`;
+  }
+} catch {
+  // Missing/invalid configuration leaves the form disabled.
+}
 ---
 
 <section class="page-shell contact" aria-labelledby="contact-heading">
   <h2 id="contact-heading" class="section-heading">Get in touch</h2>
   <div class="grid tablet:grid-cols-2 items-center gap-10">
-    <!-- Shared preview only: no form action, names, submission or persistence. -->
-    <div
-      role="form"
-      aria-label="Contact preview"
-      aria-describedby="contact-preview-note"
-      class="contact-preview"
+    <form
+      method="post"
+      novalidate
+      aria-label="Contact form"
+      aria-describedby="contact-note"
+      class="contact-form"
+      data-contact-form
+      data-endpoint={endpoint}
+      data-state="unavailable"
     >
-      <p id="contact-preview-note">
-        Preview only — this form cannot send messages yet. Please call or email
-        us using the details alongside.
+      <p id="contact-note" data-contact-note>
+        {
+          endpoint
+            ? 'Enable JavaScript to send a message, or call or email us using the details alongside.'
+            : 'Online submissions are not configured. Please call or email us using the details alongside.'
+        }
       </p>
-      <label for="contact-name">Name</label><input
-        id="contact-name"
-        type="text"
-        autocomplete="name"
-        placeholder="Name"
-      />
-      <label for="contact-phone">Contact no.</label><input
-        id="contact-phone"
-        type="tel"
-        autocomplete="tel"
-        placeholder="Contact no."
-      />
-      <label for="contact-email">Email address</label><input
-        id="contact-email"
-        type="email"
-        autocomplete="email"
-        placeholder="Email address"
-      />
-      <label for="contact-message">Message</label><textarea
-        id="contact-message"
-        rows="5"
-        placeholder="Type something...."></textarea>
-      <button
-        class="action"
-        type="button"
-        disabled
-        aria-describedby="contact-preview-note">Submit</button
+      <!-- All controls start disabled: JS installs the submit guard before enabling them. -->
+      <fieldset disabled>
+        <legend class="sr-only">Your contact details</legend>
+        <div class="contact-field">
+          <label for="contact-name">Name</label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            placeholder="Name"
+            data-error="Enter your name."
+            aria-describedby="contact-name-error"
+          />
+          <span id="contact-name-error" class="field-error"></span>
+        </div>
+        <div class="contact-field">
+          <label for="contact-phone">Contact no.</label>
+          <input
+            id="contact-phone"
+            name="contact_no"
+            type="tel"
+            autocomplete="tel"
+            required
+            placeholder="Contact no."
+            data-error="Enter your contact number."
+            aria-describedby="contact-phone-error"
+          />
+          <span id="contact-phone-error" class="field-error"></span>
+        </div>
+        <div class="contact-field">
+          <label for="contact-email">Email address</label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="Email address"
+            data-error="Enter your email address."
+            aria-describedby="contact-email-error"
+          />
+          <span id="contact-email-error" class="field-error"></span>
+        </div>
+        <div class="contact-field">
+          <label for="contact-message">Message</label>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="5"
+            class="resize-none"
+            placeholder="Type something...."></textarea>
+        </div>
+        <button
+          class="action"
+          type="submit"
+          disabled
+          aria-describedby="contact-note">Submit</button
+        >
+      </fieldset>
+      <p
+        class="contact-status"
+        data-contact-status
+        role="status"
+        aria-atomic="true"
       >
-    </div>
+      </p>
+    </form>
     <div class="contact-details">
       <Image
         src={contact}
@@ -72,15 +135,151 @@ import { site } from '../../data/site';
     </div>
   </div>
 </section>
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]')!;
+  const fieldset = form.querySelector('fieldset')!;
+  const button = form.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+  const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
+  const inputs = [...form.querySelectorAll<HTMLInputElement>('input')];
+  const message = form.querySelector('textarea')!;
+  const endpoint = form.dataset.endpoint;
+  const uncertain =
+    'We could not confirm your submission. It may have reached us. Please call or email us before sending it again.';
+  let composing = false;
+
+  function showStatus(text: string, state: string) {
+    status.textContent = text;
+    form.dataset.state = state;
+  }
+
+  function validate(input: HTMLInputElement) {
+    let error = '';
+    if (!input.value.trim()) error = input.dataset.error!;
+    else if (input.validity.typeMismatch)
+      error = 'Enter a valid email address, such as name@example.com.';
+    input.setAttribute('aria-invalid', String(Boolean(error)));
+    document.getElementById(`${input.id}-error`)!.textContent = error;
+    return !error;
+  }
+
+  function growMessage() {
+    message.style.height = 'auto';
+    message.style.height = `${message.scrollHeight}px`;
+  }
+
+  form.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  form.addEventListener('compositionend', () => {
+    composing = false;
+  });
+  form.addEventListener('input', (event) => {
+    const input = event.target;
+    if (
+      input instanceof HTMLInputElement &&
+      input.getAttribute('aria-invalid') === 'true'
+    )
+      validate(input);
+    if (input === message) growMessage();
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+  });
+
+  // Register the guard before enabling controls: no native submission or URL serialization.
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!endpoint || button.disabled || composing) return;
+    const invalid = inputs.filter((input) => !validate(input));
+    if (invalid.length) {
+      showStatus('Please check the highlighted fields.', 'error');
+      invalid[0].focus();
+      return;
+    }
+
+    const fields = new FormData(form);
+    const data = {
+      name: String(fields.get('name')).trim(),
+      contact_no: String(fields.get('contact_no')).trim(),
+      email: String(fields.get('email')).trim(),
+      message: message.value.trim(),
+    };
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    for (const field of [...inputs, message]) field.readOnly = true;
+    fieldset.setAttribute('aria-busy', 'true');
+    showStatus('Sending your message…', 'sending');
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        redirect: 'error',
+        body: JSON.stringify({ data }),
+        signal: controller.signal,
+      });
+      const result = await response.json().catch(() => null);
+      if (
+        response.status === 201 &&
+        typeof result?.data?.documentId === 'string' &&
+        result.data.documentId.trim()
+      ) {
+        form.reset();
+        growMessage();
+        showStatus('Thank you. Your message has been submitted.', 'success');
+      } else {
+        let error = uncertain;
+        if (response.status === 400 || response.status === 422)
+          error =
+            'Your message was not accepted. Please check your details and try again.';
+        else if (response.status === 401 || response.status === 403)
+          error =
+            'Online submissions are currently unavailable. Please call or email us.';
+        else if (response.status === 429)
+          error =
+            'Too many submission attempts. Please wait before trying again, or call or email us.';
+        showStatus(error, 'error');
+      }
+    } catch {
+      showStatus(uncertain, 'error');
+    } finally {
+      window.clearTimeout(timeout);
+      button.disabled = false;
+      button.textContent = 'Submit';
+      for (const field of [...inputs, message]) field.readOnly = false;
+      fieldset.setAttribute('aria-busy', 'false');
+    }
+  });
+
+  if (endpoint) {
+    form.querySelector<HTMLElement>('[data-contact-note]')!.textContent =
+      'Name, contact number and email address are required. Message is optional.';
+    fieldset.disabled = false;
+    button.disabled = false;
+    form.dataset.state = 'idle';
+  }
+</script>
 <style>
   @reference "../../styles/tokens.css";
   .section-heading {
     margin-bottom: var(--space-2xl);
   }
-  #contact-preview-note {
+  #contact-note {
     color: var(--color-muted);
     font-size: var(--text-caption);
     margin-bottom: var(--space-md);
+  }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .contact-field {
+    margin-bottom: var(--space-sm);
   }
   label {
     display: block;
@@ -94,14 +293,37 @@ import { site } from '../../data/site';
     border: var(--border-thin) solid var(--color-subtle);
     border-radius: var(--radius-control);
     padding: var(--space-sm);
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--spacing);
     font-size: var(--text-small);
     background: var(--color-white);
     color: var(--color-body);
   }
   textarea {
     min-height: var(--textarea-height);
-    resize: vertical;
+    max-height: var(--contact-textarea-max);
+    overflow-y: auto;
+    resize: none;
+  }
+  [aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+  .field-error {
+    display: block;
+    min-height: var(--contact-error-height);
+    font-size: var(--text-caption);
+    color: var(--color-error);
+  }
+  .contact-status {
+    min-height: var(--contact-status-height);
+    padding-top: var(--space-sm);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  [data-state='error'] .contact-status {
+    color: var(--color-error);
+  }
+  [data-state='success'] .contact-status {
+    color: var(--color-brand);
   }
   .contact-details > :global(img) {
     width: var(--contact-image-width);
@@ -131,7 +353,7 @@ import { site } from '../../data/site';
     border-radius: var(--radius-control);
     font-family: var(--font-action);
   }
-  .contact-preview .action {
+  .contact-form .action {
     width: 100%;
   }
 </style>

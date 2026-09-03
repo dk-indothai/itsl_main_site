@@ -265,12 +265,16 @@ for (const [route, title, heading] of [
     }
   });
 
-  test(`${route} never adds a submitting contact form`, () => {
-    assert.equal(nodes('form').length, 0);
+  test(`${route} keeps contact disabled until the client handler is ready`, () => {
+    assert.equal(nodes('form').length, route === '/mutual-funds/' ? 1 : 0);
     const fields = [...nodes('input'), ...nodes('textarea')];
     assert.equal(fields.length, route === '/mutual-funds/' ? 4 : 0);
     for (const field of fields) {
-      assert.equal(attr(field, 'name'), undefined);
+      assert.ok(
+        ['name', 'contact_no', 'email', 'message'].includes(
+          attr(field, 'name'),
+        ),
+      );
       assert.equal(attr(field, 'form'), undefined);
       assert.ok(
         nodes('label').some(
@@ -280,9 +284,11 @@ for (const [route, title, heading] of [
     }
     if (fields.length) {
       const submit = nodes('button').find((node) => text(node) === 'Submit');
-      assert.equal(attr(submit, 'type'), 'button');
+      assert.equal(attr(submit, 'type'), 'submit');
       assert.notEqual(attr(submit, 'disabled'), undefined);
-      assert.ok(pageText.includes('Preview only'));
+      assert.notEqual(attr(nodes('fieldset')[0], 'disabled'), undefined);
+      assert.equal(attr(nodes('form')[0], 'method'), 'post');
+      assert.notEqual(attr(nodes('form')[0], 'novalidate'), undefined);
     }
   });
 }

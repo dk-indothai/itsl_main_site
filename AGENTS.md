@@ -17,6 +17,9 @@ and cards, superseding the earlier separated divider. Keep its line subtle,
 non-interactive and decorative; do not animate the plane or shrink the original icon.
 About Us alone has a full-viewport photographic hero behind a translucent header
 background. Header text, logo, actions and dropdown remain fully opaque.
+Home and Mutual Funds share a browser-only Strapi contact submission handler,
+enabled by optional `PUBLIC_STRAPI_URL`. The owner explicitly prohibits changing
+Strapi code, schema, permissions, CORS or configuration for this integration.
 
 ## Scope and sources of truth
 
@@ -101,9 +104,22 @@ background. Header text, logo, actions and dropdown remain fully opaque.
   links in the tab order. Preserve actions and readable layouts on mobile.
 - Connect forms only to an approved submission service. Do not expose personal
   details in query strings or show success without a confirmed submission.
-- The current contact section is preview-only: keep its Submit button disabled,
-  fields without form ownership/names, and no submission, persistence or URL
-  serialization. Preserve the status explanation and working phone/email links.
+- Contact uses only the existing `POST /api/contact-forms` endpoint and its four
+  fields (`name`, `contact_no`, `email`, `message`) inside `data`. Do not add tokens,
+  cookies, honeypots, custom responses, publication overrides or email integration.
+  No CMS request occurs during builds. Missing configuration or JavaScript leaves
+  the fieldset and Submit disabled; install the submit guard before enabling them.
+- Preserve accessible inline validation, stable sending/error/success feedback,
+  duplicate-click prevention and the 20-second timeout without automatic retries.
+  Clear values only after a confirmed Strapi creation; preserve them on error and
+  describe uncertain completion honestly. Never log personal data or place it in
+  URLs or browser storage. Keep phone/email links and the no-JavaScript fallback.
+- Keep the four form fields and their browser handler together in shared
+  `Contact.astro`; do not add a generic field registry or form helper layer.
+- Tests must mock submissions by default. Real local smoke tests use explicitly
+  synthetic data only; never read, alter or delete existing enquiries. Browser
+  tests use one mock-configured build and preview server; no running Strapi is
+  needed. Rebuild with the intended configuration before normal preview/deployment.
 - The floating accessibility toolbar is deferred to pre-release compliance review.
   Do not add it or claim compliance approval without authorization.
 - Preserve all six testimonials and the five-second token-owned autoplay interval.

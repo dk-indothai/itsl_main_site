@@ -1,5 +1,4 @@
 import { defineConfig } from '@playwright/test';
-import process from 'node:process';
 
 export default defineConfig({
   testDir: './tests/browser',
@@ -8,8 +7,9 @@ export default defineConfig({
   timeout: 30000,
   use: { baseURL: 'http://127.0.0.1:4325', trace: 'retain-on-failure' },
   webServer: {
-    command: 'node scripts/preview-for-tests.mjs',
+    command: 'npm run build && node scripts/preview-for-tests.mjs',
+    env: { PUBLIC_STRAPI_URL: 'http://strapi.test' },
     url: 'http://127.0.0.1:4325',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });

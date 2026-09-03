@@ -314,7 +314,9 @@ for (const route of ['about-us', 'mutual-funds']) {
     await expect(
       page.getByRole('navigation', { name: 'More navigation' }),
     ).toBeVisible();
-    await expect(page.locator('form')).toHaveCount(0);
+    await expect(page.locator('form')).toHaveCount(
+      route === 'mutual-funds' ? 1 : 0,
+    );
     if (route === 'mutual-funds')
       await expect(
         page.getByRole('button', { name: 'Submit', exact: true }),
@@ -323,47 +325,3 @@ for (const route of ['about-us', 'mutual-funds']) {
     await context.close();
   });
 }
-
-test('Mutual Funds contact cannot send or serialize entered values', async ({
-  page,
-  baseURL,
-}) => {
-  await page.goto('/mutual-funds/');
-  const marker = 'mf-preview-safety';
-  const requests: string[] = [];
-  page.on('request', (request) => {
-    if (
-      request.method() !== 'GET' ||
-      request.url().includes(marker) ||
-      request.postData()?.includes(marker)
-    )
-      requests.push(request.url());
-  });
-  await page.getByLabel('Name', { exact: true }).fill(marker);
-  await page.getByLabel('Contact no.', { exact: true }).fill('0000000000');
-  await page
-    .getByLabel('Email address', { exact: true })
-    .fill(`${marker}@example.invalid`);
-  await page.getByLabel('Message', { exact: true }).fill(marker);
-  await page.keyboard.press('Enter');
-  await expect(
-    page.getByRole('button', { name: 'Submit', exact: true }),
-  ).toBeDisabled();
-  await expect(page).toHaveURL(`${baseURL}/mutual-funds/`);
-  expect(requests).toEqual([]);
-  expect(
-    await page
-      .locator('input, textarea')
-      .evaluateAll((fields) =>
-        fields.every(
-          (field) =>
-            (field as HTMLInputElement).form === null &&
-            !(field as HTMLInputElement).name,
-        ),
-      ),
-  ).toBe(true);
-  await expect(page.locator('.contact-details a[href^="tel:"]')).toHaveCount(2);
-  await expect(page.locator('.contact-details a[href^="mailto:"]')).toHaveCount(
-    2,
-  );
-});

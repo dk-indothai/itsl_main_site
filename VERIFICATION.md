@@ -1,5 +1,71 @@
 # Three-page migration verification
 
+## Contact endpoint integration — 3 September 2026
+
+Home and Mutual Funds now use the same browser-only JSON POST handler for the
+existing Strapi contact endpoint. Static output, three-route scope, visual token
+ownership and `noindex, nofollow` remain unchanged. This supersedes the preview-only
+contact assertions in the historical migration results below.
+
+Owner-requested simplification: the four fields and handler now live in
+`Contact.astro`. Removed the field/response helper layer, separate submission script,
+leave-page warnings and two-build test setup. Client errors stay inline; backend
+errors use safe form-level feedback. Tests use one mock-configured build/server.
+The checks below were rerun for this simplification.
+
+| Check                          | Result                                                                                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Formatting                     | `npm run format:check` passed.                                                                                                       |
+| Astro/TypeScript               | `npm run check`: 51 files, zero errors, warnings or hints.                                                                           |
+| Static checks                  | `npm test` passed; direct non-isolated execution passed all 18 assertions.                                                           |
+| Production build               | Three static routes generated. Both the mock-configured and normal local builds passed; `dist/` was rebuilt with the local endpoint. |
+| Production browser tests       | `npm run test:browser`: all 61 Chromium tests passed, including 30 contact tests.                                                    |
+| Development image/layout tests | `npm run test:dev`: all 15 checks passed across the three routes on the isolated rerun.                                              |
+| Design checks                  | Design-document lint and strict frontend static audit passed with zero errors/warnings; `git diff --check` passed.                   |
+
+The first development run passed 13/15 checks; two encountered a page reload while
+formatting/build verification was running alongside it (detached DOM/context errors).
+Rerunning without simultaneous builds or edits passed all 15. No test assertions
+were weakened to address those interruptions.
+
+Verification covers required fields/email, optional message, international phone
+formatting, exact four-field payload, no authorization/cookie/referrer headers,
+duplicate-submit prevention, inline errors/focus, retained values on failure,
+confirmed-success clearing, 400/422/401/403/429/500 responses, malformed responses,
+network failure, and the 20-second timeout without automatic retries. A separate
+composition check verifies that text composition cannot submit early. The disabled
+client fallback is tested by removing the endpoint from a page fixture before its
+script runs, not by maintaining a second build/server. No-JavaScript checks still
+use actual generated HTML. All requests to the test endpoint `http://strapi.test`
+are intercepted; automated browser tests do not create Strapi records.
+
+Desktop (1280px), phone (390px) and narrow-phone (320px) error/success screenshots
+were captured for both forms. Desktop Home errors and phone Mutual Funds success
+were visually inspected; existing layout and image checks cover all three pages
+at 1280, 768, 729, 390 and 320px. Form feedback uses reserved space, token-owned
+error colors and an accessible status region outside the busy fieldset.
+These checks are not screen-reader or full accessibility conformance approval.
+
+**Earlier live smoke test (before simplification):** the local preview on port 4323 submitted one synthetic
+enquiry from each page to `http://localhost:1337/api/contact-forms`, without an API
+token. Both returned HTTP 201 with a created Strapi document, showed success and
+cleared the form. Neither page acquired query parameters. The two test entries are
+named `Website integration smoke test - Home` and
+`Website integration smoke test - Mutual Funds`, using
+`website-smoke-test@example.invalid`; they remain in Strapi. No existing enquiries
+were read, changed or deleted. Strapi's repository stayed clean and its code,
+schema, permissions, CORS and configuration were not changed. Admin-list retrieval
+and email delivery were not tested; no email integration was added. This
+simplification does not repeat those live submissions or create additional records.
+
+Release limitations: existing backend permissions/CORS and publication behavior
+remain the owner's responsibility. No backend rate limiter/honeypot or CAPTCHA is
+included. Production HTTPS/origins, server-side abuse protection, staff permissions,
+privacy/retention review and revoking the previously shared token remain outstanding.
+The endpoint URL is public configuration; no token is used or stored by this change.
+
+### Previous migration baseline (historical)
+
 Implementation review: 2 September 2026. This records local Home, About Us and Mutual Funds builds,
 not deployment readiness or regulatory/accessibility approval.
 
@@ -242,7 +308,7 @@ Generated comparison files are ignored artifacts under `artifacts/reference/`
 and `artifacts/local/`; browser-test screenshots/traces are in `test-results/`.
 The capture commands regenerate them. They are not shipped in `dist/`.
 
-## Output and performance observations
+## Previous migration output and performance observations
 
 Each production-build page has one H1, unique title/description, social text metadata and
 `noindex, nofollow`, with no invented production canonical. Runtime images,
@@ -293,8 +359,9 @@ Follow-up checks:
   no additional page, calculator, transaction or account flow was migrated.
 - No hosting, production routing, sitemap, canonical/social-image origin,
   indexing activation, redirects or deployment has been configured.
-- Contact delivery and the floating accessibility toolbar/compliance decision
-  remain deferred as requested.
+- The contact client and local endpoint smoke test are implemented as recorded
+  above; production contact security/privacy configuration is not included.
+  The floating accessibility toolbar/compliance decision remains deferred.
 - External destination values were checked against source markup; authenticated
   account, payment/transfer, IPO and trading workflows were not exercised.
 - Automated browser coverage is Chromium. Safari, Firefox, physical touch devices,

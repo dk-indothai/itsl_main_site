@@ -109,21 +109,27 @@ test('all services, final statistics, testimonials and regulatory details are re
     assert.ok(pageText.includes(expected), expected);
 });
 
-test('the contact preview has no submission or serialization mechanism', () => {
-  assert.equal(nodes('form').length, 0);
+test('contact starts disabled until its JavaScript submission guard is ready', () => {
+  assert.equal(nodes('form').length, 1);
+  assert.equal(attr(nodes('form')[0], 'method'), 'post');
+  assert.notEqual(attr(nodes('form')[0], 'novalidate'), undefined);
+  assert.equal(attr(nodes('form')[0], 'action'), undefined);
+  assert.notEqual(attr(nodes('fieldset')[0], 'disabled'), undefined);
   const fields = [...nodes('input'), ...nodes('textarea')];
   assert.equal(fields.length, 4);
   for (const field of fields) {
-    assert.equal(attr(field, 'name'), undefined);
+    assert.ok(
+      ['name', 'contact_no', 'email', 'message'].includes(attr(field, 'name')),
+    );
     assert.equal(attr(field, 'form'), undefined);
     assert.ok(
       nodes('label').some((label) => attr(label, 'for') === attr(field, 'id')),
     );
   }
   const submit = nodes('button').find((node) => text(node) === 'Submit');
-  assert.equal(attr(submit, 'type'), 'button');
+  assert.equal(attr(submit, 'type'), 'submit');
   assert.notEqual(attr(submit, 'disabled'), undefined);
-  assert.ok(pageText.includes('Preview only'));
+  assert.ok(nodes('p').some((node) => attr(node, 'role') === 'status'));
 });
 
 test('images, fonts, styles and browser scripts load from local build output', async () => {

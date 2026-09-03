@@ -285,43 +285,7 @@ test('no-JavaScript content, disclosures and contact safety still work', async (
   await expect(
     page.getByRole('button', { name: 'Submit', exact: true }),
   ).toBeDisabled();
-  await expect(page.locator('form')).toHaveCount(0);
+  await expect(page.locator('form')).toHaveCount(1);
+  await expect(page.getByLabel('Name', { exact: true })).toBeDisabled();
   await context.close();
-});
-
-test('contact inputs do not submit, make requests or enter the URL', async ({
-  page,
-}) => {
-  await page.goto('/');
-  const requests: string[] = [];
-  const marker = 'preview-safety-check';
-  page.on('request', (request) => {
-    if (
-      request.method() !== 'GET' ||
-      request.url().includes(marker) ||
-      request.postData()?.includes(marker)
-    )
-      requests.push(request.url());
-  });
-  await page.getByLabel('Name', { exact: true }).fill(marker);
-  await page
-    .getByLabel('Email address', { exact: true })
-    .fill(`${marker}@example.invalid`);
-  await page.keyboard.press('Enter');
-  await expect(
-    page.getByRole('button', { name: 'Submit', exact: true }),
-  ).toBeDisabled();
-  expect(page.url()).toBe('http://127.0.0.1:4325/');
-  expect(requests).toEqual([]);
-  expect(
-    await page
-      .locator('input, textarea')
-      .evaluateAll((fields) =>
-        fields.every(
-          (field) =>
-            (field as HTMLInputElement).form === null &&
-            !(field as HTMLInputElement).name,
-        ),
-      ),
-  ).toBe(true);
 });

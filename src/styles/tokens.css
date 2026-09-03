@@ -11,6 +11,7 @@
   --color-subtle: #d8d8d8;
   --color-footer: #f6f7f9;
   --color-muted: #54545e;
+  --color-error: #a32121;
   --color-panel-border: #dce3ef;
   --color-company-band: #e9ecf7;
   --color-fund-card: #2440a8;
@@ -110,6 +111,9 @@
   --app-image-width: 35rem;
   --contact-image-width: 21.125rem;
   --textarea-height: 9rem;
+  --contact-textarea-max: 18rem;
+  --contact-error-height: 1.5em;
+  --contact-status-height: 4.5em;
   --gradient-hero: linear-gradient(
     176.66deg,
     var(--color-ink) 3.41%,

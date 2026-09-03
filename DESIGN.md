@@ -15,7 +15,7 @@ components:
   action: {}
   navigation: {}
   testimonial: {}
-  contactPreview: {}
+  contactForm: {}
 ---
 
 # IndoThai design guidance
@@ -36,7 +36,8 @@ English-language brand/marketing site for IndoThai’s Indian investors, includi
 the HNIs, corporations and mega traders named in the source. Core tasks are
 understanding services and reaching existing account, investment and support
 destinations. Desktop and phone layouts matter equally. There is no product/admin
-workflow or local trading interface, so an application UX contract is not needed.
+workflow or local trading interface. The shared contact form has a small submission
+workflow documented below; a separate application UX contract is not needed.
 
 Avoid generic SaaS gradients, dashboard layouts, invented financial claims and
 new UI kits. Keep utility navigation familiar and legal content readable.
@@ -142,8 +143,8 @@ separate rounded, touch-sized geometry.
 ### Foundational visual states
 
 Actions have hover and visible keyboard focus states. White-on-blue sections
-use white focus outlines. Disabled submission remains clearly unavailable with
-nearby explanatory text. There are no fake loading, success or error states.
+use white focus outlines. Unconfigured/no-JavaScript submission remains unavailable
+with nearby explanatory text. Sending and feedback states reflect actual requests.
 
 ### Buttons and actions
 
@@ -168,10 +169,29 @@ visible text is shortened. Disabled reduced-motion controls remain readable.
 
 ### Forms and overlays
 
-Contact, shared by Home and Mutual Funds, is a labeled preview group, deliberately not a submitting HTML form.
-It has no form owner, field names or persistence. The disabled button and status
-explanation remain until the submission service is approved. No modal overlays,
-native alerts or toast messages are needed.
+Contact, shared by Home and Mutual Funds, submits directly to the approved existing
+Strapi endpoint. `Contact.astro` owns its four explicit fields, layout and browser
+submission handler. No field registry, form library or separate helper layer is
+needed. Neither route introduces its own form implementation.
+The previous preview-only contract is intentionally superseded by owner approval.
+
+Keep the existing labels, illustration, layout and token-backed controls. Validate
+on submit and recheck fields already in error while editing; use `novalidate` rather
+than browser validation bubbles. Inline error slots use `--color-error` and
+`--contact-error-height`; the live status region uses `--contact-status-height`.
+These values live only in `tokens.css`. Focus the first invalid field and associate
+its error text; never rely on color alone. The textarea grows to
+`--contact-textarea-max` and then scrolls without manual resizing.
+
+Sending keeps the button size stable and fields readonly; a confirmed creation
+clears them and announces success in place. Failures retain entered text, with no
+automatic retry, raw server messages or personal data reflected in feedback.
+Client validation uses field-associated errors; backend failures use a safe
+form-level status rather than parsing backend error paths. The owner's simplification
+removes leave-page warnings; unsaved values stay only in the controls and are lost
+on navigation. Before initialization, or without configuration/JavaScript, controls
+are disabled and phone/email remain available. No modal, native alert or toast
+system is needed.
 
 ### Iconography
 

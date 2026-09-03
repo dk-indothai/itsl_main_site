@@ -6,11 +6,11 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 **Home (`/`), About Us (`/about-us/`) and Mutual Funds (`/mutual-funds/`) are implemented.** Navigation between these pages is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
-The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact preview, and regulatory/company footer.
+The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact preview. All three pages reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. All three pages reuse the layout, header, footer, SEO and design tokens.
 
-The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS, server adapter or carousel package is required. Playwright and the HTML parser are development-only test dependencies.
+The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. Playwright and the HTML parser are development-only test dependencies. Contact submission uses the owner's existing self-hosted Strapi endpoint; website content and builds remain independent of Strapi.
 
 The previous project, `/home/mrrobot/Projects/itsl-website`, was used read-only for structural reference and byte-verified matching assets. It is not a runtime dependency or the authoritative design.
 
@@ -36,7 +36,7 @@ Open the URL printed by Astro (normally `http://127.0.0.1:4321`; another free po
 | `npm test`                  | Build and check the generated HTML, metadata, content, assets and safety rules.   |
 | `npm run build`             | Generate the static site in `dist/`.                                              |
 | `npm run preview`           | Serve an existing build locally; not a production server.                         |
-| `npm run test:browser`      | Build and run Chromium responsive/interaction tests.                              |
+| `npm run test:browser`      | Build and run Chromium tests with mocked submissions.                             |
 | `npm run test:dev`          | Check every image and responsive layout against a fresh Astro development server. |
 | `npm run capture:local`     | Build and capture every section at the comparison widths.                         |
 | `npm run capture:reference` | Optional live staging screenshots; requires network access.                       |
@@ -52,6 +52,46 @@ entrance animations can distort full-page captures; review the section captures 
 Astro may start a background process in an agent environment. Inspect or stop **this project’s** process with `npm run dev -- status` and `npm run dev -- stop`; equivalent preview subcommands exist. The browser suite uses Astro’s public preview API in the foreground, independent of AI tooling.
 
 Keep `package-lock.json` in version control and use `npm ci` for reproducible installations. No environment variables, WordPress connection, agent tools, or accounts are needed to build. Dependency installation and the optional reference capture require network access; normal builds use local files only.
+
+### Contact submission setup
+
+Copy `.env.example` to an ignored `.env.local` and set:
+
+```dotenv
+PUBLIC_STRAPI_URL=http://localhost:1337
+```
+
+This is a public API **base URL**, not a token. Restart development after changing it;
+rebuild for deployment. Missing or invalid configuration keeps submission disabled.
+Builds never connect to Strapi. No API token, SDK or server adapter is needed.
+
+`src/components/shared/Contact.astro` contains the four fields and their browser
+submission handler, shared by Home and Mutual Funds. It sends JSON
+`{ "data": { "name", "contact_no", "email", "message" } }` (string values) to
+`POST /api/contact-forms`, without authorization headers or cookies.
+
+Name, contact number and a valid email are required; message is optional. Client
+validation shows inline errors; server errors use the form's status message. Only
+a `201` response with a created Strapi document clears the fields. Errors preserve
+entered values; the 20-second timeout and network/unexpected responses say completion
+could not be confirmed. There are no automatic retries or leave-page warnings.
+Values are never saved to URLs, storage or logs. Without JavaScript, controls remain
+disabled and phone/email links work.
+
+**Strapi is not modified by this project.** Existing Public Create access and CORS
+must allow submission. No email notifications, backend spam protection or publication
+override is added; entries follow the endpoint's existing Draft & Publish behavior.
+Client validation and duplicate-click prevention are usability features, not security.
+Production needs an approved HTTPS API URL, permission/privacy/retention review and
+revocation of the previously shared token. `localhost` works only on the machine
+running Strapi.
+
+Browser tests build `dist/` using `http://strapi.test` and mock all submissions on
+one preview server (port 4325). A page fixture removes the endpoint to test the
+disabled client fallback. Run `npm run build` again before a normal preview or
+deployment to restore your configured URL. Live smoke tests are separate and use
+synthetic data only; never inspect or delete existing enquiries. Results are in
+`VERIFICATION.md`.
 
 ### If development images disappear
 
@@ -113,7 +153,7 @@ astro.config.mjs               Static output and Tailwind Vite integration
 ```
 
 Each route file only composes named sections and supplies its metadata. No placeholder
-routes, CMS, fund calculator, financial transactions or server-side form handler are included.
+routes, CMS content fetching, fund calculator, financial transactions or Astro server-side form handler are included.
 
 ## Maintenance
 
@@ -125,7 +165,7 @@ routes, CMS, fund calculator, financial transactions or server-side form handler
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on all three pages through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
 - **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`.
-- **Browser behavior:** navigation enhancement lives with Header; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
+- **Browser behavior:** navigation enhancement lives with Header; form submission lives with Contact; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
 
@@ -162,7 +202,7 @@ Navigation uses native disclosures, enhanced with Escape, outside-click dismissa
 
 Testimonials are scrollable HTML containing all six quotes. JavaScript adds previous/next and pause/resume controls. Autoplay uses the token-owned five-second interval, pauses on hover/focus/manual interaction, and is suspended offscreen or when the document is hidden. Reduced motion disables automatic rotation. Manual controls still work.
 
-**Contact is preview-only.** Its labeled fields have no form owner or field names, and the Submit button is disabled. No form handler, network submission, persistence, success message or URL serialization exists. Phone and email links remain usable. Do not enable submission until a service and privacy/spam controls are approved.
+**Contact uses the existing Strapi endpoint when configured.** A disabled fieldset and Submit button prevent native submission before the JavaScript handler initializes. The handler uses JSON POST, associated inline errors and a live status region, and prevents concurrent submissions. Phone and email links remain usable. See setup and release limitations above.
 
 The floating accessibility toolbar is **deferred to pre-release compliance review**. Its omission is not a claim that a toolbar is unnecessary or that this page meets every regulatory requirement. Semantic HTML, focus visibility, keyboard controls, reduced-motion support and responsive content remain part of this build.
 
@@ -198,7 +238,7 @@ Each generated page includes one meaningful H1, logical section headings, a uniq
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
-Resolve hosting, production-domain routing alongside WordPress, and the contact submission service before their integrations. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables.
+Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server, but live contact submissions require the separate Strapi service.
 
 ## Verification and release checklist
 
@@ -211,7 +251,8 @@ Before release:
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
 - [x] Implement the three approved static routes; release acceptance remains separate.
 - [ ] Approve source-copy/link anomalies and verify external service destinations and availability.
-- [ ] Choose the contact service; implement and test validation, pending, success and failure states, privacy and spam controls.
+- [x] Connect both contact forms to the existing Strapi endpoint with client validation and submission states.
+- [ ] Approve the production Strapi origin/CORS, public permissions, privacy/retention and server-side spam controls; revoke the previously shared token. No Strapi configuration changes are included here.
 - [ ] Complete accessibility/compliance review, including the deferred floating toolbar; test screen readers, contrast, zoom/reflow and supported physical devices.
 - [ ] Run formatting, Astro/TypeScript, static-output and browser tests; inspect every section.
 - [ ] Approve the production origin, canonical URLs, social image, relevant structured data and WordPress routing/redirect ownership.
