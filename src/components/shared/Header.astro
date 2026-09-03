@@ -151,6 +151,9 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
                       href={item.href}
                       target={item.newTab ? '_blank' : undefined}
                       rel={item.newTab ? 'noopener noreferrer' : undefined}
+                      aria-current={
+                        item.href === currentPath ? 'page' : undefined
+                      }
                     >
                       {item.label}
                       {item.newTab && (

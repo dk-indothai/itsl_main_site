@@ -35,12 +35,17 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the three approved routes are generated', async () => {
+test('only the four approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
       .sort(),
-    ['about-us/index.html', 'index.html', 'mutual-funds/index.html'],
+    [
+      'about-us/index.html',
+      'downloads/index.html',
+      'index.html',
+      'mutual-funds/index.html',
+    ],
   );
   assert.equal(nodes('main').length, 1);
   assert.equal(nodes('h1').length, 1);
@@ -161,7 +166,9 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
     assert.ok(href && href !== '#', 'No placeholder links');
     assert.ok(!href.startsWith('javascript:'));
     if (href.startsWith('/'))
-      assert.ok(['/', '/about-us/', '/mutual-funds/'].includes(href));
+      assert.ok(
+        ['/', '/about-us/', '/mutual-funds/', '/downloads/'].includes(href),
+      );
     if (href.startsWith('#')) assert.ok(ids.has(href.slice(1)));
     if (attr(anchor, 'target') === '_blank')
       assert.ok(attr(anchor, 'rel').includes('noopener'));

@@ -10,6 +10,7 @@ export default defineConfig({
   use: { ...previewConfig.use, baseURL: 'http://127.0.0.1:4327' },
   webServer: {
     command: 'node scripts/dev-for-tests.mjs',
+    env: { PUBLIC_STRAPI_URL: 'http://strapi.test' },
     url: 'http://127.0.0.1:4327',
     reuseExistingServer: false,
   },

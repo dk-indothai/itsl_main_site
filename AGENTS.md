@@ -2,8 +2,9 @@
 
 ## Project status
 
-The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`)
-and Mutual Funds (`/mutual-funds/`) pages are implemented and link locally.
+The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`),
+Mutual Funds (`/mutual-funds/`) and Software Downloads (`/downloads/`) pages are
+implemented and link locally. Downloads loads its catalogue in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
@@ -23,8 +24,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 
 ## Scope and sources of truth
 
-- Migrate only Home (`/`), About Us (`/about-us/`), and Mutual Funds
-  (`/mutual-funds/`) to static Astro pages.
+- The approved static routes are Home (`/`), About Us (`/about-us/`), Mutual Funds
+  (`/mutual-funds/`) and Software Downloads (`/downloads/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -54,6 +55,20 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 - About Us content belongs in `src/data/about.ts`; Mutual Funds content belongs
   in `src/data/mutual-funds.ts`. `src/data/apps.ts` owns the shared WINVEST copy
   and destinations. Reuse shared Contact and StoreBadges rather than duplicating them.
+- Downloads keeps markup, typed fetching and filters in one `Downloads.astro`
+  component. Keep loading, card creation and filtering clearly separated; build
+  cards once and toggle their `hidden` state on category changes. Avoid generic
+  CMS/rendering abstractions. Reuse `PUBLIC_STRAPI_URL`; fetch all pages of software categories and
+  software only in the browser, with `artifact` and `software_category` populated.
+  No tokens, cookies, CMS SDK, adapter, placeholder data or CMS configuration edits.
+  All Categories includes uncategorized entries; filter locally by `documentId`
+  and retain empty categories. Show “No software yet.” only after successful loading.
+  Preserve first-file-only behavior for arrays and support the current single-media
+  response. Use safe text rendering and HTTP(S) file URLs; never execute downloads.
+  Current software and category schemas both use Draft & Publish (changed by the
+  owner since planning); do not send publication overrides. See README.
+  Preserve accessible loading/error/empty states, manual retry and the 20-second
+  timeout. Without configuration or JavaScript, explain and retain contact links.
 - Preserve all six directors, the 11-event milestone transcript, three values,
   four company links and five gallery images. The timeline uses the original
   responsive SVG artwork plus matching desktop/mobile text equivalents, not inferred
@@ -88,7 +103,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 - Do not bypass central tokens with repeated arbitrary color, font-size, or spacing
   values. Use complete, statically detectable utility names rather than building
   partial class names dynamically; avoid generating large sets of unused classes.
-- Secondary pages import `src/styles/content.css`; its selectors are scoped to
+- About Us and Mutual Funds import `src/styles/content.css`; its selectors are scoped to
   `.content-page`. Keep their measured type scales separate from the homepage.
   Preserve the shared outer section rhythm; do not restore WordPress animation
   overlaps or unusable line heights merely to match a broken source state.
@@ -142,7 +157,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the three approved static routes into `dist/`.
+  Build the four approved static routes into `dist/`. Software listings require
+  JavaScript and are not present in the generated HTML; retain preview noindex.
 - Inspect `package.json` before running commands. Run `npm run format:check`,
   `npm run check`, `npm test`, and `npm run test:browser` after application changes.
   Browser tests need the development-only Playwright Chromium installation.

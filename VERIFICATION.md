@@ -1,6 +1,118 @@
-# Three-page migration verification
+# Website migration verification
 
-## Contact endpoint integration — 3 September 2026
+## Inline download metadata — 3 September 2026
+
+Filename and size now share one row, with the file icon on the left and a subtle
+divider before the right-aligned size. Long filenames wrap without hiding their
+extension; missing values leave no stray divider or empty row. Only template/CSS
+changed; the browser loading and filtering code is untouched.
+
+Formatting, Astro/TypeScript (55 files, zero diagnostics), the four-route build,
+all 20 static assertions and all 91 Chromium tests passed. Tests check single-line
+metadata at 1280/768/390/320px, long-name containment, and absent filename/size.
+Desktop and 320px screenshots were inspected. An initial geometry test compared
+inline text bounds with flex line boxes; it was corrected to compare both line
+boxes, keeping the same alignment tolerance. Design lint and the strict frontend
+audit passed. API responses were mocked; no live CMS changes or file downloads
+were made. The normal local-configured build was restored after browser tests.
+
+## Downloads code simplification — 3 September 2026
+
+The component now separates API loading, one-time card creation and category
+filtering into named functions. Category changes toggle existing cards rather
+than rebuilding their markup; there is no second in-memory software list.
+Response checks use sequential guards, error handling no longer uses nested
+ternaries, and file-size formatting shares one number-formatting step. The
+templates, styling, filename behavior and API contract remain unchanged.
+
+Formatting, Astro/TypeScript (55 files, zero diagnostics), the four-route build,
+all 20 static assertions and all 90 Chromium tests passed. A new regression
+checks card reuse; keyboard tests verify that hidden cards expose no tab stops.
+Desktop cards, phone empty state and the full long filename at 320px were visually
+inspected. Design lint, the strict frontend audit and whitespace checks passed.
+The first type check caught an element-type mismatch in the new test; it was
+fixed before rerunning. API verification used mocks, not live Strapi. The normal
+local-configured build was restored afterwards. No CMS changes, dependencies,
+software downloads, commits or deployment were made.
+
+## Download filenames — 3 September 2026
+
+Cards now display the selected attachment's filename and extension above its size.
+The browser uses the media name, appends a missing known extension, and falls back
+to the URL basename when the name is missing. Filenames render as plain text;
+long names wrap without truncation. First-attachment behavior is unchanged.
+
+Formatting, Astro/TypeScript (55 files, zero diagnostics), the four-route build,
+all 20 static assertions and all 89 Chromium browser tests passed. The browser
+suite includes 28 Downloads tests covering filename fallback, case-insensitive
+extension matching, escaped URL names, literal CMS text, ignored later files and
+long-name wrapping at 320px. Desktop and narrow-phone screenshots were inspected.
+Design-document lint, the strict frontend audit and `git diff --check` passed.
+
+The local Strapi address refused connections during this follow-up, so live
+filename verification was unavailable; the page correctly showed its connection
+error. Browser tests used mocked responses. The earlier live results below are
+historical, not a claim of current API availability. The normal local-configured
+build was restored after tests and succeeded without Strapi running. No Strapi
+changes or software downloads were made.
+
+## Software Downloads — 3 September 2026
+
+Four routes are now implemented: Home, About Us, Mutual Funds and `/downloads/`.
+Downloads is a static page shell with browser-only Strapi loading on each refresh.
+The listing is absent from initial HTML; preview `noindex, nofollow` is retained.
+No dependencies, server adapter, CMS helper framework or deployment were added.
+
+| Check                    | Result                                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Formatting               | `npm run format:check` passed.                                                                            |
+| Astro/TypeScript         | `npm run check`: 55 files, zero errors, warnings or hints.                                                |
+| Static output and build  | `npm test` passed; direct non-isolated execution passed all 20 assertions. Four static routes generated.  |
+| Production browser tests | `npm run test:browser`: all 87 Chromium tests passed, including 26 Downloads tests.                       |
+| Development tests        | `npm run test:dev`: all 19 layout/asset checks passed across the four routes.                             |
+| Design checks            | Design-document lint and strict frontend audit reported no errors or warnings. `git diff --check` passed. |
+
+Downloads coverage includes alphabetic sorting, pagination on both endpoints,
+uncategorized records, duplicate category names distinguished by `documentId`,
+empty categories and globally empty software, optional descriptions/sizes,
+single-media responses, first-file-only arrays, missing/unsafe first files, and
+literal rendering of CMS text. Requests omit credentials and do not run when
+filtering. Loading, 20-second timeout, manual retry, duplicate-retry prevention,
+401/403/429/500, network and malformed-response errors, later-page failures,
+keyboard selection/focus, local navigation and no-JavaScript/configuration
+fallbacks are covered. Both test servers use the mock API origin; neither reads
+nor writes live CMS data. The mock-origin build succeeds without that host existing.
+
+Desktop, tablet and phone checks verify 3/2/1 columns at 1280/768/390px; 320px is
+also covered. Captures include populated, empty and denied-access states. Desktop
+live, tablet/phone populated and narrow-phone error screenshots were inspected.
+Reference comparison follows the staging filter underline and bordered card
+treatment; the approved compact H1 and live Strapi data are intentional differences.
+Initial tests caught missing utility-menu current-page markup and retry focus
+restoration, both fixed. The timeout fixture was paused before advancing its clock
+to avoid wall-time drift; no assertions were weakened.
+
+**Read-only live verification:** both local endpoints now return HTTP 200, with
+`Access-Control-Allow-Origin: http://127.0.0.1:4323`. The local Downloads page
+displayed two existing software records under All Categories and IT, while
+Compliance displayed “No software yet.” File sizes and destination URLs matched
+the returned media objects. No records were created/edited/deleted, no enquiries
+were read, and no attached files were downloaded or executed.
+
+The live schema differs from the earlier plan: `artifact.multiple` is now false
+and software now has Draft & Publish enabled. Categories also retain Draft &
+Publish. The website accepts single media objects and first-file-only arrays,
+without changing either schema or sending publication overrides. Public read
+permissions were already available at verification; this task did not configure
+them. The existing software descriptions identify the entries as samples; final
+content, file safety and publication are the owner's pre-release responsibility.
+
+Normal output is rebuilt with the local API configuration after the mock tests.
+Production HTTPS/API availability, publication/read permissions, CORS and file
+delivery headers remain deployment checks. Browser coverage is Chromium, not a
+screen-reader/physical-device or accessibility-compliance certification.
+
+## Previous contact endpoint integration — 3 September 2026
 
 Home and Mutual Funds now use the same browser-only JSON POST handler for the
 existing Strapi contact endpoint. Static output, three-route scope, visual token
@@ -355,8 +467,8 @@ Follow-up checks:
 
 ### Release work still pending
 
-- All three approved pages are built. Other WordPress pages remain external;
-  no additional page, calculator, transaction or account flow was migrated.
+- All four approved pages are built, including Software Downloads. Other WordPress
+  pages remain external; no calculator, transaction or account flow was migrated.
 - No hosting, production routing, sitemap, canonical/social-image origin,
   indexing activation, redirects or deployment has been configured.
 - The contact client and local endpoint smoke test are implemented as recorded

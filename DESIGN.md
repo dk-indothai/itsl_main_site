@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: IndoThai
-description: Reference-led migration of the IndoThai Home, About Us and Mutual Funds pages.
+description: Reference-led migration of the IndoThai Home, About Us, Mutual Funds and Software Downloads pages.
 omitted:
   - section: colors
     reason: Canonical values live only in src/styles/tokens.css.
@@ -24,7 +24,7 @@ components:
 
 ### Creative North Star
 
-Recreate the supplied WordPress Home, About Us and Mutual Funds pages: graph-paper hero, generous Raleway
+Recreate the supplied WordPress Home, About Us, Mutual Funds and Software Downloads pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
 not a new brand direction. The corresponding staging pages are authoritative; the previous
@@ -71,7 +71,8 @@ readable text and native system controls.
 Local Raleway is the display family, Inter is the principal body family, and
 Roboto preserves small-action/footer typography. All are variable fonts with
 system fallbacks. Keep the measured desktop, tablet and phone scales; do not
-substitute one generic responsive heading style. The hero has the sole H1.
+substitute one generic responsive heading style. Each page has one H1; Downloads
+uses a compact title instead of a promotional hero.
 Reference spellings and capitalization are preserved pending approval.
 
 ## Layout
@@ -85,7 +86,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all three routes owns the space between sections and before
+The main container on all four routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -157,8 +158,9 @@ new-tab notice. Account and IPO actions navigate to existing approved services.
 Header disclosures are non-modal, not focus-trapped drawers. Native details/summary
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
-Home, About Us and Mutual Funds route locally, with the current page marked in
-desktop and mobile navigation. Other destinations remain on their existing services.
+Home, About Us, Mutual Funds and Software Downloads route locally, with the current
+page marked in its navigation link. Downloads remains in the utility menu; other
+destinations remain on their existing services.
 
 The main menu uses an SVG menu/close pair; nested disclosures have a rotating SVG
 chevron. Open-state styling is driven by native details state and works without
@@ -166,6 +168,31 @@ JavaScript. Testimonials lead with readable, non-italic quotes, followed by an
 aligned portrait/name/role row. Compact previous/next, position and pause controls
 sit below the cards; the accessible pause label remains explicit even when its
 visible text is shortened. Disabled reduced-motion controls remain readable.
+
+### Software catalogue
+
+Downloads follows staging's horizontal underlined category filters and bordered,
+lightly elevated white cards with blue Download actions. The compact heading uses
+the existing section type scale; cards use the content-card scale, body text and
+caption-sized file metadata. `--color-subtle`, `--radius-testimonial`, `--shadow-card`
+and existing spacing tokens own the card treatment. No new theme is introduced.
+The grid has three desktop columns, two tablet columns and one phone column at the
+existing breakpoints. Filters wrap, long CMS text wraps, and card actions align at
+the bottom. The shared `.action` styling and native focus treatment remain intact.
+File details share one compact row: file icon and filename on the left, size on
+the right with a subtle divider. Use the same caption/muted tokens. Long names
+wrap within their column while the size stays aligned with the first line.
+Keep the full filename and extension readable; hide absent values and omit the
+divider when there is no filename.
+
+All Categories is initially selected. Native buttons use `aria-pressed` and an
+underline, not color alone. Loading, error, result count and “No software yet.”
+share an accessible status region. Failures offer manual Retry; completion returns
+keyboard focus to All Categories when the retry button disappears. No skeleton,
+fake software, modal or automatic download is introduced. Contact links remain
+available in all states. CMS content is plain text; only the first attachment is
+offered (or the single media object in the current schema). No JavaScript means
+an explicit catalogue-unavailable explanation, not a blank area or invented data.
 
 ### Forms and overlays
 
