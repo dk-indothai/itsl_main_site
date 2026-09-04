@@ -1,0 +1,69 @@
+---
+import { Image } from 'astro:assets';
+import procedureImage from '../../assets/images/account-closing.jpg';
+
+const detailSteps = [
+  'Enter BO I’d',
+  'Enter UCC',
+  'Enter register email address',
+  'Enter register phone number',
+] as const;
+---
+
+<section
+  class="closing-procedure page-shell"
+  aria-labelledby="closing-procedure-heading"
+>
+  <h1 id="closing-procedure-heading" class="sr-only">
+    Procedure for Closing an Account
+  </h1>
+
+  <figure aria-describedby="closing-procedure-transcript">
+    <Image
+      src={procedureImage}
+      alt="Flowchart showing IndoThai’s procedure for closing an account"
+      widths={[197, 320, 480, 671, 1006, 1342]}
+      sizes="(max-width: 44rem) calc(100vw - 3rem), 671px"
+      loading="eager"
+      fetchpriority="high"
+    />
+
+    <figcaption id="closing-procedure-transcript" class="sr-only">
+      <p>Account-closing procedure shown in the flowchart:</p>
+      <ol>
+        <li>Visit Indothai.co.in.</li>
+        <li>Request for account closer Form.</li>
+        <li>
+          Choose the applicable path:
+          <ul>
+            <li>Close Nil holding account.</li>
+            <li>With Holding visit https://ekyc.indothai.co.in:90/.</li>
+          </ul>
+        </li>
+        {detailSteps.map((step) => <li>{step}.</li>)}
+        <li>Click submit.</li>
+      </ol>
+      <p>
+        Error occurs: review the registered details and return to the closure
+        form before submitting again.
+      </p>
+    </figcaption>
+  </figure>
+</section>
+
+<style>
+  @reference "../../styles/tokens.css";
+
+  .closing-procedure {
+    padding-block: var(--space-2xl);
+  }
+  figure {
+    max-width: var(--procedure-image-max);
+    margin-inline: auto;
+  }
+  figure :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

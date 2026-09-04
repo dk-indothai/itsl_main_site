@@ -17,6 +17,7 @@ components:
   testimonial: {}
   contactForm: {}
   closeAccountForm: {}
+  closingProcedure: {}
   raiseTicketForm: {}
   applicationForm: {}
 ---
@@ -27,7 +28,8 @@ components:
 
 ### Creative North Star
 
-Recreate the supplied WordPress Home, About Us, Mutual Funds, Close Account, Raise Ticket, Software Downloads and Careers pages: graph-paper hero, generous Raleway
+Recreate the supplied WordPress Home, About Us, Mutual Funds, Close Account,
+Procedure for Closing an Account, Raise Ticket, Software Downloads and Careers pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
 not a new brand direction. The corresponding staging pages are authoritative; the previous
@@ -89,7 +91,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all eight routes owns the space between sections and before
+The main container on all nine routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -161,7 +163,8 @@ new-tab notice. Account and IPO actions navigate to existing approved services.
 Header disclosures are non-modal, not focus-trapped drawers. Native details/summary
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
-Home, About Us, Mutual Funds, Close Account, Raise Ticket, Software Downloads and Careers route locally, with the current
+Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
+Raise Ticket, Software Downloads and Careers route locally, with the current
 page marked in its navigation link. Careers remains active on job details too.
 Downloads remains in the utility menu; other
 destinations remain on their existing services.
@@ -268,6 +271,15 @@ closure. Compliance contact links remain available when configuration or JavaScr
 is missing. BO ID, UCC, registered email and mobile number are all required; BO ID
 has no additional format rule. Only confirmed creation clears the form, and uncertain
 outcomes retain the identifiers and advise contacting compliance before resubmission.
+
+Procedure for Closing an Account displays the original staging flowchart at its
+measured centered width, scaling down fluidly on phones. The full-resolution source
+lives locally and Astro generates responsive image candidates, so normal builds do
+not depend on WordPress. A visually hidden heading and transcript preserve the
+eight-step sequence, branch and error path for assistive technology without adding
+visible content around the approved artwork. The image has no map or simulated
+click targets, matching the non-interactive source. No animation, client script or
+diagram library is used. The maximum artwork width is owned by `tokens.css`.
 
 Raise Ticket extends that restrained form-card language for the source complaint
 workflow. Its wider two-column desktop grid follows the staging field order and

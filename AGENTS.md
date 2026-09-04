@@ -5,8 +5,9 @@
 The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`),
 Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
 (`/careers/`), job details (`/careers/job/`), Close Account
-(`/close-account/`) and Raise Ticket (`/raise-a-ticket/`) routes are implemented
-and link locally.
+(`/close-account/`), Procedure for Closing an Account
+(`/procedure-of-closing-account/`) and Raise Ticket (`/raise-a-ticket/`) routes
+are implemented and link locally.
 Downloads and Careers load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
@@ -30,7 +31,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 - The approved static routes are Home (`/`), About Us (`/about-us/`), Mutual Funds
   (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`),
   job details (`/careers/job/?id=<documentId>`), Close Account
-  (`/close-account/`) and Raise Ticket (`/raise-a-ticket/`).
+  (`/close-account/`), Procedure for Closing an Account
+  (`/procedure-of-closing-account/`) and Raise Ticket (`/raise-a-ticket/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -104,6 +106,11 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   for manual retry with the same File; never delete uploads automatically. Accept
   only the documented JPG/PNG/GIF/PDF/DOC/DOCX/XLS/XLSX/TXT/CSV extensions up to
   5,000,000 bytes. These client checks are not a server-side security boundary.
+- Procedure for Closing an Account uses the original full-resolution staging
+  flowchart from `src/assets/images/account-closing.jpg`, rendered through Astro's
+  Image component in `ClosingProcedure.astro`. Preserve its centered responsive
+  presentation and matching screen-reader transcript. Do not substitute the
+  previous project's small derivative or invented five-step wording.
 - Preserve all six directors, the 11-event milestone transcript, three values,
   four company links and five gallery images. The timeline uses the original
   responsive SVG artwork plus matching desktop/mobile text equivalents, not inferred
@@ -213,7 +220,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the eight approved static routes into `dist/`. Software and opening listings
+  Build the nine approved static routes into `dist/`. Software and opening listings
   and job descriptions require JavaScript and are absent from initial HTML; retain
   preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,

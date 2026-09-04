@@ -35,7 +35,7 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the eight approved routes are generated', async () => {
+test('only the nine approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
@@ -48,6 +48,7 @@ test('only the eight approved routes are generated', async () => {
       'downloads/index.html',
       'index.html',
       'mutual-funds/index.html',
+      'procedure-of-closing-account/index.html',
       'raise-a-ticket/index.html',
     ],
   );
@@ -178,6 +179,7 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
           '/downloads/',
           '/careers/',
           '/close-account/',
+          '/procedure-of-closing-account/',
           '/raise-a-ticket/',
         ].includes(href),
       );
@@ -190,6 +192,11 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/careers/'));
   assert.ok(
     nodes('a').some((node) => attr(node, 'href') === '/close-account/'),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) => attr(node, 'href') === '/procedure-of-closing-account/',
+    ),
   );
   assert.ok(
     nodes('a').some((node) => attr(node, 'href') === '/raise-a-ticket/'),

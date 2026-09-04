@@ -1,5 +1,36 @@
 # Website migration verification
 
+## Procedure for Closing an Account — 4 September 2026
+
+`/procedure-of-closing-account/` is implemented as the ninth static route and
+the utility-menu destination now links locally. The page now uses the exact
+full-resolution staging flowchart, stored locally and rendered responsively through
+Astro's Image component.
+
+The image preserves the eight source steps, nil-holding and with-holdings branch,
+external eKYC destination, submit path and visible error-return state. A hidden
+heading and matching text transcript make the image content available to assistive
+technology. The route has unique preview metadata and `noindex, nofollow`. It needs
+no Strapi service, client JavaScript or new dependency.
+
+| Check                    | Result                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Formatting               | `npm run format:check` passed.                                                                                |
+| Astro/TypeScript         | `npm run check`: 75 files, zero errors, warnings or hints.                                                    |
+| Static output and build  | `npm test` passed all seven Node test files and generated the nine approved static routes.                    |
+| Production browser tests | `npm run test:browser`: all 185 Chromium tests passed, including the three new procedure tests.               |
+| Development tests        | `npm run test:dev`: all 30 layout and asset checks passed, including the procedure at four responsive widths. |
+| Design checks            | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.                    |
+
+The new browser coverage verifies the local optimized image, complete transcript,
+current navigation state and layouts at 1280, 768, 390 and 320px. Captures at all
+four widths were inspected. No horizontal overflow or missing assets were found.
+
+The [staging procedure page](https://staging-e356-indothaiweb.wpcomstaging.com/procedure-of-closing-account/)
+was inspected as the content and visual reference. Its original 2366×3612 JPG was
+downloaded from the staging media path; the previous project's small derivative was
+not used. No live form or Strapi request was made, and nothing was deployed.
+
 ## Raise Ticket and complaint attachments — 4 September 2026
 
 `/raise-a-ticket/` is implemented as the eighth static route. The utility menu

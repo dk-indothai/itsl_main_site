@@ -22,6 +22,7 @@ const routes = [
   '/downloads/',
   '/careers/',
   '/close-account/',
+  '/procedure-of-closing-account/',
   '/raise-a-ticket/',
 ];
 

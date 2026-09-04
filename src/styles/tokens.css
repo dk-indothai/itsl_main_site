@@ -189,6 +189,7 @@
   --text-careers-card: 1.75rem;
   --careers-hero-min: 60vh;
   --form-panel-max: 64rem;
+  --procedure-image-max: 41.9375rem;
 }
 
 @media (width < theme(--breakpoint-desktop)) {
