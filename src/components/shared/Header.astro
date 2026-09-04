@@ -136,6 +136,9 @@ const navigationPath = currentPath.startsWith(links.careers)
                               rel={
                                 child.newTab ? 'noopener noreferrer' : undefined
                               }
+                              aria-current={
+                                child.href === currentPath ? 'page' : undefined
+                              }
                             >
                               {child.label}
                               {child.newTab && (

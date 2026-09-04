@@ -35,7 +35,7 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the six approved routes are generated', async () => {
+test('only the seven approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
@@ -44,6 +44,7 @@ test('only the six approved routes are generated', async () => {
       'about-us/index.html',
       'careers/index.html',
       'careers/job/index.html',
+      'close-account/index.html',
       'downloads/index.html',
       'index.html',
       'mutual-funds/index.html',
@@ -175,6 +176,7 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
           '/mutual-funds/',
           '/downloads/',
           '/careers/',
+          '/close-account/',
         ].includes(href),
       );
     if (href.startsWith('#')) assert.ok(ids.has(href.slice(1)));
@@ -184,6 +186,9 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/about-us/'));
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/mutual-funds/'));
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/careers/'));
+  assert.ok(
+    nodes('a').some((node) => attr(node, 'href') === '/close-account/'),
+  );
 });
 
 test('source anomalies are preserved rather than silently corrected', () => {

@@ -188,7 +188,7 @@
   --text-careers-section: 3rem;
   --text-careers-card: 1.75rem;
   --careers-hero-min: 60vh;
-  --application-max: 64rem;
+  --form-panel-max: 64rem;
 }
 
 @media (width < theme(--breakpoint-desktop)) {

@@ -4,7 +4,8 @@
 
 The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`),
 Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
-(`/careers/`) and job details (`/careers/job/`) routes are implemented and link locally.
+(`/careers/`), job details (`/careers/job/`) and Close Account
+(`/close-account/`) routes are implemented and link locally.
 Downloads and Careers load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
@@ -26,8 +27,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Scope and sources of truth
 
 - The approved static routes are Home (`/`), About Us (`/about-us/`), Mutual Funds
-  (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`)
-  and job details (`/careers/job/?id=<documentId>`).
+  (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`),
+  job details (`/careers/job/?id=<documentId>`) and Close Account
+  (`/close-account/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -154,6 +156,19 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   URLs or browser storage. Keep phone/email links and the no-JavaScript fallback.
 - Keep the four form fields and their browser handler together in shared
   `Contact.astro`; do not add a generic field registry or form helper layer.
+- Close Account uses only `POST /api/close-account-requests` and the four required
+  fields `bo_id`, `ucc`, `email` and `mobile_no` inside `data`. Keep its markup,
+  scoped styles and browser handler together in `CloseAccountForm.astro`; do not
+  share customer identifiers with the contact form or add a generic form framework.
+  BO ID is required only, with no invented length, numeric or pattern restriction.
+  A confirmed `201` response with a Strapi document ID clears the form; every
+  uncertain outcome retains values and directs the visitor to compliance before
+  another attempt. Submission creates a request and must never be presented as
+  confirmation that the account has been closed.
+- Never perform a live Close Account test without separate owner approval. Tests
+  must mock the endpoint and must not read existing closure requests. Public Strapi
+  access should remain Create-only; production still requires server validation,
+  abuse controls, restricted CORS, retention and privacy/security approval.
 - Tests must mock submissions by default. Real local smoke tests use explicitly
   synthetic data only; never read, alter or delete existing enquiries. Browser
   tests use one mock-configured build and preview server; no running Strapi is
@@ -180,7 +195,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the six approved static routes into `dist/`. Software and opening listings
+  Build the seven approved static routes into `dist/`. Software and opening listings
   and job descriptions require JavaScript and are absent from initial HTML; retain
   preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,
