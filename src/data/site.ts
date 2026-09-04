@@ -4,7 +4,7 @@ export const links = {
   home: '/',
   about: '/about-us/',
   mutualFunds: '/mutual-funds/',
-  careers: `${staging}/careers/`,
+  careers: '/careers/',
   investors: `${staging}/investors/`,
   blog: `${staging}/blog/`,
   openAccount: 'https://ekyc.indothai.co.in:447/',

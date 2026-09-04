@@ -1,0 +1,396 @@
+---
+import { careersApi } from '../../data/openings';
+import { links, site } from '../../data/site';
+import ApplicationForm from './ApplicationForm.astro';
+---
+
+<section
+  class="job-details page-shell"
+  data-job-details
+  data-api={careersApi}
+  aria-labelledby="job-title"
+>
+  <a class="back-link" href={links.careers}>← Back to Careers</a>
+  <h1 id="job-title" class="section-heading" tabindex="-1">Job details</h1>
+  <p class="job-feedback" role="status" aria-atomic="true" data-job-feedback>
+    {
+      careersApi
+        ? 'Enable JavaScript to view this opening and apply, or contact us below.'
+        : 'Online openings and applications are not configured. Please contact us below.'
+    }
+  </p>
+  <button class="action" type="button" data-job-retry hidden>Retry</button>
+  <div data-job-content hidden>
+    <div class="job-meta">
+      <span class="job-status" data-job-status></span><p data-job-location></p>
+    </div>
+    <p class="job-tags" data-job-tags></p>
+    <p class="closed-note" data-closed-note hidden></p>
+    <div class="job-tabs" role="tablist" aria-label="Job information">
+      <button
+        type="button"
+        id="overview-tab"
+        role="tab"
+        aria-selected="true"
+        aria-controls="overview-panel">Overview</button
+      >
+      <button
+        type="button"
+        id="apply-tab"
+        role="tab"
+        aria-selected="false"
+        aria-controls="apply-panel"
+        tabindex="-1">Apply Now</button
+      >
+    </div>
+    <div
+      id="overview-panel"
+      class="job-panel"
+      role="tabpanel"
+      aria-labelledby="overview-tab"
+      tabindex="0"
+    >
+      <h2 class="sr-only">Job overview</h2>
+      <div class="job-description" data-job-description></div>
+    </div>
+  </div>
+  <!-- Disabled HTML remains an explanation without JavaScript. No job data is baked into the build. -->
+  <div
+    id="apply-panel"
+    class="job-panel"
+    role="tabpanel"
+    aria-labelledby="application-title"
+  >
+    <ApplicationForm />
+  </div>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.marketingEmail}`}>{site.marketingEmail}</a
+    >.
+  </p>
+</section>
+<script>
+  import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
+  import { getOpening, openingError } from '../../data/openings';
+
+  const section = document.querySelector<HTMLElement>('[data-job-details]')!;
+  const title = section.querySelector<HTMLElement>('#job-title')!;
+  const feedback = section.querySelector<HTMLElement>('[data-job-feedback]')!;
+  const content = section.querySelector<HTMLElement>('[data-job-content]')!;
+  const retry = section.querySelector<HTMLButtonElement>('[data-job-retry]')!;
+  const form = section.querySelector<HTMLFormElement>(
+    '[data-application-form]',
+  )!;
+  const tabs = [...section.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+  const panels = tabs.map((tab) =>
+    document.getElementById(tab.getAttribute('aria-controls')!)!,
+  );
+  const id = new URLSearchParams(location.search).get('id') ?? '';
+  let loading = false;
+
+  function selectTab(index: number) {
+    if (tabs[index].disabled) return;
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('aria-selected', String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+      panels[i].hidden = i !== index;
+    });
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(index));
+    tab.addEventListener('keydown', (event) => {
+      let next = index;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft')
+        next = 1 - index;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs[1].disabled ? 0 : 1;
+      else return;
+      event.preventDefault();
+      if (!tabs[next].disabled) {
+        selectTab(next);
+        tabs[next].focus();
+      }
+    });
+  });
+
+  async function loadJob() {
+    if (loading) return;
+    const retryHadFocus = document.activeElement === retry;
+    loading = true;
+    retry.disabled = true;
+    feedback.textContent = 'Loading job details…';
+    try {
+      const opening = await getOpening(id);
+      if (!opening) {
+        title.textContent = 'Opening unavailable';
+        document.title = 'Opening unavailable - IndoThai';
+        feedback.textContent =
+          'This opening could not be found or is no longer published. Please return to Careers.';
+        if (
+          retryHadFocus &&
+          (document.activeElement === retry ||
+            document.activeElement === document.body)
+        )
+          title.focus();
+        retry.hidden = true;
+        return;
+      }
+      title.textContent = opening.title;
+      document.title = `${opening.title} - Careers - IndoThai`;
+      const badge = section.querySelector<HTMLElement>('[data-job-status]')!;
+      badge.textContent = opening.job_status;
+      badge.dataset.jobStatus = opening.job_status;
+      section.querySelector('[data-job-location]')!.textContent =
+        opening.location;
+      section.querySelector('[data-job-tags]')!.textContent = (
+        opening.tags ?? ''
+      )
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .join(' · ');
+
+      // This is the only CMS HTML surface. Sanitize before inserting; no raw HTML elsewhere.
+      const description = DOMPurify.sanitize(
+        marked.parse(opening.description, { async: false }),
+        {
+          ALLOWED_TAGS: [
+            'p',
+            'br',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'ul',
+            'ol',
+            'li',
+            'strong',
+            'em',
+            'del',
+            'blockquote',
+            'pre',
+            'code',
+            'a',
+            'hr',
+          ],
+          ALLOWED_ATTR: ['href', 'title'],
+          ALLOW_DATA_ATTR: false,
+          ALLOW_ARIA_ATTR: false,
+          RETURN_DOM_FRAGMENT: true,
+        },
+      );
+      // Job overview owns H2; normalize CMS heading depth so it cannot add H1s or skip levels.
+      const headings = [...description.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+      const firstLevel = Number(headings[0]?.tagName.slice(1) ?? 1);
+      let previousLevel = 2;
+      for (const heading of headings) {
+        const level = Math.min(
+          6,
+          previousLevel + 1,
+          Math.max(3, Number(heading.tagName.slice(1)) - firstLevel + 3),
+        );
+        const replacement = document.createElement(`h${level}`);
+        replacement.append(...heading.childNodes);
+        heading.replaceWith(replacement);
+        previousLevel = level;
+      }
+      for (const link of description.querySelectorAll('a')) {
+        try {
+          const url = new URL(link.getAttribute('href') ?? '');
+          if (
+            !['http:', 'https:', 'mailto:'].includes(url.protocol) ||
+            url.username ||
+            url.password
+          )
+            throw new Error();
+          link.rel = 'noreferrer noopener';
+        } catch {
+          link.removeAttribute('href');
+        }
+      }
+      section
+        .querySelector('[data-job-description]')!
+        .replaceChildren(description);
+      const open = opening.job_status === 'Open';
+      tabs[1].disabled = !open;
+      const closedNote =
+        section.querySelector<HTMLElement>('[data-closed-note]')!;
+      closedNote.hidden = open;
+      closedNote.textContent = `This position is ${opening.job_status.toLowerCase()}. Applications are no longer accepted.`;
+      if (open) {
+        form.dataset.openingId = opening.documentId;
+        form.dispatchEvent(new Event('opening-ready'));
+      }
+      panels[1].setAttribute('aria-labelledby', 'apply-tab');
+      selectTab(0);
+      content.hidden = false;
+      feedback.textContent = '';
+      if (
+        retryHadFocus &&
+        (document.activeElement === retry ||
+          document.activeElement === document.body)
+      )
+        title.focus();
+      retry.hidden = true;
+    } catch (error) {
+      feedback.textContent = openingError(error);
+      document.title = 'Job details unavailable - IndoThai';
+      retry.hidden = false;
+    } finally {
+      loading = false;
+      retry.disabled = false;
+    }
+  }
+  form.addEventListener('opening-closed', () => {
+    section.querySelector('[data-job-status]')!.textContent =
+      'Applications closed';
+  });
+  retry.addEventListener('click', loadJob);
+  panels[1].hidden = true;
+  if (section.dataset.api) void loadJob();
+</script>
+<style>
+  @reference '../../styles/tokens.css';
+  .job-details {
+    max-width: var(--content-max);
+    padding-top: var(--space-xl);
+    overflow-wrap: anywhere;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: var(--text-caption);
+    margin-bottom: var(--space-xl);
+  }
+  h1 {
+    font-size: var(--text-content-heading);
+    line-height: var(--leading-content-heading);
+  }
+  .job-feedback {
+    text-align: center;
+    font-size: var(--text-small);
+    color: var(--color-muted);
+  }
+  .job-feedback:not(:empty) {
+    margin-block: var(--space-lg);
+  }
+  .job-meta {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: var(--space-md);
+    font-size: var(--text-small);
+  }
+  .job-status {
+    border: var(--border-thin) solid var(--color-subtle);
+    padding: var(--spacing) var(--space-xs);
+    border-radius: var(--radius-control);
+  }
+  [data-job-status='Open'] {
+    background: var(--color-soft);
+    color: var(--color-brand);
+  }
+  .job-tags {
+    text-align: center;
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    margin-top: var(--space-sm);
+  }
+  .closed-note {
+    text-align: center;
+    margin-top: var(--space-md);
+    font-size: var(--text-small);
+  }
+  .job-tabs {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+    margin-block: var(--space-xl);
+  }
+  [role='tab'] {
+    padding: var(--action-py) var(--action-px);
+    min-height: var(--target-min);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-control);
+    color: var(--color-brand);
+    background: var(--color-company-band);
+    font-family: var(--font-action);
+    font-size: var(--text-small);
+  }
+  [role='tab'][aria-selected='true'] {
+    color: var(--color-white);
+    background: var(--color-brand);
+  }
+  [role='tab']:hover:not(:disabled) {
+    border-color: var(--color-brand);
+  }
+  [role='tab']:disabled {
+    color: var(--color-muted);
+    background: var(--color-footer);
+  }
+  .job-panel {
+    padding: var(--space-xl);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-testimonial);
+  }
+  .job-description {
+    font-size: var(--text-content-body);
+    line-height: var(--leading-body);
+  }
+  .job-description :global(p),
+  .job-description :global(ul),
+  .job-description :global(ol),
+  .job-description :global(blockquote),
+  .job-description :global(pre) {
+    margin-block: var(--space-md);
+  }
+  .job-description :global(ul),
+  .job-description :global(ol) {
+    padding-left: var(--space-lg);
+  }
+  .job-description :global(ul) {
+    list-style: disc;
+  }
+  .job-description :global(ol) {
+    list-style: decimal;
+  }
+  .job-description :global(h3),
+  .job-description :global(h4),
+  .job-description :global(h5),
+  .job-description :global(h6) {
+    color: var(--color-brand);
+    font-size: var(--text-content-card);
+    font-weight: var(--font-weight-semibold);
+    margin-top: var(--space-lg);
+  }
+  .job-description :global(pre) {
+    white-space: pre-wrap;
+  }
+  .job-description :global(a[href]) {
+    text-decoration: underline;
+  }
+  .contact-alternatives {
+    font-size: var(--text-caption);
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .job-panel {
+      padding: var(--space-md);
+    }
+    .job-tabs {
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+    }
+    [role='tab'] {
+      padding-inline: var(--space-md);
+    }
+  }
+</style>

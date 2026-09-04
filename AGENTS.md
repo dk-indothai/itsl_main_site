@@ -3,8 +3,9 @@
 ## Project status
 
 The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`),
-Mutual Funds (`/mutual-funds/`) and Software Downloads (`/downloads/`) pages are
-implemented and link locally. Downloads loads its catalogue in browser JavaScript.
+Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
+(`/careers/`) and job details (`/careers/job/`) routes are implemented and link locally.
+Downloads and Careers load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
@@ -25,7 +26,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Scope and sources of truth
 
 - The approved static routes are Home (`/`), About Us (`/about-us/`), Mutual Funds
-  (`/mutual-funds/`) and Software Downloads (`/downloads/`).
+  (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`)
+  and job details (`/careers/job/?id=<documentId>`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -69,6 +71,27 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   owner since planning); do not send publication overrides. See README.
   Preserve accessible loading/error/empty states, manual retry and the 20-second
   timeout. Without configuration or JavaScript, explain and retain contact links.
+- Careers uses three explicit components: OpeningList, JobDetails and ApplicationForm.
+  Share only the typed opening reads/configuration in `src/data/openings.ts`; keep
+  submission alongside its fields. Do not turn this into a generic CMS/form framework.
+  Show all published Open/Closed/Filled jobs, alphabetically, with only Open jobs
+  accepting applications. Fetch pages of `/api/openings` and the selected document
+  on refresh; never populate/read candidates. Use query-ID links, not build-time jobs.
+  The approved `marked` and DOMPurify packages render descriptions with the formatting
+  allowlist in JobDetails. No scripts, styles, embedded media or forms; normalize
+  headings below the overview H2 and keep other CMS values plain text.
+  Applications require name, email, LinkedIn URL and a single PDF, at most 2,000,000
+  bytes; phone/additional links remain optional. Recheck Open before upload, then
+  POST multipart `files` to `/api/upload` and JSON `data` to `/api/candidates` with
+  the numeric media ID and opening documentId. No tokens, cookies, publication
+  overrides, Strapi changes or automatic retries. Keep disabled HTML until the
+  form guard and opening are ready; clear only after confirmed candidate creation.
+  Retain a confirmed file ID only in memory for manual retry with the same File.
+  Never delete uploads automatically: failures can leave unattached files.
+  Keep the 20-second timeouts, truthful uncertain-outcome messages and token-backed
+  inline validation. Never serialize/log applicant data or read existing candidates.
+  Ask separately before live synthetic uploads/applications. Public GCS file storage
+  and browser-only checks are accepted for this preview, not production approval.
 - Preserve all six directors, the 11-event milestone transcript, three values,
   four company links and five gallery images. The timeline uses the original
   responsive SVG artwork plus matching desktop/mobile text equivalents, not inferred
@@ -157,8 +180,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the four approved static routes into `dist/`. Software listings require
-  JavaScript and are not present in the generated HTML; retain preview noindex.
+  Build the six approved static routes into `dist/`. Software and opening listings
+  and job descriptions require JavaScript and are absent from initial HTML; retain
+  preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,
   `npm run check`, `npm test`, and `npm run test:browser` after application changes.
   Browser tests need the development-only Playwright Chromium installation.

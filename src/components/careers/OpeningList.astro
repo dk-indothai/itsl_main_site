@@ -1,0 +1,237 @@
+---
+import { careersApi } from '../../data/openings';
+import { site } from '../../data/site';
+---
+
+<section class="careers-hero page-shell" aria-labelledby="careers-title">
+  <h1 id="careers-title">Grow, Innovate, and Succeed with Us!</h1>
+</section>
+<section
+  class="openings page-shell"
+  aria-labelledby="openings-title"
+  data-openings
+  data-api={careersApi}
+>
+  <h2 id="openings-title" class="section-heading">Current Opening</h2>
+  <p role="status" aria-atomic="true" data-opening-status>
+    {
+      careersApi
+        ? 'Enable JavaScript to view openings, or contact us below.'
+        : 'Online openings are not configured. Please contact us below.'
+    }
+  </p>
+  <button class="action" type="button" data-retry hidden>Retry</button>
+  <ul class="opening-list" data-opening-list></ul>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.marketingEmail}`}>{site.marketingEmail}</a
+    >.
+  </p>
+  <template id="opening-card">
+    <li>
+      <a class="opening-card">
+        <div class="opening-title-row">
+          <h3 data-title></h3><span class="job-status" data-job-status></span>
+        </div>
+        <ul class="job-tags" aria-label="Job tags" data-tags></ul>
+        <p class="job-location">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            aria-hidden="true"
+            ><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"
+            ></path><circle cx="12" cy="10" r="2.5"></circle></svg
+          ><span data-location></span>
+        </p>
+      </a>
+    </li>
+  </template>
+</section>
+<script>
+  import { getOpenings, openingError } from '../../data/openings';
+  const section = document.querySelector<HTMLElement>('[data-openings]')!;
+  const list = section.querySelector<HTMLElement>('[data-opening-list]')!;
+  const status = section.querySelector<HTMLElement>('[data-opening-status]')!;
+  const retry = section.querySelector<HTMLButtonElement>('[data-retry]')!;
+  const template = section.querySelector<HTMLTemplateElement>('#opening-card')!;
+  let loading = false;
+
+  async function loadOpenings() {
+    if (loading) return;
+    const retryHadFocus = document.activeElement === retry;
+    loading = true;
+    retry.disabled = true;
+    list.setAttribute('aria-busy', 'true');
+    status.textContent = 'Loading openings…';
+    try {
+      const openings = await getOpenings();
+      const cards = openings.map((opening) => {
+        const card = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+        card.querySelector('a')!.href =
+          `/careers/job/?id=${encodeURIComponent(opening.documentId)}`;
+        card.querySelector('[data-title]')!.textContent = opening.title;
+        card.querySelector('[data-location]')!.textContent = opening.location;
+        const badge = card.querySelector<HTMLElement>('[data-job-status]')!;
+        badge.textContent = opening.job_status;
+        badge.dataset.jobStatus = opening.job_status;
+        const tags = card.querySelector<HTMLElement>('[data-tags]')!;
+        for (const tag of (opening.tags ?? '')
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)) {
+          const item = document.createElement('li');
+          item.textContent = tag;
+          tags.append(item);
+        }
+        tags.hidden = !tags.children.length;
+        return card;
+      });
+      list.replaceChildren(...cards);
+      status.textContent = openings.length
+        ? `${openings.length} ${openings.length === 1 ? 'opening' : 'openings'}. Applications are available for Open positions.`
+        : 'No openings yet.';
+      if (
+        retryHadFocus &&
+        (document.activeElement === retry ||
+          document.activeElement === document.body)
+      )
+        (list.querySelector('a') ?? status).focus();
+      retry.hidden = true;
+    } catch (error) {
+      status.textContent = openingError(error);
+      retry.hidden = false;
+    } finally {
+      loading = false;
+      retry.disabled = false;
+      list.setAttribute('aria-busy', 'false');
+    }
+  }
+  status.tabIndex = -1;
+  retry.addEventListener('click', loadOpenings);
+  if (section.dataset.api) void loadOpenings();
+</script>
+<style>
+  @reference '../../styles/tokens.css';
+  .careers-hero {
+    min-height: var(--careers-hero-min);
+    display: grid;
+    place-items: center;
+    padding-block: var(--space-xl);
+  }
+  h1 {
+    max-width: var(--hero-max);
+    margin-inline: auto;
+    font-size: var(--text-careers-hero);
+    line-height: var(--leading-careers-hero);
+    text-align: center;
+    background: var(--gradient-hero);
+    background-clip: text;
+    color: transparent;
+  }
+  .openings {
+    max-width: var(--content-max);
+  }
+  .section-heading {
+    font-size: var(--text-careers-section);
+    margin-bottom: var(--space-lg);
+  }
+  [role='status'],
+  .contact-alternatives {
+    font-size: var(--text-caption);
+    color: var(--color-muted);
+  }
+  [data-retry] {
+    margin-top: var(--space-sm);
+  }
+  .opening-list {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+  }
+  .opening-card {
+    display: block;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-testimonial);
+    padding: var(--space-lg);
+    color: var(--color-body);
+    overflow-wrap: anywhere;
+  }
+  .opening-card:hover {
+    border-color: var(--color-brand);
+    background: var(--color-footer);
+    text-decoration: none;
+  }
+  .opening-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+  h3 {
+    font-size: var(--text-careers-card);
+    line-height: var(--leading-body);
+  }
+  .job-status {
+    font-size: var(--text-caption);
+    background: var(--color-footer);
+    border: var(--border-thin) solid var(--color-subtle);
+    padding: var(--spacing) var(--space-xs);
+    border-radius: var(--radius-control);
+  }
+  [data-job-status='Open'] {
+    color: var(--color-brand);
+    background: var(--color-soft);
+  }
+  .job-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+  .job-tags :global(li) {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-caption);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+  }
+  .job-location {
+    display: flex;
+    align-items: start;
+    gap: var(--space-sm);
+    font-size: var(--text-small);
+    margin-top: var(--space-md);
+    white-space: pre-line;
+  }
+  .job-location svg {
+    flex-shrink: 0;
+    width: var(--space-md);
+    height: var(--space-md);
+  }
+  .contact-alternatives {
+    margin-top: var(--space-xl);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .careers-hero {
+      padding-bottom: 0;
+    }
+    h1 {
+      text-align: left;
+    }
+    .opening-card {
+      padding: var(--space-md);
+    }
+  }
+  @media (forced-colors: active) {
+    h1 {
+      background: none;
+      color: CanvasText;
+    }
+  }
+</style>

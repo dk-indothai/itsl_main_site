@@ -15,7 +15,13 @@ const text = (node) =>
     : (node.childNodes || []).map(text).join('');
 const hasClass = (node, value) =>
   (attr(node, 'class') || '').split(' ').includes(value);
-const routes = ['/', '/about-us/', '/mutual-funds/', '/downloads/'];
+const routes = [
+  '/',
+  '/about-us/',
+  '/mutual-funds/',
+  '/downloads/',
+  '/careers/',
+];
 
 for (const [route, title, heading] of [
   ['/about-us/', 'About Us - IndoThai', 'About Us'],

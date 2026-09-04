@@ -1,5 +1,58 @@
 # Website migration verification
 
+## Careers and applications — 4 September 2026
+
+The migration now includes `/careers/` and `/careers/job/?id=<documentId>`.
+Published Open, Closed and Filled roles load in browser JavaScript; only Open
+roles enable the application form. Careers remains active in shared navigation on
+both routes. The detail page sanitizes formatted descriptions and retains the
+reference's Overview/Apply Now tabs with keyboard operation.
+
+Applications use the existing public Strapi endpoints without a token. The browser
+rechecks the opening, uploads one PDF to `/api/upload`, then creates the Candidate
+through `/api/candidates`. Name, email, LinkedIn URL and resume are required;
+contact number and additional links are optional. Selection does not upload, and
+the client rejects empty, non-PDF and files larger than exactly 2,000,000 bytes.
+Only confirmed Candidate creation clears the form. A confirmed upload ID is reused
+only in memory for manual retry with the same selected File.
+
+| Check                    | Result                                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| Formatting               | `npm run format:check` passed.                                                                          |
+| Astro/TypeScript         | `npm run check`: 63 files, zero errors, warnings or hints.                                              |
+| Static output and build  | `npm test` passed all four Node test files and generated the six approved static routes.                |
+| Production browser tests | `npm run test:browser`: all 149 Chromium tests passed, including all 58 Careers tests.                  |
+| Development tests        | `npm run test:dev`: all 27 layout and asset checks passed at 1280, 768, 390 and 320px where applicable. |
+| Design checks            | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.              |
+
+Careers browser coverage includes sorted/paginated listings, every job status,
+tags, empty/missing jobs, sanitized Markdown, tab focus, configuration/no-JavaScript
+fallbacks, safe query IDs and list/detail errors with manual Retry. Form coverage
+includes inline validation, PDF limits/signature, removal/replacement, duplicate
+clicks, exact request bodies, omitted credentials/referrers, success clearing,
+retained values on failure, each upload/create failure class, 20-second timeouts,
+and retry after a successful upload. Long values and both routes were checked for
+overflow and missing assets through 320px. An early run exposed focus loss when a
+focused Retry button became disabled; the component now restores focus and the
+final suite covers that regression.
+
+Reference and local pages were inspected at desktop, tablet and phone widths.
+The local page displayed the existing published opening from the read-only Strapi
+endpoint with no horizontal overflow. No candidates were read. No resume upload or
+Candidate creation was performed because live writes require separate approval;
+upload/create permissions therefore remain unverified. All automated application
+requests used mocked API responses, and the final normal build succeeds without
+Strapi running.
+
+Known release limitations remain: resumes use the existing public GCS visibility,
+and size/type validation is browser-only. Private file delivery, server-enforced
+limits, malware and abuse protection, retention/orphan cleanup, staff access,
+production HTTPS/CORS and privacy approval are still required. A failed application
+can leave an unattached upload because the browser never deletes media. Job records
+are absent from initial HTML, so per-job server-rendered metadata is not included.
+No Strapi code, schema, permissions, CORS or configuration was changed; no deploy,
+commit or email notification integration was performed.
+
 ## Inline download metadata — 3 September 2026
 
 Filename and size now share one row, with the file icon on the left and a subtle

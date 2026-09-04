@@ -182,10 +182,20 @@
   --nri-flight-stroke: 1.25px;
   --nri-flight-dash: 4 6;
   --hero-shade: rgb(0 0 0 / 10%);
+  /* Careers reference: text-only hero and readable job/application panels. */
+  --text-careers-hero: 5rem;
+  --leading-careers-hero: 1.25;
+  --text-careers-section: 3rem;
+  --text-careers-card: 1.75rem;
+  --careers-hero-min: 60vh;
+  --application-max: 64rem;
 }
 
 @media (width < theme(--breakpoint-desktop)) {
   :root {
+    --text-careers-hero: 3.75rem;
+    --text-careers-section: 2.25rem;
+    --text-careers-card: 1.375rem;
     --text-content-heading: 2.25rem;
     --text-group-heading: 2.25rem;
     --text-fund-benefit-card: 1.125rem;
@@ -223,6 +233,11 @@
 }
 @media (width < theme(--breakpoint-tablet)) {
   :root {
+    --text-careers-hero: 2.6875rem;
+    --leading-careers-hero: 1.3;
+    --text-careers-section: 1.5rem;
+    --text-careers-card: 1rem;
+    --careers-hero-min: auto;
     --text-content-heading: 2rem;
     --text-group-heading: 1.75rem;
     --text-content-lead: 0.875rem;

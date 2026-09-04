@@ -35,13 +35,15 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the four approved routes are generated', async () => {
+test('only the six approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
       .sort(),
     [
       'about-us/index.html',
+      'careers/index.html',
+      'careers/job/index.html',
       'downloads/index.html',
       'index.html',
       'mutual-funds/index.html',
@@ -167,7 +169,13 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
     assert.ok(!href.startsWith('javascript:'));
     if (href.startsWith('/'))
       assert.ok(
-        ['/', '/about-us/', '/mutual-funds/', '/downloads/'].includes(href),
+        [
+          '/',
+          '/about-us/',
+          '/mutual-funds/',
+          '/downloads/',
+          '/careers/',
+        ].includes(href),
       );
     if (href.startsWith('#')) assert.ok(ids.has(href.slice(1)));
     if (attr(anchor, 'target') === '_blank')
@@ -175,13 +183,7 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
   }
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/about-us/'));
   assert.ok(nodes('a').some((node) => attr(node, 'href') === '/mutual-funds/'));
-  assert.ok(
-    nodes('a').some(
-      (node) =>
-        attr(node, 'href') ===
-        'https://staging-e356-indothaiweb.wpcomstaging.com/careers/',
-    ),
-  );
+  assert.ok(nodes('a').some((node) => attr(node, 'href') === '/careers/'));
 });
 
 test('source anomalies are preserved rather than silently corrected', () => {

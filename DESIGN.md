@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: IndoThai
-description: Reference-led migration of the IndoThai Home, About Us, Mutual Funds and Software Downloads pages.
+description: Reference-led IndoThai marketing pages, Software Downloads and Careers.
 omitted:
   - section: colors
     reason: Canonical values live only in src/styles/tokens.css.
@@ -16,6 +16,7 @@ components:
   navigation: {}
   testimonial: {}
   contactForm: {}
+  applicationForm: {}
 ---
 
 # IndoThai design guidance
@@ -24,7 +25,7 @@ components:
 
 ### Creative North Star
 
-Recreate the supplied WordPress Home, About Us, Mutual Funds and Software Downloads pages: graph-paper hero, generous Raleway
+Recreate the supplied WordPress Home, About Us, Mutual Funds, Software Downloads and Careers pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
 not a new brand direction. The corresponding staging pages are authoritative; the previous
@@ -86,7 +87,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all four routes owns the space between sections and before
+The main container on all six routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -158,8 +159,9 @@ new-tab notice. Account and IPO actions navigate to existing approved services.
 Header disclosures are non-modal, not focus-trapped drawers. Native details/summary
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
-Home, About Us, Mutual Funds and Software Downloads route locally, with the current
-page marked in its navigation link. Downloads remains in the utility menu; other
+Home, About Us, Mutual Funds, Software Downloads and Careers route locally, with the current
+page marked in its navigation link. Careers remains active on job details too.
+Downloads remains in the utility menu; other
 destinations remain on their existing services.
 
 The main menu uses an SVG menu/close pair; nested disclosures have a rotating SVG
@@ -195,6 +197,39 @@ offered (or the single media object in the current schema). No JavaScript means
 an explicit catalogue-unavailable explanation, not a blank area or invented data.
 
 ### Forms and overlays
+
+Careers retains the reference's large text-only hero, bordered opening cards and
+Overview/Apply Now tabs. Its audience is prospective employees; the task is reading
+a role and applying, not investing. `--text-careers-hero`, `--leading-careers-hero`,
+`--text-careers-section`, `--text-careers-card` and `--careers-hero-min` preserve its measured responsive
+type without changing other heroes. Phone headings align left; cards occupy the
+available content width, tags wrap, and status uses visible text rather than color
+alone. No new hero imagery, stock photos, benefits claims or animations are added.
+
+`OpeningList` owns list loading and empty/error feedback; `JobDetails` owns read-only
+description rendering and tabs; `ApplicationForm` owns its explicit fields and
+submission code. They share only typed opening reads/configuration. All published
+statuses are shown; Closed/Filled jobs retain details with Apply disabled and an
+explanation. The form is available only after the script guard and Open job are ready.
+Tabs use native buttons with selected state, roving focus, arrow/Home/End keys and
+hidden inactive panels. Without JavaScript, the generic detail explanation and
+disabled form remain readable. Missing/configuration/error states keep contact links.
+
+Application fields follow Contact's tokens, label/error associations, first-invalid
+focus and stable full-width busy button. Personal Information uses two columns,
+stacking on phones; Profile contains a native single-file picker, filename/size,
+Remove control, LinkedIn URL and additional links. No custom dropzone or form library.
+Unlike staging, the approved schema requires LinkedIn and allows only PDFs at the
+owner's smaller size limit; no unsupported candidate Location field is added.
+
+Selection is local. Submit validates, rechecks the role, uploads the PDF and creates
+the candidate. Status names these phases; only confirmed creation clears values.
+Manual retry with the same File reuses its known upload ID. There is no optimistic
+success, automatic retry, resume preview/download link, persistent draft, toast or
+leave-page warning. Uploads can remain unattached after failure; current public file
+visibility is an explicitly accepted preview limitation, not a privacy guarantee.
+`--application-max` owns the form width. All other controls/feedback consume the
+existing Contact, action and spacing tokens. Shared Contact itself is unchanged.
 
 Contact, shared by Home and Mutual Funds, submits directly to the approved existing
 Strapi endpoint. `Contact.astro` owns its four explicit fields, layout and browser

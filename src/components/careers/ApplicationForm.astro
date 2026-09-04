@@ -1,0 +1,488 @@
+---
+import { careersApi } from '../../data/openings';
+---
+
+<form
+  method="post"
+  novalidate
+  data-application-form
+  data-api={careersApi}
+  data-state="unavailable"
+  aria-labelledby="application-title"
+  aria-describedby="application-note"
+>
+  <h2 id="application-title">Apply for this position</h2>
+  <p id="application-note">
+    Applications require JavaScript, a configured service and an Open position.
+    You can also contact us using the details below.
+  </p>
+  <fieldset disabled>
+    <legend>Personal Information</legend>
+    <div class="fields-grid">
+      <div class="field">
+        <label for="candidate-name">Name <span>(required)</span></label><input
+          id="candidate-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          aria-describedby="candidate-name-error"
+        /><span id="candidate-name-error" class="field-error"></span>
+      </div>
+      <div class="field">
+        <label for="candidate-email"
+          >Email address <span>(required)</span></label
+        ><input
+          id="candidate-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          aria-describedby="candidate-email-error"
+        /><span id="candidate-email-error" class="field-error"></span>
+      </div>
+      <div class="field">
+        <label for="candidate-phone">Contact no. <span>(optional)</span></label
+        ><input
+          id="candidate-phone"
+          name="contact_no"
+          type="tel"
+          autocomplete="tel"
+        />
+      </div>
+    </div>
+    <h3>Profile</h3>
+    <div class="field">
+      <label for="candidate-resume"
+        >Upload your resume <span>(required)</span></label
+      >
+      <p id="resume-help" class="field-help">
+        PDF only, up to 2 MB (2,000,000 bytes).
+      </p>
+      <input
+        id="candidate-resume"
+        name="resume"
+        type="file"
+        accept=".pdf,application/pdf"
+        required
+        aria-describedby="resume-help candidate-resume-error"
+      />
+      <div class="selected-file" data-selected-file hidden>
+        <span data-file-summary></span><button type="button" data-remove-file
+          >Remove<span class="sr-only"> selected resume</span></button
+        >
+      </div>
+      <span id="candidate-resume-error" class="field-error"></span>
+    </div>
+    <div class="fields-grid">
+      <div class="field">
+        <label for="candidate-linkedin"
+          >LinkedIn URL <span>(required)</span></label
+        ><input
+          id="candidate-linkedin"
+          name="linkedin_url"
+          type="url"
+          required
+          placeholder="https://www.linkedin.com/in/your-profile"
+          aria-describedby="candidate-linkedin-error"
+        /><span id="candidate-linkedin-error" class="field-error"></span>
+      </div>
+      <div class="field">
+        <label for="candidate-links"
+          >Additional links <span>(optional)</span></label
+        ><input
+          id="candidate-links"
+          name="additional_links"
+          type="text"
+          placeholder="Portfolio, GitHub or other links"
+        />
+      </div>
+    </div>
+    <button class="action" type="submit" disabled>Submit application</button>
+  </fieldset>
+  <p
+    class="application-status"
+    role="status"
+    aria-atomic="true"
+    data-application-status
+  >
+  </p>
+</form>
+<script>
+  import { getOpening } from '../../data/openings';
+
+  const form = document.querySelector<HTMLFormElement>(
+    '[data-application-form]',
+  )!;
+  const fieldset = form.querySelector('fieldset')!;
+  const button = form.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+  const status = form.querySelector<HTMLElement>('[data-application-status]')!;
+  const resume = form.querySelector<HTMLInputElement>('#candidate-resume')!;
+  const requiredFields = [
+    ...form.querySelectorAll<HTMLInputElement>(
+      'input[required]:not([type="file"])',
+    ),
+  ];
+  const selectedFile = form.querySelector<HTMLElement>('[data-selected-file]')!;
+  const remove = form.querySelector<HTMLButtonElement>('[data-remove-file]')!;
+  const api = form.dataset.api;
+  const MAX_RESUME_BYTES = 2_000_000;
+  const uncertain =
+    'We could not confirm your application. It may have reached us. Please contact us before submitting again.';
+  let sending = false;
+  let composing = false;
+  let canApply = false;
+  let uploaded: { file: File; id: number } | undefined;
+
+  function showStatus(text: string, state: string) {
+    status.textContent = text;
+    form.dataset.state = state;
+  }
+  function setError(input: HTMLInputElement, message: string) {
+    input.setAttribute('aria-invalid', String(Boolean(message)));
+    document.getElementById(`${input.id}-error`)!.textContent = message;
+    return !message;
+  }
+  function validate(input: HTMLInputElement) {
+    let error = '';
+    if (!input.value.trim()) error = 'This field is required.';
+    else if (input.type === 'email' && input.validity.typeMismatch)
+      error = 'Enter a valid email address, such as name@example.com.';
+    else if (input.type === 'url') {
+      try {
+        const url = new URL(input.value.trim());
+        if (
+          !['https:', 'http:'].includes(url.protocol) ||
+          url.username ||
+          url.password
+        )
+          throw new Error();
+      } catch {
+        error = 'Enter a complete LinkedIn URL starting with https://.';
+      }
+    }
+    return setError(input, error);
+  }
+  function validateResume() {
+    const file = resume.files?.[0];
+    let error = '';
+    if (!file) error = 'Choose your PDF resume.';
+    else if (!file.size) error = 'This file is empty. Choose a PDF resume.';
+    else if (file.size > MAX_RESUME_BYTES)
+      error = 'Your resume must be 2 MB or smaller.';
+    else if (
+      !/\.pdf$/i.test(file.name) ||
+      (file.type && file.type !== 'application/pdf')
+    )
+      error = 'Choose a PDF file.';
+    return setError(resume, error);
+  }
+  function showFile() {
+    const file = resume.files?.[0];
+    selectedFile.hidden = !file;
+    form.querySelector('[data-file-summary]')!.textContent = file
+      ? `${file.name} · ${new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(file.size / 1000)} KB`
+      : '';
+  }
+  function enableApplication() {
+    canApply = Boolean(api && form.dataset.openingId);
+    fieldset.disabled = !canApply;
+    button.disabled = !canApply;
+    if (canApply) {
+      form.querySelector('#application-note')!.textContent =
+        'Name, email address, LinkedIn URL and a PDF resume are required. Your application is sent when you select Submit application.';
+      form.dataset.state = 'idle';
+    }
+  }
+  function submissionError(code: number, stage: 'upload' | 'candidate') {
+    if (code === 400 || code === 422)
+      return stage === 'upload'
+        ? 'The resume was not accepted. Check the PDF and try again.'
+        : 'Your application was not accepted. Check your details and try again.';
+    if (code === 401 || code === 403)
+      return 'Online applications are currently unavailable. Please contact us.';
+    if (code === 413)
+      return 'The service rejected the file size. Choose a smaller PDF, up to 2 MB.';
+    if (code === 429)
+      return 'Too many attempts. Please wait before trying again, or contact us.';
+    return stage === 'upload'
+      ? 'We could not confirm the resume upload. No application was sent. Please contact us before trying again.'
+      : uncertain;
+  }
+
+  form.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  form.addEventListener('compositionend', () => {
+    composing = false;
+  });
+  form.addEventListener('input', (event) => {
+    const input = event.target;
+    if (
+      input instanceof HTMLInputElement &&
+      input !== resume &&
+      input.required &&
+      input.getAttribute('aria-invalid') === 'true'
+    )
+      validate(input);
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+  });
+  resume.addEventListener('change', () => {
+    uploaded = undefined;
+    showFile();
+    validateResume();
+  });
+  remove.addEventListener('click', () => {
+    resume.value = '';
+    uploaded = undefined;
+    showFile();
+    setError(resume, '');
+    resume.focus();
+  });
+
+  // Install this guard before either script can enable the fieldset.
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!api || !canApply || sending || composing) return;
+    const invalid = requiredFields.filter((input) => !validate(input));
+    if (!validateResume()) invalid.push(resume);
+    if (invalid.length) {
+      showStatus('Please check the highlighted fields.', 'error');
+      invalid[0].focus();
+      return;
+    }
+    const file = resume.files![0];
+    const fields = new FormData(form);
+    const data = {
+      name: String(fields.get('name')).trim(),
+      email: String(fields.get('email')).trim(),
+      contact_no: String(fields.get('contact_no')).trim(),
+      linkedin_url: String(fields.get('linkedin_url')).trim(),
+      additional_links: String(fields.get('additional_links')).trim(),
+      opening: form.dataset.openingId!,
+    };
+    sending = true;
+    fieldset.disabled = true;
+    button.disabled = true;
+    fieldset.setAttribute('aria-busy', 'true');
+    let stage: 'check' | 'upload' | 'candidate' = 'check';
+    showStatus('Checking this opening…', 'sending');
+    try {
+      // A small signature check catches renamed files; it is not server-side PDF validation.
+      if ((await file.slice(0, 5).text()) !== '%PDF-') {
+        setError(
+          resume,
+          'This does not appear to be a PDF. Choose a valid PDF resume.',
+        );
+        showStatus('Please check your resume.', 'error');
+        return;
+      }
+      const opening = await getOpening(data.opening);
+      if (!opening || opening.job_status !== 'Open') {
+        canApply = false;
+        form.dispatchEvent(new Event('opening-closed'));
+        showStatus(
+          'This position is no longer accepting applications. No application was sent.',
+          'error',
+        );
+        return;
+      }
+      if (!uploaded || uploaded.file !== file) {
+        stage = 'upload';
+        button.textContent = 'Uploading…';
+        showStatus('Uploading resume…', 'sending');
+        const body = new FormData();
+        body.append('files', file);
+        const response = await fetch(`${api}/upload`, {
+          method: 'POST',
+          body,
+          credentials: 'omit',
+          referrerPolicy: 'no-referrer',
+          redirect: 'error',
+          signal: AbortSignal.timeout(20_000),
+        });
+        const result = await response.json().catch(() => null);
+        if (
+          !response.ok ||
+          !Array.isArray(result) ||
+          result.length !== 1 ||
+          !Number.isInteger(result[0]?.id) ||
+          result[0].id <= 0
+        ) {
+          showStatus(submissionError(response.status, stage), 'error');
+          return;
+        }
+        uploaded = { file, id: result[0].id };
+      }
+      stage = 'candidate';
+      button.textContent = 'Submitting…';
+      showStatus('Submitting application…', 'sending');
+      const response = await fetch(`${api}/candidates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        redirect: 'error',
+        signal: AbortSignal.timeout(20_000),
+        body: JSON.stringify({ data: { ...data, resume: uploaded.id } }),
+      });
+      const result = await response.json().catch(() => null);
+      if (
+        response.status === 201 &&
+        typeof result?.data?.documentId === 'string' &&
+        result.data.documentId.trim()
+      ) {
+        form.reset();
+        uploaded = undefined;
+        showFile();
+        showStatus(
+          'Thank you. Your application has been submitted.',
+          'success',
+        );
+      } else {
+        showStatus(submissionError(response.status, stage), 'error');
+      }
+    } catch {
+      const error =
+        stage === 'check'
+          ? 'We could not confirm this opening is still available. Nothing was sent. Please try again.'
+          : submissionError(0, stage);
+      showStatus(error, 'error');
+    } finally {
+      sending = false;
+      fieldset.disabled = !canApply;
+      button.disabled = !canApply;
+      fieldset.setAttribute('aria-busy', 'false');
+      button.textContent = 'Submit application';
+      if (resume.getAttribute('aria-invalid') === 'true') resume.focus();
+    }
+  });
+  form.addEventListener('opening-ready', enableApplication);
+  enableApplication();
+</script>
+<style>
+  @reference '../../styles/tokens.css';
+  form {
+    max-width: var(--application-max);
+    margin-inline: auto;
+  }
+  h2 {
+    font-size: var(--text-content-card);
+    margin-bottom: var(--space-sm);
+  }
+  #application-note,
+  .field-help {
+    font-size: var(--text-caption);
+    color: var(--color-muted);
+    margin-bottom: var(--space-md);
+  }
+  fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+  }
+  legend,
+  h3 {
+    font-family: var(--font-heading);
+    font-size: var(--text-content-card);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand);
+    margin-block: var(--space-md);
+  }
+  .fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md);
+  }
+  .field {
+    min-width: 0;
+    margin-bottom: var(--space-sm);
+  }
+  label {
+    display: block;
+    font-size: var(--text-caption);
+    margin-bottom: var(--spacing);
+  }
+  label span {
+    color: var(--color-muted);
+  }
+  input {
+    display: block;
+    width: 100%;
+    min-height: var(--target-min);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+    padding: var(--space-sm);
+    font-size: var(--text-small);
+    background: var(--color-white);
+    color: var(--color-body);
+  }
+  input[type='file'] {
+    font-size: var(--text-caption);
+  }
+  input::file-selector-button {
+    margin-right: var(--space-sm);
+    border: 0;
+    background: var(--color-soft);
+    color: var(--color-brand);
+    padding: var(--space-xs);
+    cursor: pointer;
+  }
+  input::file-selector-button:hover {
+    background: var(--color-company-band);
+  }
+  [aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+  .field-error {
+    display: block;
+    min-height: var(--contact-error-height);
+    font-size: var(--text-caption);
+    color: var(--color-error);
+  }
+  .selected-file {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: space-between;
+    align-items: start;
+    font-size: var(--text-caption);
+    margin-top: var(--space-xs);
+  }
+  .selected-file span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .selected-file button {
+    flex-shrink: 0;
+    min-height: var(--target-min);
+    color: var(--color-brand);
+    text-decoration: underline;
+  }
+  .selected-file button:hover {
+    color: var(--color-brand-hover);
+  }
+  .action {
+    width: 100%;
+    margin-top: var(--space-md);
+  }
+  .application-status {
+    min-height: var(--contact-status-height);
+    padding-top: var(--space-sm);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  [data-state='error'] .application-status {
+    color: var(--color-error);
+  }
+  [data-state='success'] .application-status {
+    color: var(--color-brand);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .fields-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

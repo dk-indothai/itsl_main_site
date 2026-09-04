@@ -8,6 +8,9 @@ import {
 } from '../../data/nav';
 import ActionLink from '../ui/ActionLink.astro';
 const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
+const navigationPath = currentPath.startsWith(links.careers)
+  ? links.careers
+  : currentPath;
 ---
 
 <header
@@ -34,7 +37,7 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
             <li>
               <a
                 href={item.href}
-                aria-current={item.href === currentPath ? 'page' : undefined}
+                aria-current={item.href === navigationPath ? 'page' : undefined}
               >
                 {item.label}
               </a>
@@ -71,7 +74,7 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
                   <a
                     href={item.href}
                     aria-current={
-                      item.href === currentPath ? 'page' : undefined
+                      item.href === navigationPath ? 'page' : undefined
                     }
                   >
                     {item.label}

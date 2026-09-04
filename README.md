@@ -4,13 +4,13 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`) and Software Downloads (`/downloads/`) are implemented.** Navigation between these pages is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`) and job details (`/careers/job/`) are implemented.** Navigation between these six static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. All four pages reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. All routes reuse the layout, header, footer, SEO and design tokens.
 
-The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. Playwright and the HTML parser are development-only test dependencies. Contact submission and live software listings use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
+The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize job descriptions in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, software and Careers use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
 The previous project, `/home/mrrobot/Projects/itsl-website`, was used read-only for structural reference and byte-verified matching assets. It is not a runtime dependency or the authoritative design.
 
@@ -150,6 +150,68 @@ origin. Production needs an approved HTTPS API origin. Browser tests mock listin
 pagination and failures; live verification is read-only. Never seed entries or
 execute downloaded files during verification.
 
+### Careers setup and maintenance
+
+Careers reuses `PUBLIC_STRAPI_URL`. Publish openings in Strapi and maintain their
+title, `job_status` (Open, Closed or Filled), location, comma-separated tags and
+Markdown description. All published statuses appear alphabetically on `/careers/`.
+Each link uses `/careers/job/?id=<documentId>`: new jobs and edits appear on refresh
+without rebuilding. Only the public opening identifier belongs in the URL.
+The website never reads candidates or populates the opening's `candidates` relation.
+
+The implementation has three components in `src/components/careers/`:
+`OpeningList.astro` owns cards and loading, `JobDetails.astro` owns the overview and
+keyboard-operated tabs, and `ApplicationForm.astro` owns its explicit fields and
+submission handler. `src/data/openings.ts` shares the Opening type, public API
+configuration and read functions. Edit these directly; there is no CMS framework,
+field registry or page builder. Visual values stay in `src/styles/tokens.css`.
+
+Descriptions use `marked` followed by DOMPurify with a small formatting allowlist.
+Scripts, styles, embedded media and forms are not rendered; links accept only
+HTTP(S) and email destinations without embedded credentials. CMS headings are
+normalized below the overview heading. Other CMS values render as plain text.
+
+Applications require name, valid email, LinkedIn URL and one nonempty PDF resume.
+Contact number and additional links are optional strings. The limit is exactly
+**2,000,000 bytes**, owned by `MAX_RESUME_BYTES` beside the form handler. Selection
+does not upload anything. The browser checks size, extension/MIME and a basic PDF
+signature before sending; these are usability checks, not a security boundary.
+
+On Submit, the browser rechecks the job is Open, uploads `files` in multipart
+FormData to `POST /api/upload`, then sends JSON `data` to `POST /api/candidates`:
+`name`, `email`, `contact_no`, `linkedin_url`, `additional_links`, numeric uploaded
+`resume` ID, and `opening` documentId. No tokens, cookies or publication overrides
+are sent. Entries retain Strapi's existing Draft & Publish behavior.
+
+Each request times out after 20 seconds, without automatic retries. Only a
+confirmed candidate creation clears the form. Errors preserve values and the
+selected file. Manual retry reuses the confirmed upload ID while the same File
+remains selected in this page; removing/replacing it or navigating clears that
+in-memory reference. Nothing is stored in URLs, browser storage or logs. A failed
+or abandoned application can leave an unattached upload; the website never deletes
+it. Timeouts/network failures can have uncertain outcomes, so the UI advises
+contacting the company before resubmitting. There is no server-side idempotency or
+atomic job-status check: an opening can close between the check and creation.
+
+Opening list/detail reads were verified during planning. Upload and Candidate Create
+require existing public permissions and CORS; do not grant public candidate reads
+or media-list access just to test this feature. This website does not alter Strapi.
+Real smoke tests require separate approval and use clearly synthetic data only.
+
+**Preview limitations:** current GCS configuration has `GCS_PUBLIC_FILES=true`.
+Resumes may be accessible to anyone with their file URL. The owner explicitly
+accepted existing storage for this preview; it is not production privacy approval.
+Private resume access, server-enforced size/type limits, malware/abuse protection,
+staff permissions, retention/orphan cleanup and production HTTPS/CORS review remain
+release work. Revocation of the previously shared token remains outstanding.
+
+Without JavaScript/configuration, explanations and contact alternatives remain;
+applications cannot submit natively. Job details also disable applications for
+Closed/Filled, missing or unpublished jobs. The six static routes retain
+`noindex, nofollow`. Job records are not in initial HTML: the detail page starts
+with generic metadata and updates the document title after loading. This is not
+server-rendered job SEO or a replacement for future production redirect planning.
+
 ### If development images disappear
 
 Development transforms images through `/_image/`; the static build serves already
@@ -181,6 +243,7 @@ src/
 │   ├── about/                 Company, leadership, milestones, values and gallery
 │   ├── mutual-funds/          Introduction, steps, benefits, WINVEST and NRI sections
 │   ├── downloads/             Catalogue markup, typed client loading and filters
+│   ├── careers/               Opening list, job details/tabs and application form
 │   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
@@ -189,9 +252,10 @@ src/
 │   ├── home.ts                Typed services, statistics, steps, apps and testimonials
 │   ├── about.ts               Company story, directors, timeline, values and gallery
 │   ├── mutual-funds.ts        Introduction, investment steps, benefits and NRI copy
-│   └── apps.ts                Shared WINVEST copy and store destinations
+│   ├── apps.ts                Shared WINVEST copy and store destinations
+│   └── openings.ts            Typed opening reads and Careers API configuration
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/                     index.astro, about-us.astro, mutual-funds.astro, downloads.astro
+├── pages/                     Marketing routes, downloads.astro and careers/{index,job}.astro
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
@@ -205,6 +269,7 @@ tests/
 ├── static-output.test.mjs     Generated HTML assertions
 ├── content-pages.test.mjs     About Us and Mutual Funds static assertions
 ├── downloads.test.mjs         Downloads static metadata and fallback assertions
+├── careers.test.mjs           Careers and job-page metadata and form safety
 └── browser/                   Responsive, navigation, asset and safety checks
 DESIGN.md                      Reference-led design guidance, not duplicate tokens
 AGENTS.md                      Coding-agent rules
@@ -221,10 +286,10 @@ routes, build-time CMS fetching, fund calculator, financial transactions or Astr
 - **Company information and destinations:** edit `src/data/site.ts`. Avoid repeated literal URLs in components. `nav.ts` controls navigation labels and grouping.
 - **Images:** replace/import files in `src/assets/images/`, keeping accurate alt text, intrinsic dimensions and responsive `sizes`. Astro generates optimized images at build time. Decorative icons/backgrounds do not need descriptive alt text.
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
-- **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on all four pages through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
+- **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on every route through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
-- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads supplies its metadata directly in `src/pages/downloads.astro`.
-- **Browser behavior:** navigation enhancement lives with Header; form submission lives with Contact; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
+- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads and Careers supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
+- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Careers interactions stay in their three named components; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
 
@@ -297,7 +362,7 @@ Each generated page includes one meaningful H1, logical section headings, a uniq
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
-Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server, but live contact submissions and software listings require the separate Strapi service.
+Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server, but live contact submissions, software listings, Careers content and applications require the separate Strapi service.
 
 ## Verification and release checklist
 
@@ -308,7 +373,8 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the four approved static routes; release acceptance remains separate.
+- [x] Implement the six approved static routes; release acceptance remains separate.
+- [ ] Approve Careers content and production resume privacy, server-side limits, abuse protection and retention. Verify upload/create permissions without exposing candidate records.
 - [ ] Approve published software, category assignments, attachment URLs and file safety; verify production read permissions/CORS. Listings require JavaScript and are absent from initial HTML.
 - [ ] Approve source-copy/link anomalies and verify external service destinations and availability.
 - [x] Connect both contact forms to the existing Strapi endpoint with client validation and submission states.
