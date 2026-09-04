@@ -1,5 +1,49 @@
 # Website migration verification
 
+## Raise Ticket and complaint attachments — 4 September 2026
+
+`/raise-a-ticket/` is implemented as the eighth static route. The utility menu
+now links locally and marks the page as current. Its centered support heading,
+two-column form card and single-column phone layout reuse the existing typography,
+panel, action, error, status and support-band tokens without introducing a UI
+library, dependency or new design system.
+
+The seven required fields map exactly to `name`, `client_id`, `email`, `mobile_no`,
+`issue`, `subject` and `description`. Issue choices match Strapi's enumeration.
+The optional attachment accepts the documented extensions up to exactly 5,000,000
+bytes and remains local until submission. With a file, the browser uploads multipart
+`files` to `/api/upload` and passes its numeric ID as `attachment` to
+`POST /api/complaints`; without a file, only the seven strings are sent.
+
+| Check                    | Result                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Formatting               | `npm run format:check` passed.                                                                               |
+| Astro/TypeScript         | `npm run check`: 71 files, zero errors, warnings or hints.                                                   |
+| Static output and build  | `npm test` passed all six Node test files and generated the eight approved static routes.                    |
+| Production browser tests | `npm run test:browser`: all 182 Chromium tests passed, including all 20 Raise Ticket tests.                  |
+| Development tests        | `npm run test:dev`: all 29 layout and asset checks passed, including Raise Ticket at four responsive widths. |
+| Design checks            | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors or warnings.                    |
+
+Raise Ticket browser coverage verifies the exact JSON with and without an attachment,
+multipart field name, numeric media relation, omitted credentials/referrers, stable
+busy button, duplicate-click prevention, native Issue selection and first-error
+focus. It covers empty, unsupported, maximum-size and oversized files; removal;
+all planned validation, permission, rate-limit, size and server errors; network and
+malformed responses; the 20-second timeout; and manual complaint retry without
+uploading the same selected file twice. Missing configuration and no-JavaScript
+fallbacks retain compliance contact links. Captures at 1280, 768, 390 and 320px
+were inspected and have no horizontal overflow.
+
+All endpoint behavior was mocked. No complaint or attachment was submitted to the
+live Strapi service, no existing complaint was read and no Strapi code, permission,
+schema, CORS or storage setting was changed. The final production build succeeds
+without Strapi running.
+
+Production still requires Create-only complaint permission, restricted CORS,
+private attachment delivery, server-enforced file type/size, rate limiting, abuse
+and malware protection, retention/orphan cleanup, HTTPS and privacy/security
+approval. Current public GCS attachment visibility is accepted for preview only.
+
 ## Close Account request — 4 September 2026
 
 `/close-account/` is implemented as the seventh static route. Its professional

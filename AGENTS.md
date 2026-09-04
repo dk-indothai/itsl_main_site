@@ -4,8 +4,9 @@
 
 The static Astro + TypeScript + Tailwind v4 Home (`/`), About Us (`/about-us/`),
 Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
-(`/careers/`), job details (`/careers/job/`) and Close Account
-(`/close-account/`) routes are implemented and link locally.
+(`/careers/`), job details (`/careers/job/`), Close Account
+(`/close-account/`) and Raise Ticket (`/raise-a-ticket/`) routes are implemented
+and link locally.
 Downloads and Careers load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
@@ -28,8 +29,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 
 - The approved static routes are Home (`/`), About Us (`/about-us/`), Mutual Funds
   (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`),
-  job details (`/careers/job/?id=<documentId>`) and Close Account
-  (`/close-account/`).
+  job details (`/careers/job/?id=<documentId>`), Close Account
+  (`/close-account/`) and Raise Ticket (`/raise-a-ticket/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -94,6 +95,15 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   inline validation. Never serialize/log applicant data or read existing candidates.
   Ask separately before live synthetic uploads/applications. Public GCS file storage
   and browser-only checks are accepted for this preview, not production approval.
+- Raise Ticket keeps its markup, issue choices, scoped styles and browser handler
+  together in `RaiseTicketForm.astro`. Keep the seven required complaint fields
+  and optional single attachment explicit; do not add a generic form/upload layer.
+  With no attachment, POST JSON directly to `/api/complaints`. With a file, POST
+  it under multipart `files` to `/api/upload`, then include the returned numeric
+  ID as `attachment` in the complaint. Retain a confirmed upload ID only in memory
+  for manual retry with the same File; never delete uploads automatically. Accept
+  only the documented JPG/PNG/GIF/PDF/DOC/DOCX/XLS/XLSX/TXT/CSV extensions up to
+  5,000,000 bytes. These client checks are not a server-side security boundary.
 - Preserve all six directors, the 11-event milestone transcript, three values,
   four company links and five gallery images. The timeline uses the original
   responsive SVG artwork plus matching desktop/mobile text equivalents, not inferred
@@ -169,6 +179,14 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   must mock the endpoint and must not read existing closure requests. Public Strapi
   access should remain Create-only; production still requires server validation,
   abuse controls, restricted CORS, retention and privacy/security approval.
+- Raise Ticket uses `POST /api/complaints` and, only when an attachment is selected,
+  `POST /api/upload`. Send only `name`, `client_id`, `email`, `mobile_no`, `issue`,
+  `subject`, `description` and the optional numeric `attachment` inside `data`.
+  Preserve the exact Strapi issue enumeration, 20-second timeout per request,
+  disabled fallback, inline validation, stable busy states and uncertain-result
+  wording. Never log or persist complaint data. Public complaint access must remain
+  Create-only; current public GCS file visibility is preview-only and requires
+  production privacy/storage approval. Do not live-test complaints without approval.
 - Tests must mock submissions by default. Real local smoke tests use explicitly
   synthetic data only; never read, alter or delete existing enquiries. Browser
   tests use one mock-configured build and preview server; no running Strapi is
@@ -195,7 +213,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the seven approved static routes into `dist/`. Software and opening listings
+  Build the eight approved static routes into `dist/`. Software and opening listings
   and job descriptions require JavaScript and are absent from initial HTML; retain
   preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,

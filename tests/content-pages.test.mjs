@@ -22,6 +22,7 @@ const routes = [
   '/downloads/',
   '/careers/',
   '/close-account/',
+  '/raise-a-ticket/',
 ];
 
 for (const [route, title, heading] of [

@@ -1,0 +1,718 @@
+---
+import { PUBLIC_STRAPI_URL } from 'astro:env/client';
+import { site } from '../../data/site';
+
+const issues = [
+  'Account Opening',
+  'Trade Related Query',
+  'Technical Issue',
+  'Fund Related',
+  'Demat Related',
+  'Others',
+] as const;
+
+let api: string | undefined;
+try {
+  const url = new URL(PUBLIC_STRAPI_URL ?? '');
+  if (
+    ['http:', 'https:'].includes(url.protocol) &&
+    !url.username &&
+    !url.password &&
+    !url.search &&
+    !url.hash
+  ) {
+    api = url.href.replace(/\/+$/, '');
+  }
+} catch {
+  // Missing or invalid configuration leaves the form disabled.
+}
+---
+
+<section class="raise-ticket page-shell" aria-labelledby="ticket-heading">
+  <header class="ticket-intro">
+    <p class="eyebrow">Investor support</p>
+    <h1 id="ticket-heading">Raise a Ticket</h1>
+    <p>
+      Tell us about your query or grievance. Raising a ticket creates a
+      complaint record for review; it does not guarantee immediate resolution.
+    </p>
+  </header>
+
+  <div class="ticket-card">
+    <form
+      method="post"
+      novalidate
+      aria-label="Raise a complaint ticket"
+      aria-describedby="ticket-note"
+      data-ticket-form
+      data-api={api}
+      data-state="unavailable"
+    >
+      <p id="ticket-note" class="form-note" data-ticket-note>
+        {
+          api
+            ? 'Enable JavaScript to raise a ticket, or contact our compliance team using the details below.'
+            : 'Online ticket submission is not configured. Please contact our compliance team using the details below.'
+        }
+      </p>
+
+      <!-- Controls stay disabled until the browser installs the submit guard. -->
+      <fieldset disabled>
+        <legend class="sr-only">Complaint details</legend>
+        <div class="fields">
+          <div class="field">
+            <label for="ticket-name">Name <span>(required)</span></label>
+            <input
+              id="ticket-name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              data-error="Enter your name."
+              aria-describedby="ticket-name-error"
+            />
+            <span id="ticket-name-error" class="field-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="ticket-client-id"
+              >Client ID <span>(required)</span></label
+            >
+            <input
+              id="ticket-client-id"
+              name="client_id"
+              type="text"
+              required
+              spellcheck="false"
+              data-error="Enter your Client ID."
+              aria-describedby="ticket-client-id-error"
+            />
+            <span id="ticket-client-id-error" class="field-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="ticket-email"
+              >Email address <span>(required)</span></label
+            >
+            <input
+              id="ticket-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              data-error="Enter your email address."
+              aria-describedby="ticket-email-error"
+            />
+            <span id="ticket-email-error" class="field-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="ticket-mobile"
+              >Mobile number <span>(required)</span></label
+            >
+            <input
+              id="ticket-mobile"
+              name="mobile_no"
+              type="tel"
+              autocomplete="tel"
+              required
+              data-error="Enter your mobile number."
+              aria-describedby="ticket-mobile-error"
+            />
+            <span id="ticket-mobile-error" class="field-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="ticket-issue">Issue <span>(required)</span></label>
+            <select
+              id="ticket-issue"
+              name="issue"
+              required
+              data-error="Select an issue."
+              aria-describedby="ticket-issue-error"
+            >
+              <option value="">— Select an issue —</option>
+              {issues.map((issue) => <option value={issue}>{issue}</option>)}
+            </select>
+            <span id="ticket-issue-error" class="field-error"></span>
+          </div>
+
+          <div class="field">
+            <label for="ticket-subject">Subject <span>(required)</span></label>
+            <input
+              id="ticket-subject"
+              name="subject"
+              type="text"
+              required
+              data-error="Enter a subject."
+              aria-describedby="ticket-subject-error"
+            />
+            <span id="ticket-subject-error" class="field-error"></span>
+          </div>
+
+          <div class="field field-wide">
+            <label for="ticket-description"
+              >Description <span>(required)</span></label
+            >
+            <textarea
+              id="ticket-description"
+              name="description"
+              required
+              data-error="Describe your query or grievance."
+              aria-describedby="ticket-description-error"></textarea>
+            <span id="ticket-description-error" class="field-error"></span>
+          </div>
+
+          <div class="field field-wide">
+            <label for="ticket-attachment"
+              >File attachment <span>(optional)</span></label
+            >
+            <p id="ticket-attachment-help" class="field-help">
+              JPG, PNG, GIF, PDF, DOC, DOCX, XLS, XLSX, TXT or CSV, up to 5 MB
+              (5,000,000 bytes).
+            </p>
+            <input
+              id="ticket-attachment"
+              name="attachment"
+              type="file"
+              accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+              aria-describedby="ticket-attachment-help ticket-attachment-error"
+            />
+            <div class="selected-file" data-selected-file hidden>
+              <span data-file-summary></span>
+              <button type="button" data-remove-file
+                >Remove<span class="sr-only"> selected attachment</span></button
+              >
+            </div>
+            <span id="ticket-attachment-error" class="field-error"></span>
+          </div>
+        </div>
+
+        <button class="action submit-ticket" type="submit" disabled
+          >Raise ticket</button
+        >
+      </fieldset>
+
+      <p
+        class="form-status"
+        data-ticket-status
+        role="status"
+        aria-atomic="true"
+      >
+      </p>
+    </form>
+
+    <aside class="support" aria-labelledby="ticket-support-heading">
+      <h2 id="ticket-support-heading">Need another way to contact us?</h2>
+      <p>
+        Email <a href={`mailto:${site.complianceEmail}`}
+          >{site.complianceEmail}</a
+        > or call <a href={site.telephone.href}>{site.telephone.label}</a>.
+      </p>
+    </aside>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-ticket-form]')!;
+  const fieldset = form.querySelector('fieldset')!;
+  const submit = form.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+  const status = form.querySelector<HTMLElement>('[data-ticket-status]')!;
+  const attachment =
+    form.querySelector<HTMLInputElement>('#ticket-attachment')!;
+  const selectedFile = form.querySelector<HTMLElement>('[data-selected-file]')!;
+  const removeFile =
+    form.querySelector<HTMLButtonElement>('[data-remove-file]')!;
+  const required = [
+    ...form.querySelectorAll<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >('[required]'),
+  ];
+  const editable = [
+    ...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+      'input:not([type="file"]), textarea',
+    ),
+  ];
+  const issue = form.querySelector<HTMLSelectElement>('#ticket-issue')!;
+  const api = form.dataset.api;
+  const MAX_ATTACHMENT_BYTES = 5_000_000;
+  const acceptedExtensions = new Set([
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'txt',
+    'csv',
+  ]);
+  const uncertain =
+    'We could not confirm your ticket. It may have reached us. Please contact our compliance team before submitting it again.';
+  let sending = false;
+  let composing = false;
+  let uploaded: { file: File; id: number } | undefined;
+
+  function showStatus(text: string, state: string) {
+    status.textContent = text;
+    form.dataset.state = state;
+  }
+
+  function setError(
+    control: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
+    message: string,
+  ) {
+    control.setAttribute('aria-invalid', String(Boolean(message)));
+    document.getElementById(`${control.id}-error`)!.textContent = message;
+    return !message;
+  }
+
+  function validateField(
+    control: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
+  ) {
+    let message = '';
+    if (!control.value.trim()) message = control.dataset.error!;
+    else if (
+      control instanceof HTMLInputElement &&
+      control.type === 'email' &&
+      control.validity.typeMismatch
+    )
+      message = 'Enter a valid email address, such as name@example.com.';
+    return setError(control, message);
+  }
+
+  function validateAttachment() {
+    const file = attachment.files?.[0];
+    let message = '';
+    if (file) {
+      const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+      if (!file.size) message = 'Choose a file that is not empty.';
+      else if (file.size > MAX_ATTACHMENT_BYTES)
+        message = 'The attachment must be 5 MB or smaller.';
+      else if (!acceptedExtensions.has(extension))
+        message =
+          'Choose a JPG, PNG, GIF, PDF, DOC, DOCX, XLS, XLSX, TXT or CSV file.';
+    }
+    return setError(attachment, message);
+  }
+
+  function showSelectedFile() {
+    const file = attachment.files?.[0];
+    selectedFile.hidden = !file;
+    form.querySelector('[data-file-summary]')!.textContent = file
+      ? `${file.name} · ${new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(file.size / 1000)} KB`
+      : '';
+  }
+
+  function setBusy(busy: boolean) {
+    sending = busy;
+    submit.disabled = busy;
+    editable.forEach((control) => (control.readOnly = busy));
+    issue.disabled = busy;
+    attachment.disabled = busy;
+    removeFile.disabled = busy;
+    fieldset.setAttribute('aria-busy', String(busy));
+  }
+
+  async function send(url: string, options: RequestInit) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 20_000);
+    try {
+      const response = await fetch(url, {
+        ...options,
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        redirect: 'error',
+        signal: controller.signal,
+      });
+      const result = await response.json().catch(() => null);
+      return { response, result };
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  function responseMessage(code: number, stage: 'upload' | 'complaint') {
+    if (code === 400 || code === 422)
+      return stage === 'upload'
+        ? 'The attachment was not accepted. Check the file and try again.'
+        : 'Your ticket was not accepted. Check your details and try again.';
+    if (code === 401 || code === 403)
+      return stage === 'upload'
+        ? 'Attachments are currently unavailable. Remove the file to raise the ticket without it, or contact compliance.'
+        : 'Online ticket submission is currently unavailable. Please contact compliance.';
+    if (code === 413)
+      return 'The service rejected the attachment size. Choose a smaller file, up to 5 MB.';
+    if (code === 429)
+      return 'Too many submission attempts. Please wait before trying again, or contact compliance.';
+    return stage === 'upload'
+      ? 'We could not confirm the attachment upload. No ticket was created. Please contact compliance before trying again.'
+      : uncertain;
+  }
+
+  function clearErrors() {
+    for (const control of [...required, attachment]) setError(control, '');
+  }
+
+  function clearResolvedValidationStatus() {
+    if (
+      form.dataset.state === 'error' &&
+      [...required, attachment].every(
+        (control) => control.getAttribute('aria-invalid') !== 'true',
+      )
+    )
+      showStatus('', 'idle');
+  }
+
+  form.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  form.addEventListener('compositionend', () => {
+    composing = false;
+  });
+  form.addEventListener('input', (event) => {
+    const control = event.target;
+    if (
+      (control instanceof HTMLInputElement ||
+        control instanceof HTMLTextAreaElement) &&
+      control.required &&
+      control.getAttribute('aria-invalid') === 'true'
+    )
+      validateField(control);
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+    clearResolvedValidationStatus();
+  });
+  issue.addEventListener('change', () => {
+    if (issue.getAttribute('aria-invalid') === 'true') validateField(issue);
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+    clearResolvedValidationStatus();
+  });
+  attachment.addEventListener('change', () => {
+    uploaded = undefined;
+    showSelectedFile();
+    validateAttachment();
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+    clearResolvedValidationStatus();
+  });
+  removeFile.addEventListener('click', () => {
+    attachment.value = '';
+    uploaded = undefined;
+    showSelectedFile();
+    setError(attachment, '');
+    clearResolvedValidationStatus();
+    attachment.focus();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!api || sending || composing) return;
+
+    const invalid = required.filter((control) => !validateField(control));
+    if (!validateAttachment()) invalid.push(attachment);
+    if (invalid.length) {
+      showStatus('Please check the highlighted fields.', 'error');
+      invalid[0].focus();
+      return;
+    }
+
+    const fields = new FormData(form);
+    const data: {
+      name: string;
+      client_id: string;
+      email: string;
+      mobile_no: string;
+      issue: string;
+      subject: string;
+      description: string;
+      attachment?: number;
+    } = {
+      name: String(fields.get('name')).trim(),
+      client_id: String(fields.get('client_id')).trim(),
+      email: String(fields.get('email')).trim(),
+      mobile_no: String(fields.get('mobile_no')).trim(),
+      issue: String(fields.get('issue')).trim(),
+      subject: String(fields.get('subject')).trim(),
+      description: String(fields.get('description')).trim(),
+    };
+    const file = attachment.files?.[0];
+    let stage: 'upload' | 'complaint' = file ? 'upload' : 'complaint';
+
+    setBusy(true);
+    submit.textContent = file ? 'Uploading attachment…' : 'Raising ticket…';
+    showStatus(
+      file ? 'Uploading your attachment…' : 'Raising your ticket…',
+      'sending',
+    );
+
+    try {
+      if (file) {
+        if (!uploaded || uploaded.file !== file) {
+          const body = new FormData();
+          body.append('files', file);
+          const upload = await send(`${api}/api/upload`, {
+            method: 'POST',
+            body,
+          });
+          const id = upload.result?.[0]?.id;
+          if (!upload.response.ok || !Number.isInteger(id) || id <= 0) {
+            showStatus(
+              responseMessage(upload.response.status, 'upload'),
+              'error',
+            );
+            return;
+          }
+          uploaded = { file, id };
+        }
+        data.attachment = uploaded.id;
+        stage = 'complaint';
+        submit.textContent = 'Raising ticket…';
+        showStatus('Raising your ticket…', 'sending');
+      }
+
+      const complaint = await send(`${api}/api/complaints`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data }),
+      });
+      const created =
+        typeof complaint.result?.data?.documentId === 'string' &&
+        complaint.result.data.documentId.trim();
+
+      if (complaint.response.status === 201 && created) {
+        form.reset();
+        uploaded = undefined;
+        showSelectedFile();
+        clearErrors();
+        showStatus(
+          'Your ticket has been raised for review. Our team will respond using your registered contact details.',
+          'success',
+        );
+      } else {
+        showStatus(
+          responseMessage(complaint.response.status, 'complaint'),
+          'error',
+        );
+      }
+    } catch {
+      showStatus(
+        stage === 'upload'
+          ? 'We could not confirm the attachment upload. No ticket was created. Please contact compliance before trying again.'
+          : uncertain,
+        'error',
+      );
+    } finally {
+      setBusy(false);
+      submit.textContent = 'Raise ticket';
+    }
+  });
+
+  if (api) {
+    form.querySelector<HTMLElement>('[data-ticket-note]')!.textContent =
+      'All fields except the file attachment are required.';
+    fieldset.disabled = false;
+    submit.disabled = false;
+    form.dataset.state = 'idle';
+  }
+</script>
+
+<style>
+  @reference "../../styles/tokens.css";
+
+  .raise-ticket {
+    padding-top: var(--space-xl);
+  }
+  .ticket-intro {
+    max-width: var(--form-panel-max);
+    margin-inline: auto;
+    text-align: center;
+  }
+  .eyebrow {
+    margin-bottom: var(--space-sm);
+    color: var(--color-brand);
+    font-family: var(--font-action);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  h1 {
+    color: var(--color-ink);
+    font-size: var(--text-content-heading);
+    line-height: var(--leading-content-heading);
+  }
+  .ticket-intro > p:last-child {
+    max-width: 46rem;
+    margin: var(--space-md) auto 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+  .ticket-card {
+    max-width: var(--form-panel-max);
+    margin: var(--space-2xl) auto 0;
+    overflow: hidden;
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-white);
+    box-shadow: var(--shadow-panel);
+  }
+  form {
+    padding: var(--space-xl);
+  }
+  .form-note {
+    margin-bottom: var(--space-lg);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-lg);
+  }
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+  label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-medium);
+  }
+  label span,
+  .field-help {
+    color: var(--color-muted);
+    font-weight: var(--font-weight-normal);
+  }
+  .field-help {
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-caption);
+  }
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+    background: var(--color-white);
+    color: var(--color-body);
+    font: inherit;
+    font-size: var(--text-small);
+  }
+  select {
+    cursor: pointer;
+  }
+  textarea {
+    min-height: var(--textarea-height);
+    resize: none;
+  }
+  input[type='file'] {
+    padding: var(--space-xs);
+  }
+  input[aria-invalid='true'],
+  select[aria-invalid='true'],
+  textarea[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+  .field-error {
+    display: block;
+    min-height: var(--contact-error-height);
+    padding-top: var(--spacing);
+    color: var(--color-error);
+    font-size: var(--text-caption);
+  }
+  .selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-control);
+    background: var(--color-soft);
+    font-size: var(--text-caption);
+  }
+  .selected-file[hidden] {
+    display: none;
+  }
+  .selected-file span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .selected-file button {
+    flex-shrink: 0;
+    color: var(--color-brand);
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+    text-decoration: underline;
+  }
+  .submit-ticket {
+    width: 100%;
+  }
+  .form-status {
+    min-height: var(--contact-status-height);
+    padding-top: var(--space-sm);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  form[data-state='error'] .form-status {
+    color: var(--color-error);
+  }
+  form[data-state='success'] .form-status {
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+  }
+  .support {
+    padding: var(--space-lg) var(--space-xl);
+    border-top: var(--border-thin) solid var(--color-panel-border);
+    background: var(--color-soft);
+  }
+  .support h2 {
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-service);
+  }
+  .support p {
+    font-size: var(--text-caption);
+  }
+  .support a {
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < theme(--breakpoint-tablet)) {
+    .raise-ticket {
+      padding-top: var(--space-md);
+    }
+    .ticket-intro {
+      text-align: left;
+    }
+    .ticket-intro > p:last-child {
+      margin-inline: 0;
+    }
+    .ticket-card {
+      margin-top: var(--space-xl);
+    }
+    form,
+    .support {
+      padding: var(--space-md);
+    }
+    .fields {
+      grid-template-columns: 1fr;
+    }
+    .field-wide {
+      grid-column: auto;
+    }
+  }
+</style>

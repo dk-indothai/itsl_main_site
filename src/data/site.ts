@@ -20,7 +20,7 @@ export const links = {
   closeProcedure: `${staging}/procedure-of-closing-account/`,
   modifyAccount: 'https://ekyc.indothai.co.in:90/',
   downloads: '/downloads/',
-  complaint: `${staging}/raise-a-ticket`,
+  complaint: '/raise-a-ticket/',
   winstockApple:
     'https://apps.apple.com/in/app/winstock-indo-thai/id1409018654',
   winstockGoogle:
