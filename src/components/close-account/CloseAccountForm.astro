@@ -1,0 +1,419 @@
+---
+import { PUBLIC_STRAPI_URL } from 'astro:env/client';
+import { site } from '../../data/site';
+
+let endpoint: string | undefined;
+try {
+  const url = new URL(PUBLIC_STRAPI_URL ?? '');
+  if (
+    ['http:', 'https:'].includes(url.protocol) &&
+    !url.username &&
+    !url.password &&
+    !url.search &&
+    !url.hash
+  ) {
+    endpoint = `${url.href.replace(/\/+$/, '')}/api/close-account-requests`;
+  }
+} catch {
+  // Missing or invalid configuration leaves the form disabled.
+}
+---
+
+<section
+  class="close-account page-shell"
+  aria-labelledby="close-account-heading"
+>
+  <header class="close-account-intro">
+    <p class="eyebrow">Account services</p>
+    <h1
+      id="close-account-heading"
+      aria-label="Close Account or Close Nil Holding Account"
+    >
+      Close Account <span aria-hidden="true"> / </span>Close Nil Holding Account
+    </h1>
+    <p>
+      Enter the details registered with IndoThai. Submitting this form creates a
+      closure request; it does not confirm that your account has been closed.
+    </p>
+  </header>
+
+  <div class="request-card">
+    <form
+      method="post"
+      novalidate
+      aria-label="Account closure request"
+      aria-describedby="closure-note"
+      data-close-account-form
+      data-endpoint={endpoint}
+      data-state="unavailable"
+    >
+      <p id="closure-note" class="form-note" data-closure-note>
+        {
+          endpoint
+            ? 'Enable JavaScript to submit a request, or contact our compliance team using the details below.'
+            : 'Online requests are not configured. Please contact our compliance team using the details below.'
+        }
+      </p>
+
+      <!-- Controls stay disabled until the browser installs the submission guard. -->
+      <fieldset disabled>
+        <legend class="sr-only">Registered account details</legend>
+        <div class="fields">
+          <div class="form-field">
+            <label for="closure-bo-id">BO ID</label>
+            <input
+              id="closure-bo-id"
+              name="bo_id"
+              type="text"
+              required
+              spellcheck="false"
+              data-error="Enter your BO ID."
+              aria-describedby="closure-bo-id-error"
+            />
+            <span id="closure-bo-id-error" class="field-error"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="closure-ucc">UCC</label>
+            <input
+              id="closure-ucc"
+              name="ucc"
+              type="text"
+              required
+              spellcheck="false"
+              data-error="Enter your UCC."
+              aria-describedby="closure-ucc-error"
+            />
+            <span id="closure-ucc-error" class="field-error"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="closure-email">Registered email address</label>
+            <input
+              id="closure-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              data-error="Enter your registered email address."
+              aria-describedby="closure-email-error"
+            />
+            <span id="closure-email-error" class="field-error"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="closure-mobile">Mobile number</label>
+            <input
+              id="closure-mobile"
+              name="mobile_no"
+              type="tel"
+              autocomplete="tel"
+              required
+              data-error="Enter your mobile number."
+              aria-describedby="closure-mobile-error"
+            />
+            <span id="closure-mobile-error" class="field-error"></span>
+          </div>
+        </div>
+
+        <button class="action submit-request" type="submit" disabled
+          >Submit request</button
+        >
+      </fieldset>
+
+      <p
+        class="form-status"
+        data-closure-status
+        role="status"
+        aria-atomic="true"
+      >
+      </p>
+    </form>
+
+    <aside class="support" aria-labelledby="closure-support-heading">
+      <h2 id="closure-support-heading">Need help?</h2>
+      <p>
+        Contact our compliance team at
+        <a href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a>
+        or call <a href={site.telephone.href}>{site.telephone.label}</a>.
+      </p>
+    </aside>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>(
+    '[data-close-account-form]',
+  )!;
+  const fieldset = form.querySelector('fieldset')!;
+  const button = form.querySelector<HTMLButtonElement>(
+    'button[type="submit"]',
+  )!;
+  const inputs = [...form.querySelectorAll<HTMLInputElement>('input')];
+  const status = form.querySelector<HTMLElement>('[data-closure-status]')!;
+  const endpoint = form.dataset.endpoint;
+  const uncertain =
+    'We could not confirm your request. It may have reached us. Please contact our compliance team before submitting it again.';
+  let composing = false;
+
+  function showStatus(text: string, state: string) {
+    status.textContent = text;
+    form.dataset.state = state;
+  }
+
+  function validate(input: HTMLInputElement) {
+    let error = '';
+    if (!input.value.trim()) error = input.dataset.error!;
+    else if (input.validity.typeMismatch)
+      error = 'Enter a valid email address, such as name@example.com.';
+
+    input.setAttribute('aria-invalid', String(Boolean(error)));
+    document.getElementById(`${input.id}-error`)!.textContent = error;
+    return !error;
+  }
+
+  form.addEventListener('compositionstart', () => {
+    composing = true;
+  });
+  form.addEventListener('compositionend', () => {
+    composing = false;
+  });
+  form.addEventListener('input', (event) => {
+    const input = event.target;
+    if (
+      input instanceof HTMLInputElement &&
+      input.getAttribute('aria-invalid') === 'true'
+    ) {
+      validate(input);
+    }
+    if (form.dataset.state === 'success') showStatus('', 'idle');
+  });
+
+  // Register the guard before enabling controls so personal data never enters the URL.
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!endpoint || button.disabled || composing) return;
+
+    const invalid = inputs.filter((input) => !validate(input));
+    if (invalid.length) {
+      showStatus('Please check the highlighted fields.', 'error');
+      invalid[0].focus();
+      return;
+    }
+
+    const fields = new FormData(form);
+    const data = {
+      bo_id: String(fields.get('bo_id')).trim(),
+      ucc: String(fields.get('ucc')).trim(),
+      email: String(fields.get('email')).trim(),
+      mobile_no: String(fields.get('mobile_no')).trim(),
+    };
+
+    button.disabled = true;
+    button.textContent = 'Submitting…';
+    inputs.forEach((input) => (input.readOnly = true));
+    fieldset.setAttribute('aria-busy', 'true');
+    showStatus('Submitting your closure request…', 'sending');
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        redirect: 'error',
+        body: JSON.stringify({ data }),
+        signal: controller.signal,
+      });
+      const result = await response.json().catch(() => null);
+      const created =
+        typeof result?.data?.documentId === 'string' &&
+        result.data.documentId.trim();
+
+      if (response.status === 201 && created) {
+        form.reset();
+        showStatus(
+          'Your closure request has been submitted for review. This does not confirm that your account is closed.',
+          'success',
+        );
+      } else {
+        let message = uncertain;
+        if (response.status === 400 || response.status === 422)
+          message =
+            'Your request was not accepted. Please check your details and try again.';
+        else if (response.status === 401 || response.status === 403)
+          message =
+            'Online closure requests are currently unavailable. Please contact our compliance team.';
+        else if (response.status === 429)
+          message =
+            'Too many submission attempts. Please wait before trying again, or contact our compliance team.';
+        showStatus(message, 'error');
+      }
+    } catch {
+      showStatus(uncertain, 'error');
+    } finally {
+      window.clearTimeout(timeout);
+      button.disabled = false;
+      button.textContent = 'Submit request';
+      inputs.forEach((input) => (input.readOnly = false));
+      fieldset.setAttribute('aria-busy', 'false');
+    }
+  });
+
+  if (endpoint) {
+    form.querySelector<HTMLElement>('[data-closure-note]')!.textContent =
+      'All four registered account details are required.';
+    fieldset.disabled = false;
+    button.disabled = false;
+    form.dataset.state = 'idle';
+  }
+</script>
+
+<style>
+  @reference "../../styles/tokens.css";
+
+  .close-account {
+    padding-top: var(--space-xl);
+  }
+  .close-account-intro {
+    max-width: var(--form-panel-max);
+    margin-inline: auto;
+    text-align: center;
+  }
+  .eyebrow {
+    margin-bottom: var(--space-sm);
+    color: var(--color-brand);
+    font-family: var(--font-action);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  h1 {
+    color: var(--color-ink);
+    font-size: var(--text-content-heading);
+    line-height: var(--leading-content-heading);
+  }
+  .close-account-intro > p:last-child {
+    max-width: 46rem;
+    margin: var(--space-md) auto 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+  .request-card {
+    max-width: var(--form-panel-max);
+    margin: var(--space-2xl) auto 0;
+    overflow: hidden;
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-white);
+    box-shadow: var(--shadow-panel);
+  }
+  form {
+    padding: var(--space-xl);
+  }
+  .form-note {
+    margin-bottom: var(--space-lg);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-lg);
+  }
+  .form-field {
+    margin-bottom: var(--space-sm);
+  }
+  label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-medium);
+  }
+  input {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-control);
+    background: var(--color-white);
+    color: var(--color-body);
+    font: inherit;
+    font-size: var(--text-small);
+  }
+  input[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+  .field-error {
+    display: block;
+    min-height: var(--contact-error-height);
+    padding-top: var(--spacing);
+    color: var(--color-error);
+    font-size: var(--text-caption);
+  }
+  .submit-request {
+    width: 100%;
+  }
+  .form-status {
+    min-height: var(--contact-status-height);
+    padding-top: var(--space-sm);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  form[data-state='error'] .form-status {
+    color: var(--color-error);
+  }
+  form[data-state='success'] .form-status {
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+  }
+  .support {
+    padding: var(--space-lg) var(--space-xl);
+    border-top: var(--border-thin) solid var(--color-panel-border);
+    background: var(--color-soft);
+  }
+  .support h2 {
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-service);
+  }
+  .support p {
+    font-size: var(--text-caption);
+  }
+  .support a {
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < theme(--breakpoint-tablet)) {
+    .close-account {
+      padding-top: var(--space-md);
+    }
+    .close-account-intro {
+      text-align: left;
+    }
+    .close-account-intro > p:last-child {
+      margin-inline: 0;
+    }
+    .request-card {
+      margin-top: var(--space-xl);
+    }
+    form,
+    .support {
+      padding: var(--space-md);
+    }
+    .fields {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,5 +1,43 @@
 # Website migration verification
 
+## Close Account request — 4 September 2026
+
+`/close-account/` is implemented as the seventh static route. Its professional
+single-card layout reuses the shared header, footer, SEO and design tokens without
+the old page's duplicate logo or modal-style close icon. The Modify Account menu
+links locally and marks the nested route as current.
+
+The four required fields map exactly to `bo_id`, `ucc`, `email` and `mobile_no`.
+The browser submits only those values to `POST /api/close-account-requests`, with
+no token, cookie or publication override. BO ID has no length or pattern rule.
+Only a confirmed Strapi creation clears the form; error and uncertain outcomes
+retain values and never claim that the account itself has been closed.
+
+| Check                    | Result                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Formatting               | `npm run format:check` passed.                                                                               |
+| Astro/TypeScript         | `npm run check`: 67 files, zero errors, warnings or hints.                                                   |
+| Static output and build  | `npm test` passed all five Node test files and generated the seven approved static routes.                   |
+| Production browser tests | `npm run test:browser`: all 162 Chromium tests passed, including all 13 Close Account tests.                 |
+| Development tests        | `npm run test:dev`: all 28 layout and asset checks passed, including the new form at four responsive widths. |
+| Design checks            | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.                   |
+
+Close Account browser coverage includes the exact four-field body, omitted tokens,
+cookies and referrers, duplicate-click prevention, stable button size, inline
+required/email validation, one-character BO ID acceptance, confirmed clearing,
+retained values for every failure class, malformed and network responses, the
+20-second timeout, missing configuration and no-JavaScript fallbacks. Error and
+success states were captured at 1280, 768, 390 and 320px with no horizontal
+overflow. The local route, heading structure, form controls, support links and
+regulatory footer were also inspected in the browser.
+
+All endpoint tests were mocked. No live closure request was created and no existing
+request was read. The final production build succeeds without Strapi running.
+
+Production still requires Create-only public permission, restricted CORS, server-side
+validation, rate limiting and abuse controls, retention rules, HTTPS and privacy/security
+approval. The Astro implementation does not modify Strapi.
+
 ## Careers and applications — 4 September 2026
 
 The migration now includes `/careers/` and `/careers/job/?id=<documentId>`.

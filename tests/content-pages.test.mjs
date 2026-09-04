@@ -21,6 +21,7 @@ const routes = [
   '/mutual-funds/',
   '/downloads/',
   '/careers/',
+  '/close-account/',
 ];
 
 for (const [route, title, heading] of [

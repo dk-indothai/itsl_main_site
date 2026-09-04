@@ -4,13 +4,13 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`) and job details (`/careers/job/`) are implemented.** Navigation between these six static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`) and Close Account (`/close-account/`) are implemented.** Navigation between these seven static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. All routes reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form with compliance contact alternatives. All routes reuse the layout, header, footer, SEO and design tokens.
 
-The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize job descriptions in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, software and Careers use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
+The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize job descriptions in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, software and Careers use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
 The previous project, `/home/mrrobot/Projects/itsl-website`, was used read-only for structural reference and byte-verified matching assets. It is not a runtime dependency or the authoritative design.
 
@@ -94,6 +94,38 @@ disabled client fallback. Run `npm run build` again before a normal preview or
 deployment to restore your configured URL. Live smoke tests are separate and use
 synthetic data only; never inspect or delete existing enquiries. Results are in
 `VERIFICATION.md`.
+
+### Close Account submission setup and maintenance
+
+`/close-account/` reuses `PUBLIC_STRAPI_URL` and keeps its four fields, scoped
+styles and browser submission handler together in
+`src/components/close-account/CloseAccountForm.astro`. There is no form library,
+field registry, server adapter or build-time Strapi request. The Modify Account
+menu now links “Close/Freeze an Account” locally; the procedure and external
+modification destinations remain unchanged.
+
+The form sends only `{ "data": { "bo_id", "ucc", "email", "mobile_no" } }`
+to `POST /api/close-account-requests`, without authorization headers, cookies or
+publication overrides. All four values are required and email uses its semantic
+email check. BO ID deliberately has no length, numeric or pattern restriction.
+The fieldset begins disabled and is enabled only after the browser submission
+guard is installed. Missing configuration or JavaScript leaves the form disabled
+while the compliance email and telephone links remain usable.
+
+Submitting creates a request; it is not confirmation that the account is closed.
+Only a `201` response with a Strapi document ID clears the fields. Rejected and
+uncertain outcomes preserve the values. Timeouts occur after 20 seconds with no
+automatic retry; the message advises contacting compliance before resubmitting
+when completion cannot be confirmed. BO ID, UCC, email and mobile number are never
+placed in URLs, browser storage or logs.
+
+**No Strapi changes are made by the website.** The Public role must permit only
+Create for this collection, and CORS must allow the website origin. Do not enable
+public Find, Find One, Update or Delete. Production also requires an approved HTTPS
+API address, server-side validation, rate limiting and abuse controls, retention
+rules, and privacy/security approval. Automated tests mock the endpoint. Never run
+a live closure-request test without separate owner approval, and never read existing
+requests.
 
 ### Software Downloads setup and maintenance
 
@@ -207,7 +239,7 @@ release work. Revocation of the previously shared token remains outstanding.
 
 Without JavaScript/configuration, explanations and contact alternatives remain;
 applications cannot submit natively. Job details also disable applications for
-Closed/Filled, missing or unpublished jobs. The six static routes retain
+Closed/Filled, missing or unpublished jobs. The seven static routes retain
 `noindex, nofollow`. Job records are not in initial HTML: the detail page starts
 with generic metadata and updates the document title after loading. This is not
 server-rendered job SEO or a replacement for future production redirect planning.
@@ -244,6 +276,7 @@ src/
 │   ├── mutual-funds/          Introduction, steps, benefits, WINVEST and NRI sections
 │   ├── downloads/             Catalogue markup, typed client loading and filters
 │   ├── careers/               Opening list, job details/tabs and application form
+│   ├── close-account/         Account closure request form and browser submission
 │   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
@@ -255,7 +288,7 @@ src/
 │   ├── apps.ts                Shared WINVEST copy and store destinations
 │   └── openings.ts            Typed opening reads and Careers API configuration
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/                     Marketing routes, downloads.astro and careers/{index,job}.astro
+├── pages/                     Seven static routes, including downloads and careers
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
@@ -270,6 +303,7 @@ tests/
 ├── content-pages.test.mjs     About Us and Mutual Funds static assertions
 ├── downloads.test.mjs         Downloads static metadata and fallback assertions
 ├── careers.test.mjs           Careers and job-page metadata and form safety
+├── close-account.test.mjs     Close Account metadata and safe form contract
 └── browser/                   Responsive, navigation, asset and safety checks
 DESIGN.md                      Reference-led design guidance, not duplicate tokens
 AGENTS.md                      Coding-agent rules
@@ -288,8 +322,8 @@ routes, build-time CMS fetching, fund calculator, financial transactions or Astr
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on every route through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
-- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads and Careers supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
-- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Careers interactions stay in their three named components; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
+- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads, Careers and Close Account supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
+- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Close Account submission stays in its one named component; Careers interactions stay in their three named components; carousel logic is in `src/scripts/carousel.ts`. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
 
@@ -362,7 +396,7 @@ Each generated page includes one meaningful H1, logical section headings, a uniq
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
-Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server, but live contact submissions, software listings, Careers content and applications require the separate Strapi service.
+Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server, but live contact and closure requests, software listings, Careers content and applications require the separate Strapi service.
 
 ## Verification and release checklist
 
@@ -373,11 +407,13 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the six approved static routes; release acceptance remains separate.
+- [x] Implement the seven approved static routes; release acceptance remains separate.
 - [ ] Approve Careers content and production resume privacy, server-side limits, abuse protection and retention. Verify upload/create permissions without exposing candidate records.
 - [ ] Approve published software, category assignments, attachment URLs and file safety; verify production read permissions/CORS. Listings require JavaScript and are absent from initial HTML.
 - [ ] Approve source-copy/link anomalies and verify external service destinations and availability.
 - [x] Connect both contact forms to the existing Strapi endpoint with client validation and submission states.
+- [x] Connect Close Account to its existing Strapi endpoint with safe disabled fallback and truthful request status.
+- [ ] Approve production handling for account identifiers: Create-only permission, restricted CORS, server validation, abuse protection, retention and privacy/security controls.
 - [ ] Approve the production Strapi origin/CORS, public permissions, privacy/retention and server-side spam controls; revoke the previously shared token. No Strapi configuration changes are included here.
 - [ ] Complete accessibility/compliance review, including the deferred floating toolbar; test screen readers, contrast, zoom/reflow and supported physical devices.
 - [ ] Run formatting, Astro/TypeScript, static-output and browser tests; inspect every section.

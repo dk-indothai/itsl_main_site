@@ -16,7 +16,7 @@ export const links = {
   mfStartInvesting:
     'https://play.google.com/store/search?q=Winvest&c=apps&pli=1',
   mfBackOffice: 'https://indothai.my-portfolio.in/',
-  closeAccount: `${staging}/close-account/`,
+  closeAccount: '/close-account/',
   closeProcedure: `${staging}/procedure-of-closing-account/`,
   modifyAccount: 'https://ekyc.indothai.co.in:90/',
   downloads: '/downloads/',
