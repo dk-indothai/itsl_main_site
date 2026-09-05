@@ -33,6 +33,12 @@ export interface FinancialReport {
   file?: InvestorFile | null;
 }
 
+export interface Regulation46Disclosure {
+  documentId: string;
+  title: string;
+  link: string;
+}
+
 export const investorsApi = (() => {
   try {
     const url = new URL(PUBLIC_STRAPI_URL ?? '');
@@ -198,6 +204,28 @@ export async function getFinancialReports(): Promise<FinancialReport[]> {
   );
 }
 
+export async function getRegulation46Disclosures(): Promise<
+  Regulation46Disclosure[]
+> {
+  const records = await getAll<Regulation46Disclosure>(
+    'disclosure-2015s',
+    'title',
+  );
+  if (
+    records.some(
+      (item) =>
+        typeof item?.documentId !== 'string' ||
+        !item.documentId ||
+        typeof item.title !== 'string' ||
+        !item.title.trim() ||
+        typeof item.link !== 'string' ||
+        !item.link.trim(),
+    )
+  )
+    throw new Error('The investor service returned an unexpected response.');
+  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
+}
+
 export function investorError(error: unknown): string {
   if (error instanceof DOMException && error.name === 'TimeoutError')
     return 'Loading took too long. Please try again.';
@@ -213,6 +241,22 @@ export function publicFileUrl(file: InvestorFile | null | undefined) {
   try {
     const base = investorsApi.replace(/\/api$/, '');
     const url = new URL(file.url, `${base}/`);
+    return ['http:', 'https:'].includes(url.protocol) &&
+      !url.username &&
+      !url.password
+      ? url.href
+      : '';
+  } catch {
+    return '';
+  }
+}
+
+export function publicInvestorLink(value: string) {
+  const link = value.trim();
+  if (!/^https?:\/\//i.test(link) && !link.startsWith('/')) return '';
+  try {
+    const base = investorsApi.replace(/\/api$/, '');
+    const url = new URL(link, `${base}/`);
     return ['http:', 'https:'].includes(url.protocol) &&
       !url.username &&
       !url.password

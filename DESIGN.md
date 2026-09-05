@@ -94,7 +94,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all twelve routes owns the space between sections and before
+The main container on all thirteen routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -167,7 +167,7 @@ Header disclosures are non-modal, not focus-trapped drawers. Native details/summ
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
-Raise Ticket, Software Downloads, Careers, Investor Overview and Shareholder Relation route locally, with the current
+Raise Ticket, Software Downloads, Careers and all four Investor pages route locally, with the current
 page marked in its navigation link. Careers remains active on job details too.
 Investors is a primary disclosure with a hover enhancement on precise pointers and
 native click, touch and keyboard access everywhere. Both its group and current child
@@ -208,7 +208,8 @@ an explicit catalogue-unavailable explanation, not a blank area or invented data
 
 ### Investor content
 
-Investor Overview, Shareholder Relation and Financial Reports use the same restrained secondary-page
+Investor Overview, Shareholder Relation, Financial Reports and Regulation 46
+Disclosures use the same restrained secondary-page
 language: compact Raleway headings, readable body copy, white bordered cards and
 brand-blue document actions. A small local page navigation sits above each title
 so visitors can switch between the three destinations without reopening the header.
@@ -230,6 +231,10 @@ and per-year counts stay hidden.
 The newest year opens initially, older years stay compact, and the grid becomes
 three columns on tablet and one on phones. No custom accordion script, skeleton,
 animation, placeholder records or new visual theme is introduced.
+Regulation 46 disclosures use the same white bordered document rows as Shareholder
+Relation, with the disclosure title carrying hierarchy and one compact action at
+the edge. Rows stack the action below the title on phones. No new visual tokens or
+regulatory-themed decoration is introduced.
 
 ### Forms and overlays
 

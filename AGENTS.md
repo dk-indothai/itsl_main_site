@@ -9,8 +9,9 @@ Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
 (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor
 Overview (`/investors/overview/`) and Shareholder Relation
 (`/investors/shareholder-relation/`) and Financial Reports
-(`/investors/financial-reports/`) routes are implemented and link locally.
-Downloads, Careers and all three Investor pages load CMS records in browser JavaScript.
+(`/investors/financial-reports/`) and Regulation 46 Disclosures
+(`/investors/disclosures-under-regulation-46/`) routes are implemented and link locally.
+Downloads, Careers and all four Investor pages load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
@@ -37,7 +38,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor
   Overview (`/investors/overview/`) and Shareholder Relation
   (`/investors/shareholder-relation/`) and Financial Reports
-  (`/investors/financial-reports/`).
+  (`/investors/financial-reports/`) and Regulation 46 Disclosures
+  (`/investors/disclosures-under-regulation-46/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -103,9 +105,10 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   inline validation. Never serialize/log applicant data or read existing candidates.
   Ask separately before live synthetic uploads/applications. Strapi owns private
   storage and server enforcement; the browser checks remain usability feedback.
-- Investors is a three-item primary navigation disclosure. Desktop opens it on
+- Investors is a four-item primary navigation disclosure. Desktop opens it on
   hover while native details/summary preserves click, touch and keyboard access.
-  Keep Overview, Shareholder Relation and Financial Reports as separate local routes and mark each
+  Keep Overview, Shareholder Relation, Financial Reports and Regulation 46
+  Disclosures as separate local routes and mark each
   the group and current child. `src/data/investors.ts` owns only typed browser
   reads for `overviews`, `shareholder-relation-categories` and
   `shareholder-relations`, and `financial-reports`; do not turn it into a generic CMS layer. Overview rich
@@ -123,6 +126,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   placeholder or false link. Keep its explicit
   `year`, `report_type`, `quarter` and `file` contract: Quarter records require
   1–4 while Full Year records use `null`; do not invent CMS fields.
+  Regulation 46 Disclosures reads `disclosure-2015s`, whose only content fields
+  are required `title` and `link`. Sort titles alphabetically, expose only safe
+  HTTP(S) destinations and keep unsafe destinations non-clickable.
   Keep loading, empty, error, Retry and
   no-JavaScript/configuration states. No token, cookies, build-time Strapi request
   or Strapi configuration change is allowed.
@@ -250,7 +256,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the twelve approved static routes into `dist/`. Software, opening and
+  Build the thirteen approved static routes into `dist/`. Software, opening and
   investor records require JavaScript and are absent from initial HTML; retain
   preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,

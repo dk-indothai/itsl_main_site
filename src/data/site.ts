@@ -9,6 +9,7 @@ export const links = {
   investorsOverview: '/investors/overview/',
   shareholderRelation: '/investors/shareholder-relation/',
   financialReports: '/investors/financial-reports/',
+  regulation46Disclosures: '/investors/disclosures-under-regulation-46/',
   blog: `${staging}/blog/`,
   openAccount: 'https://ekyc.indothai.co.in:447/',
   applyIpo: 'https://indothai.webappreports.com/applyipo/',

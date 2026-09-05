@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import Regulation46Disclosures from '../../components/investors/Regulation46Disclosures.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Regulation 46 Disclosures - IndoThai"
+  description="Access IndoThai disclosures under Regulation 46 of the SEBI Listing Obligations and Disclosure Requirements Regulations, 2015."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.regulation46Disclosures} />
+    </div>
+    <Regulation46Disclosures />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

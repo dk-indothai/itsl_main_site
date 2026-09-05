@@ -4,11 +4,11 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`), Shareholder Relation (`/investors/shareholder-relation/`) and Financial Reports (`/investors/financial-reports/`) are implemented.** Navigation between these twelve static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`), Shareholder Relation (`/investors/shareholder-relation/`), Financial Reports (`/investors/financial-reports/`) and Regulation 46 Disclosures (`/investors/disclosures-under-regulation-46/`) are implemented.** Navigation between these thirteen static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, Shareholder Relation filters Strapi documents by category, and Financial Reports filters quarterly and full-year files by year. All routes reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, Shareholder Relation filters Strapi documents by category, Financial Reports groups quarterly and full-year files by year, and Regulation 46 Disclosures lists the corresponding Strapi titles and links. All routes reuse the layout, header, footer, SEO and design tokens.
 
 The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize CMS rich text in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, Raise Ticket, software, Careers and Investor pages use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
@@ -247,7 +247,7 @@ execute downloaded files during verification.
 
 ### Investor pages setup and maintenance
 
-The Investors item in the primary header is a three-link disclosure. On desktop it
+The Investors item in the primary header is a four-link disclosure. On desktop it
 opens on hover and also works by click and keyboard; on smaller screens it opens
 inside the existing navigation menu. Its local pages are:
 
@@ -258,9 +258,11 @@ inside the existing navigation menu. Its local pages are:
   `shareholder_relation_category`.
 - `/investors/financial-reports/` — reads `GET /api/financial-reports`,
   populating `file`, and groups the loaded reports into year dropdowns.
+- `/investors/disclosures-under-regulation-46/` — reads
+  `GET /api/disclosure-2015s` and lists each disclosure title and link.
 
-`src/data/investors.ts` contains the four typed reads, pagination, response checks
-and safe file helpers. The three named components in `src/components/investors/`
+`src/data/investors.ts` contains the five typed reads, pagination, response checks
+and safe URL helpers. The four named content components in `src/components/investors/`
 own their markup and small browser interactions. Keep this direct structure; there
 is no CMS SDK or generic content renderer.
 
@@ -280,8 +282,11 @@ newest year initially, and keep older years in native dropdowns. Within each yea
 the display order is 1st–4th Quarter followed by Full Year. The grid shows only
 period labels and “Download Report” actions; it omits per-year counts, filenames
 and sizes. Periods without a safe published file are not displayed.
+Regulation 46 disclosures sort alphabetically and show one “View Disclosure”
+action for each safe HTTP(S) link. Invalid destinations remain visible as
+“Link unavailable” rather than becoming clickable.
 
-All four content types need Public Find permission, populated files/relations
+All five content types need Public Find permission, populated files/relations
 must be readable, and Strapi CORS must allow the website origin. The pages use
 `PUBLIC_STRAPI_URL`, no token or cookies, a 20-second timeout and manual Retry.
 Records load only in browser JavaScript, so builds remain independent of Strapi
@@ -351,7 +356,7 @@ previously shared token remains outstanding.
 
 Without JavaScript/configuration, explanations and contact alternatives remain;
 applications cannot submit natively. Job details also disable applications for
-Closed/Filled, missing or unpublished jobs. The twelve static routes retain
+Closed/Filled, missing or unpublished jobs. The thirteen static routes retain
 `noindex, nofollow`. Job records are not in initial HTML: the detail page starts
 with generic metadata and updates the document title after loading. This is not
 server-rendered job SEO or a replacement for future production redirect planning.
@@ -442,7 +447,7 @@ routes, build-time CMS fetching, fund calculator, financial transactions or Astr
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on every route through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
 - **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads, Careers, Investor pages, Close Account, Procedure for Closing an Account and Raise Ticket supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
-- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Close Account and Raise Ticket submission stay in their named components; Careers interactions stay in their three named components; Investor loading stays in its two named components; carousel logic is in `src/scripts/carousel.ts`. The closing procedure is static HTML. Keep the default HTML useful without JavaScript.
+- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Close Account and Raise Ticket submission stay in their named components; Careers interactions stay in their three named components; Investor loading stays in its named content components; carousel logic is in `src/scripts/carousel.ts`. The closing procedure is static HTML. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
 
@@ -530,7 +535,7 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the twelve approved static routes; release acceptance remains separate.
+- [x] Implement the thirteen approved static routes; release acceptance remains separate.
 - [ ] Approve published Investor overview/shareholder/financial report records, categories, files, Public Find permissions and production CORS.
 - [ ] Complete the staged migration of existing resumes and complaint attachments, verify limited-role admin access and remove the verified public copies.
 - [ ] Approve Careers content, private-upload/Candidate permissions, abuse protection, malware scanning and retention without exposing candidate records.

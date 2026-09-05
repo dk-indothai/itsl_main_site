@@ -24,6 +24,7 @@ const routes = [
   '/investors/overview/',
   '/investors/shareholder-relation/',
   '/investors/financial-reports/',
+  '/investors/disclosures-under-regulation-46/',
   '/close-account/',
   '/procedure-of-closing-account/',
   '/raise-a-ticket/',

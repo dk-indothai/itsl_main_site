@@ -20,6 +20,12 @@ test('Investors opens on hover and remains keyboard accessible', async ({
   await expect(
     page.getByRole('link', { name: 'Financial Reports', exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('link', {
+      name: 'Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015',
+      exact: true,
+    }),
+  ).toBeVisible();
 
   await investors.focus();
   await page.keyboard.press('Escape');
@@ -44,6 +50,12 @@ test('mobile Investors menu opens by tap', async ({ page }) => {
   ).toBeVisible();
   await expect(
     menu.getByRole('link', { name: 'Financial Reports', exact: true }),
+  ).toBeVisible();
+  await expect(
+    menu.getByRole('link', {
+      name: 'Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015',
+      exact: true,
+    }),
   ).toBeVisible();
 });
 
@@ -255,6 +267,96 @@ test('financial reports group into year dropdowns and expose safe files', async 
   await expect(groups.nth(0)).not.toHaveAttribute('open', '');
 });
 
+test('Regulation 46 disclosures expose safe links and reject unsafe destinations', async ({
+  page,
+}) => {
+  await page.route(
+    'http://strapi.test/api/disclosure-2015s**',
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('sort[0]')).toBe('title:asc');
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              documentId: 'disclosure-2',
+              title: 'Materiality Policy',
+              link: 'javascript:alert(1)',
+            },
+            {
+              documentId: 'disclosure-1',
+              title: 'Annual Return',
+              link: '/uploads/annual-return.pdf',
+            },
+          ],
+          meta: { pagination: { ...pagination, total: 2 } },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/investors/disclosures-under-regulation-46/');
+  await expect(page.locator('.disclosure-card h2')).toHaveText([
+    'Annual Return',
+    'Materiality Policy',
+  ]);
+  await expect(
+    page.getByRole('link', { name: /View Disclosure Annual Return/ }),
+  ).toHaveAttribute('href', 'http://strapi.test/uploads/annual-return.pdf');
+  await expect(page.locator('.unavailable:not([hidden])')).toHaveText(
+    'Link unavailable',
+  );
+  await expect(page.getByRole('status')).toHaveText(
+    'Regulation 46 disclosures loaded.',
+  );
+  await expect(page.getByRole('status')).toHaveClass(/sr-only/);
+  await expect(
+    page.getByText('Enable JavaScript to load Regulation 46 disclosures.', {
+      exact: true,
+    }),
+  ).toBeHidden();
+});
+
+test('Regulation 46 disclosures distinguish errors from an empty list and retry manually', async ({
+  page,
+}) => {
+  let requests = 0;
+  await page.route(
+    'http://strapi.test/api/disclosure-2015s**',
+    async (route) => {
+      requests += 1;
+      if (requests === 1) {
+        await route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: '{}',
+        });
+        return;
+      }
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [],
+          meta: {
+            pagination: { page: 1, pageSize: 100, pageCount: 0, total: 0 },
+          },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/investors/disclosures-under-regulation-46/');
+  await expect(page.getByRole('status')).toContainText(
+    'not publicly available',
+  );
+  await page.getByRole('button', { name: 'Retry' }).click();
+  await expect(page.getByRole('status')).toHaveText(
+    'No Regulation 46 disclosures yet.',
+  );
+  expect(requests).toBe(2);
+});
+
 test('investor pages show errors with retry and have no narrow overflow', async ({
   page,
 }) => {
@@ -312,6 +414,7 @@ test('investor responsive check has no overflow or missing assets', async ({
     '/investors/overview/',
     '/investors/shareholder-relation/',
     '/investors/financial-reports/',
+    '/investors/disclosures-under-regulation-46/',
   ]) {
     for (const width of [1280, 768, 390, 320]) {
       const errors: string[] = [];

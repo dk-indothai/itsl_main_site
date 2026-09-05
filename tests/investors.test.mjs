@@ -101,6 +101,33 @@ test('financial reports is a static, noindex CMS shell', async () => {
   );
 });
 
+test('Regulation 46 disclosures is a static, noindex CMS shell', async () => {
+  const { tree, nodes } = await page(
+    'investors/disclosures-under-regulation-46/index.html',
+  );
+  assert.equal(text(nodes('title')[0]), 'Regulation 46 Disclosures - IndoThai');
+  assert.equal(nodes('h1').length, 1);
+  assert.equal(
+    text(nodes('h1')[0]),
+    'Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015',
+  );
+  assert.equal(
+    all(tree, (node) => attr(node, 'data-disclosure-list') !== undefined)
+      .length,
+    1,
+  );
+  assert.ok(
+    text(tree).includes('Enable JavaScript to load Regulation 46 disclosures.'),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) =>
+        attr(node, 'href') === '/investors/disclosures-under-regulation-46/' &&
+        attr(node, 'aria-current') === 'page',
+    ),
+  );
+});
+
 test('financial report years use native dropdown markup', async () => {
   const source = await readFile(
     new URL(
@@ -127,7 +154,7 @@ test('financial report years use native dropdown markup', async () => {
   assert.ok(!source.includes('Download unavailable'));
 });
 
-test('investor reads use only the four intended public Strapi collections', async () => {
+test('investor reads use only the five intended public Strapi collections', async () => {
   const source = await readFile(
     new URL('../src/data/investors.ts', import.meta.url),
     'utf8',
@@ -137,6 +164,7 @@ test('investor reads use only the four intended public Strapi collections', asyn
     "'shareholder-relation-categories'",
     "'shareholder-relations'",
     "'financial-reports'",
+    "'disclosure-2015s'",
   ])
     assert.ok(source.includes(collection));
   assert.ok(source.includes("['file', 'shareholder_relation_category']"));

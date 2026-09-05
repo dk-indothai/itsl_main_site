@@ -1,5 +1,35 @@
 # Website migration verification
 
+## Regulation 46 Disclosures — 5 September 2026
+
+`/investors/disclosures-under-regulation-46/` is the fourth local Investors
+destination. It loads published records from `GET /api/disclosure-2015s`, whose
+maintained Strapi schema contains only required `title` and `link` fields. The
+complete paginated result is sorted alphabetically and rendered as clear document
+rows with a single “View Disclosure” action. Only HTTP(S) links without embedded
+credentials become clickable; unsafe destinations remain visible as unavailable.
+
+The route has the requested Regulation 46 H1, unique preview metadata, shared
+Investor navigation, loading/empty/error states, manual Retry, contact alternatives
+and a no-JavaScript/configuration explanation. It remains a static Astro shell;
+CMS records are loaded in browser JavaScript and are absent from initial HTML.
+No Strapi code, schema, permission, record or configuration was changed.
+
+| Check                     | Result                                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                                  |
+| Astro/TypeScript          | `npm run check`: 87 files, zero errors, warnings or hints.                                      |
+| Static output/build       | `npm test`: all eight Node test files passed; all thirteen static routes built.                 |
+| Production browser tests  | `npm run test:browser`: 194/194 Chromium tests passed, including nine focused Investor tests.   |
+| Development layout/assets | `npm run test:dev`: 31/31 responsive and local-asset checks passed across all four routes.      |
+| Design checks             | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.      |
+| Manual visual check       | The populated local page, long Investor label, active state and document row were inspected.    |
+| Live read                 | Existing local Strapi returned one published disclosure; no record or configuration was edited. |
+
+Before release, verify Public Find permission, the production CORS origin and all
+published titles and destinations. The route remains `noindex, nofollow` until the
+production domain and WordPress routing are approved.
+
 ## Financial Reports — 5 September 2026
 
 `/investors/financial-reports/` is the third local Investors destination. It

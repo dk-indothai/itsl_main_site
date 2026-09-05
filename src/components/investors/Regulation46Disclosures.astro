@@ -1,0 +1,202 @@
+---
+import { investorsApi } from '../../data/investors';
+import { site } from '../../data/site';
+---
+
+<section
+  class="regulation-disclosures page-shell"
+  aria-labelledby="regulation-disclosures-title"
+  data-regulation-disclosures
+  data-api={investorsApi}
+>
+  <h1 id="regulation-disclosures-title">
+    Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015
+  </h1>
+  <p class="intro">
+    Access IndoThai disclosures published under Regulation 46 of the SEBI
+    Listing Obligations and Disclosure Requirements Regulations, 2015.
+  </p>
+  <div class="feedback">
+    <p role="status" aria-atomic="true" data-disclosure-status>
+      {
+        investorsApi
+          ? 'Enable JavaScript to load Regulation 46 disclosures.'
+          : 'Regulation 46 disclosures are not configured yet. Please contact us for assistance.'
+      }
+    </p>
+    <button type="button" class="action" data-disclosure-retry hidden>
+      Retry
+    </button>
+  </div>
+  <ul class="disclosure-list" data-disclosure-list aria-busy="false"></ul>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+    >.
+  </p>
+  <template data-disclosure-template>
+    <li class="disclosure-card">
+      <h2 data-disclosure-title></h2>
+      <a
+        class="action action-outline"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-disclosure-link
+        hidden
+        >View Disclosure<span class="sr-only" data-disclosure-label></span></a
+      >
+      <p class="unavailable" data-disclosure-unavailable>Link unavailable</p>
+    </li>
+  </template>
+</section>
+
+<script>
+  import {
+    getRegulation46Disclosures,
+    investorError,
+    publicInvestorLink,
+  } from '../../data/investors';
+
+  const root = document.querySelector<HTMLElement>(
+    '[data-regulation-disclosures]',
+  )!;
+  const list = root.querySelector<HTMLUListElement>('[data-disclosure-list]')!;
+  const status = root.querySelector<HTMLElement>('[data-disclosure-status]')!;
+  const retry = root.querySelector<HTMLButtonElement>(
+    '[data-disclosure-retry]',
+  )!;
+  const template = root.querySelector<HTMLTemplateElement>(
+    '[data-disclosure-template]',
+  )!;
+  let loading = false;
+
+  async function loadDisclosures() {
+    if (loading) return;
+    loading = true;
+    retry.disabled = true;
+    list.setAttribute('aria-busy', 'true');
+    status.classList.remove('sr-only');
+    status.textContent = 'Loading Regulation 46 disclosures…';
+    try {
+      const disclosures = await getRegulation46Disclosures();
+      const cards = disclosures.map((disclosure) => {
+        const card = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+        card.querySelector('[data-disclosure-title]')!.textContent =
+          disclosure.title;
+        const href = publicInvestorLink(disclosure.link);
+        if (href) {
+          const link = card.querySelector<HTMLAnchorElement>(
+            '[data-disclosure-link]',
+          )!;
+          link.href = href;
+          link.hidden = false;
+          card.querySelector('[data-disclosure-label]')!.textContent =
+            ` ${disclosure.title} (opens in a new tab)`;
+          card
+            .querySelector('[data-disclosure-unavailable]')!
+            .setAttribute('hidden', '');
+        }
+        return card;
+      });
+      list.replaceChildren(...cards);
+      status.textContent = disclosures.length
+        ? 'Regulation 46 disclosures loaded.'
+        : 'No Regulation 46 disclosures yet.';
+      status.classList.toggle('sr-only', disclosures.length > 0);
+      retry.hidden = true;
+    } catch (error) {
+      status.classList.remove('sr-only');
+      status.textContent = investorError(error);
+      retry.hidden = false;
+    } finally {
+      list.setAttribute('aria-busy', 'false');
+      retry.disabled = false;
+      loading = false;
+    }
+  }
+
+  retry.addEventListener('click', loadDisclosures);
+  if (root.dataset.api) void loadDisclosures();
+</script>
+
+<style>
+  @reference '../../styles/tokens.css';
+  .regulation-disclosures {
+    max-width: var(--content-max);
+  }
+  h1 {
+    max-width: var(--about-introduction-max);
+    font-size: var(--text-section);
+    line-height: var(--leading-section);
+  }
+  .intro {
+    max-width: var(--about-introduction-max);
+    margin-top: var(--space-md);
+    color: var(--color-muted);
+  }
+  .feedback {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .disclosure-list {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+  .disclosure-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-testimonial);
+    background: var(--color-white);
+    box-shadow: var(--shadow-card);
+    overflow-wrap: anywhere;
+  }
+  .disclosure-card h2 {
+    color: var(--color-brand);
+    font-size: var(--text-content-card);
+  }
+  .disclosure-card .action,
+  .unavailable {
+    flex-shrink: 0;
+  }
+  .unavailable {
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .contact-alternatives {
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  .contact-alternatives a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
+  }
+  [hidden] {
+    display: none;
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .disclosure-card {
+      align-items: stretch;
+      flex-direction: column;
+      gap: var(--space-md);
+      padding: var(--space-md);
+    }
+    .disclosure-card .action {
+      width: 100%;
+    }
+  }
+</style>

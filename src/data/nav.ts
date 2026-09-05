@@ -15,6 +15,10 @@ export const investorNavigation: NavGroup = {
     { label: 'Overview', href: links.investorsOverview },
     { label: 'Shareholder Relation', href: links.shareholderRelation },
     { label: 'Financial Reports', href: links.financialReports },
+    {
+      label: 'Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015',
+      href: links.regulation46Disclosures,
+    },
   ],
 };
 export const primaryNavigation: (NavLink | NavGroup)[] = [
