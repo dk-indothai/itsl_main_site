@@ -65,7 +65,7 @@ async function mockCareers(page: Page, entries = jobs) {
         json: { data: entry ?? null },
       });
     }
-    if (url.pathname === '/api/upload')
+    if (url.pathname === '/api/private-upload')
       return route.fulfill({ status: 201, json: [{ id: 81 }] });
     if (
       url.pathname === '/api/candidates' &&
@@ -354,7 +354,7 @@ for (const size of [100, 2_000_000]) {
     );
     const posts = requests.filter((request) => request.method() === 'POST');
     expect(posts.map((request) => new URL(request.url()).pathname)).toEqual([
-      '/api/upload',
+      '/api/private-upload',
       '/api/candidates',
     ]);
     expect(
@@ -362,6 +362,12 @@ for (const size of [100, 2_000_000]) {
         .postDataBuffer()
         ?.includes(Buffer.from('name="files"; filename="resume.pdf"')),
     ).toBe(true);
+    expect(
+      posts[0].postDataBuffer()?.includes(Buffer.from('name="purpose"')),
+    ).toBe(true);
+    expect(posts[0].postDataBuffer()?.includes(Buffer.from('resume'))).toBe(
+      true,
+    );
     expect(posts[0].headers()['content-type']).toContain(
       'multipart/form-data; boundary=',
     );
@@ -403,7 +409,7 @@ test('accepts blank optional fields and blocks duplicate clicks without changing
   const pending = new Promise<void>((resolve) => {
     finishUpload = resolve;
   });
-  await page.route(`${api}/upload`, async (route) => {
+  await page.route(`${api}/private-upload`, async (route) => {
     await pending;
     await route.fulfill({ status: 201, json: [{ id: 81 }] });
   });
@@ -421,7 +427,7 @@ test('accepts blank optional fields and blocks duplicate clicks without changing
   expect(during?.height).toBe(before?.height);
   await page.locator('[data-application-form]').dispatchEvent('submit');
   expect(
-    requests.filter((request) => request.url() === `${api}/upload`),
+    requests.filter((request) => request.url() === `${api}/private-upload`),
   ).toHaveLength(1);
   finishUpload();
   await expect(status(page)).toContainText('has been submitted');
@@ -503,7 +509,8 @@ for (const phase of ['upload', 'candidates']) {
       page,
     }) => {
       const requests = await mockCareers(page);
-      await page.route(`${api}/${phase}`, (route) =>
+      const endpoint = phase === 'upload' ? 'private-upload' : phase;
+      await page.route(`${api}/${endpoint}`, (route) =>
         failure === 'network'
           ? route.abort()
           : route.fulfill({
@@ -552,7 +559,7 @@ test('manual retry reuses only the same confirmed upload and replacement uploads
   await expect.poll(() => attempts).toBe(2);
   await expect(submit(page)).toBeEnabled();
   expect(
-    requests.filter((request) => request.url() === `${api}/upload`),
+    requests.filter((request) => request.url() === `${api}/private-upload`),
   ).toHaveLength(1);
   await page
     .locator('#candidate-resume')
@@ -560,7 +567,7 @@ test('manual retry reuses only the same confirmed upload and replacement uploads
   await submit(page).click();
   await expect(status(page)).toContainText('has been submitted');
   expect(
-    requests.filter((request) => request.url() === `${api}/upload`),
+    requests.filter((request) => request.url() === `${api}/private-upload`),
   ).toHaveLength(2);
 });
 
@@ -574,7 +581,7 @@ for (const stage of ['list', 'detail', 'upload', 'candidates']) {
         ? `${api}/openings?**`
         : stage === 'detail'
           ? `${api}/openings/open-job?**`
-          : `${api}/${stage}`;
+          : `${api}/${stage === 'upload' ? 'private-upload' : stage}`;
     await page.route(pattern, () => {});
     // AbortSignal.timeout uses the browser's active-time clock, not setTimeout mocks.
     test.setTimeout(30_000);
@@ -604,7 +611,8 @@ for (const stage of ['list', 'detail', 'upload', 'candidates']) {
           ? new URL(request.url()).pathname === '/api/openings'
           : stage === 'detail'
             ? new URL(request.url()).pathname === '/api/openings/open-job'
-            : request.url() === `${api}/${stage}`,
+            : request.url() ===
+              `${api}/${stage === 'upload' ? 'private-upload' : stage}`,
       ),
     ).toHaveLength(1);
   });

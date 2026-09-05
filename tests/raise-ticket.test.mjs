@@ -101,10 +101,11 @@ test('raise-a-ticket uses local navigation and a safe client contract', () => {
   );
   assert.equal(current.length, 1);
   assert.equal(attr(current[0], 'href'), '/raise-a-ticket/');
-  assert.ok(source.includes('/api/upload'));
+  assert.ok(source.includes('/api/private-upload'));
   assert.ok(source.includes('/api/complaints'));
   assert.ok(source.includes('5_000_000'));
   assert.ok(source.includes("body.append('files', file)"));
+  assert.ok(source.includes("body.append('purpose', 'complaint')"));
   assert.ok(source.includes("credentials: 'omit'"));
   assert.ok(source.includes("referrerPolicy: 'no-referrer'"));
   assert.ok(source.includes('20_000'));

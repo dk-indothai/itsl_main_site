@@ -1,5 +1,54 @@
 # Website migration verification
 
+## Private resume and complaint storage — 4 September 2026
+
+Careers and Raise Ticket now send attachments to `POST /api/private-upload`
+with `purpose=resume` or `purpose=complaint`. Their existing Candidate and
+Complaint JSON bodies still contain only the returned numeric media ID. The form
+layout, browser validation, 20-second timeouts, error wording and in-memory retry
+behavior are unchanged.
+
+The accompanying Strapi implementation uses a local dual-bucket provider. Ordinary
+Media Library uploads stay in the existing public bucket; private-endpoint uploads
+go to the configured private bucket. Provider metadata records visibility, purpose
+and exact byte count. Private file access is signed for five minutes, while public
+media continues to use its direct URL. Candidate and Complaint creation reject
+public, cross-purpose, invalid or already-related media.
+
+The Strapi startup rule enables only `api::private-upload.private-upload.create`
+for public upload access and removes all normal Upload API actions without changing
+unrelated permissions. The current relevant Public-role actions are Candidate
+Create, Complaint Create and Private Upload Create only; no Candidate, Complaint
+or normal Upload read/update/delete action is present. A local anonymous HTTP check returned 403 for
+`GET /api/upload/files`, 403 for `POST /api/upload`, and reached validation
+with 400 for an empty `POST /api/private-upload`.
+
+A read-only GCS preflight confirmed that both configured buckets exist, the private
+bucket rejects anonymous access with 403, an existing public software media URL
+returns 200, and the service account can generate a five-minute signed URL. The
+signed test targeted a deliberately nonexistent object and returned 404; no object
+was created, listed, copied or deleted, and no bucket name or signed URL was logged.
+
+| Check                       | Result                                                                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Website formatting          | `npm run format:check` passed.                                                                                          |
+| Website Astro/TypeScript    | `npm run check`: 75 files, zero diagnostics.                                                                            |
+| Website static output/build | `npm test`: all seven Node test files passed and all nine routes built.                                                 |
+| Website browser tests       | `npm run test:browser`: 185/185 Chromium tests passed.                                                                  |
+| Website development checks  | `npm run test:dev`: 30/30 asset and responsive checks passed.                                                           |
+| Strapi TypeScript           | `npm run typecheck` passed.                                                                                             |
+| Strapi focused tests        | `npm test`: 14/14 tests passed, including bucket-preserving media replacement.                                          |
+| Strapi routes/admin build   | `POST /api/private-upload` is listed; the production admin build passed.                                                |
+| Migration dry run           | 2 unique resumes, 1 unique complaint attachment and 2 generated variants; all 15 media rows still use the old provider. |
+
+No live upload, Candidate creation or Complaint creation was performed. The
+migration `apply` and `finalize` phases were deliberately not run: apply first
+requires a database backup, and deleting verified public copies requires the
+specified confirmation checkpoint. Private-bucket anonymous denial, Content
+Manager access for allowed/limited administrator roles, and public software
+downloads must be checked against the deployed storage and admin roles before
+finalization.
+
 ## Procedure for Closing an Account — 4 September 2026
 
 `/procedure-of-closing-account/` is implemented as the ninth static route and
@@ -43,7 +92,7 @@ The seven required fields map exactly to `name`, `client_id`, `email`, `mobile_n
 `issue`, `subject` and `description`. Issue choices match Strapi's enumeration.
 The optional attachment accepts the documented extensions up to exactly 5,000,000
 bytes and remains local until submission. With a file, the browser uploads multipart
-`files` to `/api/upload` and passes its numeric ID as `attachment` to
+`files` plus `purpose=complaint` to `/api/private-upload` and passes its numeric ID as `attachment` to
 `POST /api/complaints`; without a file, only the seven strings are sent.
 
 | Check                    | Result                                                                                                       |
@@ -65,15 +114,16 @@ uploading the same selected file twice. Missing configuration and no-JavaScript
 fallbacks retain compliance contact links. Captures at 1280, 768, 390 and 320px
 were inspected and have no horizontal overflow.
 
-All endpoint behavior was mocked. No complaint or attachment was submitted to the
-live Strapi service, no existing complaint was read and no Strapi code, permission,
-schema, CORS or storage setting was changed. The final production build succeeds
-without Strapi running.
+All website endpoint behavior was mocked. No complaint or attachment was submitted
+to the live Strapi service and no existing complaint was read. The later private
+storage work changed the separate Strapi provider, endpoint and upload permission
+policy as recorded above. The website's final production build succeeds without
+Strapi running.
 
-Production still requires Create-only complaint permission, restricted CORS,
-private attachment delivery, server-enforced file type/size, rate limiting, abuse
-and malware protection, retention/orphan cleanup, HTTPS and privacy/security
-approval. Current public GCS attachment visibility is accepted for preview only.
+The private-upload integration now supplies private delivery and server-enforced
+file type/size checks. Production still requires least-privilege permissions,
+restricted CORS, rate limiting, abuse and malware protection, retention/orphan
+cleanup, HTTPS and privacy/security approval.
 
 ## Close Account request — 4 September 2026
 
@@ -122,7 +172,7 @@ both routes. The detail page sanitizes formatted descriptions and retains the
 reference's Overview/Apply Now tabs with keyboard operation.
 
 Applications use the existing public Strapi endpoints without a token. The browser
-rechecks the opening, uploads one PDF to `/api/upload`, then creates the Candidate
+rechecks the opening, uploads one PDF with `purpose=resume` to `/api/private-upload`, then creates the Candidate
 through `/api/candidates`. Name, email, LinkedIn URL and resume are required;
 contact number and additional links are optional. Selection does not upload, and
 the client rejects empty, non-PDF and files larger than exactly 2,000,000 bytes.
@@ -157,14 +207,14 @@ upload/create permissions therefore remain unverified. All automated application
 requests used mocked API responses, and the final normal build succeeds without
 Strapi running.
 
-Known release limitations remain: resumes use the existing public GCS visibility,
-and size/type validation is browser-only. Private file delivery, server-enforced
-limits, malware and abuse protection, retention/orphan cleanup, staff access,
+Private file delivery and server-enforced limits are now implemented in Strapi.
+Malware and abuse protection, retention/orphan cleanup, staff-access verification,
 production HTTPS/CORS and privacy approval are still required. A failed application
 can leave an unattached upload because the browser never deletes media. Job records
 are absent from initial HTML, so per-job server-rendered metadata is not included.
-No Strapi code, schema, permissions, CORS or configuration was changed; no deploy,
-commit or email notification integration was performed.
+The separate Strapi project now contains the private provider, endpoint, media
+validation and Public upload-permission rule; no deployment, commit or email
+notification integration was performed.
 
 ## Inline download metadata — 3 September 2026
 
@@ -633,7 +683,7 @@ Follow-up checks:
 
 ### Release work still pending
 
-- All four approved pages are built, including Software Downloads. Other WordPress
+- All nine approved routes are built, including Software Downloads. Other WordPress
   pages remain external; no calculator, transaction or account flow was migrated.
 - No hosting, production routing, sitemap, canonical/social-image origin,
   indexing activation, redirects or deployment has been configured.

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const complaintApi = 'http://strapi.test/api/complaints';
-const uploadApi = 'http://strapi.test/api/upload';
+const uploadApi = 'http://strapi.test/api/private-upload';
 const values = {
   name: 'Synthetic Investor',
   client_id: 'SYNTHETIC-CLIENT',
@@ -140,6 +140,8 @@ test.describe('Raise ticket', () => {
       const body = request.postDataBuffer()?.toString('latin1') ?? '';
       expect(body).toContain('name="files"');
       expect(body).toContain('filename="evidence.pdf"');
+      expect(body).toContain('name="purpose"');
+      expect(body).toContain('complaint');
       expect((await request.allHeaders()).authorization).toBeUndefined();
       await route.fulfill({ status: 201, json: [{ id: 321 }], headers });
     });

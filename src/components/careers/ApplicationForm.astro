@@ -295,7 +295,8 @@ import { careersApi } from '../../data/openings';
         showStatus('Uploading resume…', 'sending');
         const body = new FormData();
         body.append('files', file);
-        const response = await fetch(`${api}/upload`, {
+        body.append('purpose', 'resume');
+        const response = await fetch(`${api}/private-upload`, {
           method: 'POST',
           body,
           credentials: 'omit',

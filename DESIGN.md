@@ -231,8 +231,8 @@ Selection is local. Submit validates, rechecks the role, uploads the PDF and cre
 the candidate. Status names these phases; only confirmed creation clears values.
 Manual retry with the same File reuses its known upload ID. There is no optimistic
 success, automatic retry, resume preview/download link, persistent draft, toast or
-leave-page warning. Uploads can remain unattached after failure; current public file
-visibility is an explicitly accepted preview limitation, not a privacy guarantee.
+leave-page warning. Uploads can remain unattached after failure; accepted files are
+stored privately and are exposed to authorized staff through short-lived signed URLs.
 `--form-panel-max` owns the shared request-form width. All other controls/feedback consume the
 existing Contact, action and spacing tokens. Shared Contact itself is unchanged.
 
@@ -290,7 +290,7 @@ and a text Remove action without introducing a custom dropzone or upload library
 Status text distinguishes attachment upload from ticket creation while the primary
 button retains stable geometry. Existing form, panel, error, status and support-band
 tokens own the presentation; no new visual theme or durable token is introduced.
-Current public attachment storage is a preview limitation, not a visual trust claim.
+Private storage changes delivery only and introduces no visual trust claim.
 
 ### Iconography
 

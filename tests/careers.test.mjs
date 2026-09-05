@@ -128,4 +128,11 @@ test('careers keeps API operations in browser scripts and never reads candidates
   );
   assert.ok(!data.includes('populate'));
   assert.ok(!data.includes('candidates'));
+
+  const application = await readFile(
+    new URL('../src/components/careers/ApplicationForm.astro', import.meta.url),
+    'utf8',
+  );
+  assert.ok(application.includes('/private-upload'));
+  assert.ok(application.includes("body.append('purpose', 'resume')"));
 });

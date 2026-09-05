@@ -453,7 +453,8 @@ try {
         if (!uploaded || uploaded.file !== file) {
           const body = new FormData();
           body.append('files', file);
-          const upload = await send(`${api}/api/upload`, {
+          body.append('purpose', 'complaint');
+          const upload = await send(`${api}/api/private-upload`, {
             method: 'POST',
             body,
           });

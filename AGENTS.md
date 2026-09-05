@@ -87,7 +87,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   headings below the overview H2 and keep other CMS values plain text.
   Applications require name, email, LinkedIn URL and a single PDF, at most 2,000,000
   bytes; phone/additional links remain optional. Recheck Open before upload, then
-  POST multipart `files` to `/api/upload` and JSON `data` to `/api/candidates` with
+  POST multipart `files` plus `purpose=resume` to `/api/private-upload` and JSON
+  `data` to `/api/candidates` with
   the numeric media ID and opening documentId. No tokens, cookies, publication
   overrides, Strapi changes or automatic retries. Keep disabled HTML until the
   form guard and opening are ready; clear only after confirmed candidate creation.
@@ -95,13 +96,14 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   Never delete uploads automatically: failures can leave unattached files.
   Keep the 20-second timeouts, truthful uncertain-outcome messages and token-backed
   inline validation. Never serialize/log applicant data or read existing candidates.
-  Ask separately before live synthetic uploads/applications. Public GCS file storage
-  and browser-only checks are accepted for this preview, not production approval.
+  Ask separately before live synthetic uploads/applications. Strapi owns private
+  storage and server enforcement; the browser checks remain usability feedback.
 - Raise Ticket keeps its markup, issue choices, scoped styles and browser handler
   together in `RaiseTicketForm.astro`. Keep the seven required complaint fields
   and optional single attachment explicit; do not add a generic form/upload layer.
   With no attachment, POST JSON directly to `/api/complaints`. With a file, POST
-  it under multipart `files` to `/api/upload`, then include the returned numeric
+  it under multipart `files` with `purpose=complaint` to `/api/private-upload`, then
+  include the returned numeric
   ID as `attachment` in the complaint. Retain a confirmed upload ID only in memory
   for manual retry with the same File; never delete uploads automatically. Accept
   only the documented JPG/PNG/GIF/PDF/DOC/DOCX/XLS/XLSX/TXT/CSV extensions up to
@@ -187,13 +189,13 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   access should remain Create-only; production still requires server validation,
   abuse controls, restricted CORS, retention and privacy/security approval.
 - Raise Ticket uses `POST /api/complaints` and, only when an attachment is selected,
-  `POST /api/upload`. Send only `name`, `client_id`, `email`, `mobile_no`, `issue`,
+  `POST /api/private-upload`. Send only `name`, `client_id`, `email`, `mobile_no`, `issue`,
   `subject`, `description` and the optional numeric `attachment` inside `data`.
   Preserve the exact Strapi issue enumeration, 20-second timeout per request,
   disabled fallback, inline validation, stable busy states and uncertain-result
   wording. Never log or persist complaint data. Public complaint access must remain
-  Create-only; current public GCS file visibility is preview-only and requires
-  production privacy/storage approval. Do not live-test complaints without approval.
+  Create-only; Private Upload Create is the only public upload action and normal
+  Upload API operations remain disabled. Do not live-test complaints without approval.
 - Tests must mock submissions by default. Real local smoke tests use explicitly
   synthetic data only; never read, alter or delete existing enquiries. Browser
   tests use one mock-configured build and preview server; no running Strapi is
