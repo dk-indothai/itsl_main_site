@@ -14,6 +14,7 @@ export const investorNavigation: NavGroup = {
   children: [
     { label: 'Overview', href: links.investorsOverview },
     { label: 'Shareholder Relation', href: links.shareholderRelation },
+    { label: 'Financial Reports', href: links.financialReports },
   ],
 };
 export const primaryNavigation: (NavLink | NavGroup)[] = [

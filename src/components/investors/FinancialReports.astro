@@ -1,0 +1,344 @@
+---
+import { investorsApi } from '../../data/investors';
+import { site } from '../../data/site';
+---
+
+<section
+  class="financial-reports page-shell"
+  aria-labelledby="financial-reports-title"
+  data-financial-reports
+  data-api={investorsApi}
+>
+  <h1 id="financial-reports-title">Financial Reports</h1>
+  <p class="intro">
+    Browse IndoThai quarterly and full-year financial reports.
+  </p>
+  <div class="feedback">
+    <p role="status" aria-atomic="true" data-report-status>
+      {
+        investorsApi
+          ? 'Enable JavaScript to load financial reports.'
+          : 'Financial reports are not configured yet. Please contact us for assistance.'
+      }
+    </p>
+    <button type="button" class="action" data-report-retry hidden>
+      Retry
+    </button>
+  </div>
+  <div class="year-list" data-report-list aria-busy="false"></div>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+    >.
+  </p>
+  <template data-year-template>
+    <details class="year-group">
+      <summary>
+        <span class="year-label" data-year-label></span>
+        <span class="year-summary">
+          <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="m5 7.5 5 5 5-5"></path>
+          </svg>
+        </span>
+      </summary>
+      <div class="report-grid" data-year-reports></div>
+    </details>
+  </template>
+  <template data-period-template>
+    <section class="report-period">
+      <h3 data-period-label></h3>
+      <div class="period-actions" data-period-actions></div>
+    </section>
+  </template>
+  <template data-download-template>
+    <div class="period-download">
+      <a
+        class="action action-outline"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-download
+        >Download Report<span class="sr-only" data-download-label></span></a
+      >
+    </div>
+  </template>
+</section>
+
+<script>
+  import {
+    getFinancialReports,
+    investorError,
+    publicFileUrl,
+  } from '../../data/investors';
+
+  const root = document.querySelector<HTMLElement>('[data-financial-reports]')!;
+  const list = root.querySelector<HTMLElement>('[data-report-list]')!;
+  const status = root.querySelector<HTMLElement>('[data-report-status]')!;
+  const retry = root.querySelector<HTMLButtonElement>('[data-report-retry]')!;
+  const yearTemplate = root.querySelector<HTMLTemplateElement>(
+    '[data-year-template]',
+  )!;
+  const periodTemplate = root.querySelector<HTMLTemplateElement>(
+    '[data-period-template]',
+  )!;
+  const downloadTemplate = root.querySelector<HTMLTemplateElement>(
+    '[data-download-template]',
+  )!;
+  let loading = false;
+
+  const periods = [
+    { key: 'q1', label: '1st Quarter' },
+    { key: 'q2', label: '2nd Quarter' },
+    { key: 'q3', label: '3rd Quarter' },
+    { key: 'q4', label: '4th Quarter' },
+    { key: 'full', label: 'Full Year' },
+  ] as const;
+
+  interface YearGroup {
+    element: HTMLDetailsElement;
+    slots: Map<string, HTMLElement>;
+  }
+
+  function createYearGroup(year: number): YearGroup {
+    const element = yearTemplate.content.firstElementChild!.cloneNode(
+      true,
+    ) as HTMLDetailsElement;
+    element.querySelector('[data-year-label]')!.textContent = String(year);
+    const grid = element.querySelector('[data-year-reports]')!;
+    const slots = new Map<string, HTMLElement>();
+
+    for (const period of periods) {
+      const slot = periodTemplate.content.firstElementChild!.cloneNode(
+        true,
+      ) as HTMLElement;
+      slot.querySelector('[data-period-label]')!.textContent = period.label;
+      grid.append(slot);
+      slots.set(period.key, slot);
+    }
+    return { element, slots };
+  }
+
+  async function loadReports() {
+    if (loading) return;
+    loading = true;
+    retry.disabled = true;
+    list.setAttribute('aria-busy', 'true');
+    status.classList.remove('sr-only');
+    status.textContent = 'Loading financial reports…';
+    try {
+      const reports = await getFinancialReports();
+      const groups = new Map<number, YearGroup>();
+      let availableCount = 0;
+      for (const report of reports) {
+        const href = publicFileUrl(report.file);
+        if (!href) continue;
+
+        let group = groups.get(report.year);
+        if (!group) {
+          group = createYearGroup(report.year);
+          groups.set(report.year, group);
+        }
+
+        const periodKey =
+          report.report_type === 'Full Year' ? 'full' : `q${report.quarter}`;
+        const slot = group.slots.get(periodKey)!;
+        const download = downloadTemplate.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+        const period =
+          report.report_type === 'Quarter'
+            ? `Quarter ${report.quarter}`
+            : 'Full Year';
+
+        const link =
+          download.querySelector<HTMLAnchorElement>('[data-download]')!;
+        link.href = href;
+        download.querySelector('[data-download-label]')!.textContent =
+          ` ${report.year} — ${period} (opens in a new tab)`;
+        slot.querySelector('[data-period-actions]')!.append(download);
+        availableCount += 1;
+      }
+
+      const yearGroups = [...groups.values()];
+      yearGroups.forEach((group, index) => {
+        for (const slot of group.slots.values()) {
+          if (!slot.querySelector('[data-download]')) slot.remove();
+        }
+        group.element.open = index === 0;
+      });
+      list.replaceChildren(...yearGroups.map((group) => group.element));
+      status.textContent = availableCount
+        ? 'Financial reports loaded.'
+        : 'No financial reports yet.';
+      status.classList.toggle('sr-only', availableCount > 0);
+      retry.hidden = true;
+    } catch (error) {
+      status.classList.remove('sr-only');
+      status.textContent = investorError(error);
+      retry.hidden = false;
+    } finally {
+      list.setAttribute('aria-busy', 'false');
+      retry.disabled = false;
+      loading = false;
+    }
+  }
+
+  retry.addEventListener('click', loadReports);
+  if (root.dataset.api) void loadReports();
+</script>
+
+<style>
+  @reference '../../styles/tokens.css';
+  .financial-reports {
+    max-width: var(--content-max);
+  }
+  h1 {
+    font-size: var(--text-section);
+    line-height: var(--leading-section);
+  }
+  .intro {
+    max-width: var(--about-introduction-max);
+    margin-top: var(--space-md);
+    color: var(--color-muted);
+  }
+  .feedback {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .year-list {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+  .year-group {
+    overflow: clip;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-testimonial);
+    background: var(--color-white);
+    box-shadow: var(--shadow-card);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    min-height: var(--target-min);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--color-brand);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover {
+    background: var(--color-footer);
+  }
+  summary:focus-visible {
+    outline: var(--border-focus) solid var(--color-brand);
+    outline-offset: calc(var(--focus-offset) * -1);
+  }
+  .year-label {
+    font-family: var(--font-heading);
+    font-size: var(--text-content-card);
+    font-weight: var(--font-weight-semibold);
+  }
+  .year-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .chevron {
+    width: var(--icon-control);
+    height: var(--icon-control);
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+    transition: transform var(--default-transition-duration);
+  }
+  details[open] .chevron {
+    transform: rotate(180deg);
+  }
+  .report-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-top: var(--border-thin) solid var(--color-subtle);
+  }
+  .report-period {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .report-period h3 {
+    color: var(--color-body);
+    font-family: var(--font-body);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-medium);
+  }
+  .period-actions {
+    display: grid;
+    gap: var(--space-xs);
+    width: 100%;
+    margin-top: var(--space-md);
+  }
+  .period-download .action {
+    width: 100%;
+    padding-inline: var(--space-sm);
+    white-space: nowrap;
+  }
+  .contact-alternatives {
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  .contact-alternatives a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
+  }
+  [hidden] {
+    display: none;
+  }
+  @media (width < theme(--breakpoint-desktop)) {
+    .report-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .report-grid {
+      grid-template-columns: 1fr;
+    }
+    summary {
+      padding-inline: var(--space-md);
+    }
+    .report-grid {
+      padding: var(--space-md);
+    }
+    .report-period {
+      align-items: stretch;
+      text-align: left;
+    }
+    .period-actions {
+      margin-top: var(--space-sm);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chevron {
+      transition: none;
+    }
+  }
+</style>

@@ -8,8 +8,9 @@ Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers
 (`/close-account/`), Procedure for Closing an Account
 (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor
 Overview (`/investors/overview/`) and Shareholder Relation
-(`/investors/shareholder-relation/`) routes are implemented and link locally.
-Downloads, Careers and both Investor pages load CMS records in browser JavaScript.
+(`/investors/shareholder-relation/`) and Financial Reports
+(`/investors/financial-reports/`) routes are implemented and link locally.
+Downloads, Careers and all three Investor pages load CMS records in browser JavaScript.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
@@ -35,7 +36,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   (`/close-account/`), Procedure for Closing an Account
   (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor
   Overview (`/investors/overview/`) and Shareholder Relation
-  (`/investors/shareholder-relation/`).
+  (`/investors/shareholder-relation/`) and Financial Reports
+  (`/investors/financial-reports/`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -101,18 +103,27 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   inline validation. Never serialize/log applicant data or read existing candidates.
   Ask separately before live synthetic uploads/applications. Strapi owns private
   storage and server enforcement; the browser checks remain usability feedback.
-- Investors is a two-item primary navigation disclosure. Desktop opens it on
+- Investors is a three-item primary navigation disclosure. Desktop opens it on
   hover while native details/summary preserves click, touch and keyboard access.
-  Keep Overview and Shareholder Relation as separate local routes and mark both
+  Keep Overview, Shareholder Relation and Financial Reports as separate local routes and mark each
   the group and current child. `src/data/investors.ts` owns only typed browser
   reads for `overviews`, `shareholder-relation-categories` and
-  `shareholder-relations`; do not turn it into a generic CMS layer. Overview rich
+  `shareholder-relations`, and `financial-reports`; do not turn it into a generic CMS layer. Overview rich
   text must be sanitized before insertion. Render every overview title as an
   independent native details/summary dropdown, closed initially; do not add a
   custom accordion script. Preserve safe Markdown table tags and the focusable
   horizontal table wrapper used on narrow screens. Shareholder Relation populates `file`
   and `shareholder_relation_category`, filters already-loaded records locally and
-  exposes only safe HTTP(S) file URLs. Keep loading, empty, error, Retry and
+  exposes only safe HTTP(S) file URLs. Financial Reports populates `file`, sorts
+  newest year first and groups records in native year dropdowns, with only the
+  newest year expanded initially. Each expanded year keeps the staging-style fixed
+  order: 1st, 2nd, 3rd and 4th Quarter, then Full Year. Show only the period and
+  “Download Report” action; do not expose per-year counts, filenames or sizes.
+  Hide periods without a safe published file instead of showing an unavailable
+  placeholder or false link. Keep its explicit
+  `year`, `report_type`, `quarter` and `file` contract: Quarter records require
+  1–4 while Full Year records use `null`; do not invent CMS fields.
+  Keep loading, empty, error, Retry and
   no-JavaScript/configuration states. No token, cookies, build-time Strapi request
   or Strapi configuration change is allowed.
 - Raise Ticket keeps its markup, issue choices, scoped styles and browser handler
@@ -239,7 +250,7 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the eleven approved static routes into `dist/`. Software, opening and
+  Build the twelve approved static routes into `dist/`. Software, opening and
   investor records require JavaScript and are absent from initial HTML; retain
   preview noindex and do not claim per-job server-rendered metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,

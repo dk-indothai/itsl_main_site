@@ -17,6 +17,9 @@ test('Investors opens on hover and remains keyboard accessible', async ({
   await expect(
     page.getByRole('link', { name: 'Shareholder Relation', exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Financial Reports', exact: true }),
+  ).toBeVisible();
 
   await investors.focus();
   await page.keyboard.press('Escape');
@@ -38,6 +41,9 @@ test('mobile Investors menu opens by tap', async ({ page }) => {
   ).toBeVisible();
   await expect(
     menu.getByRole('link', { name: 'Shareholder Relation', exact: true }),
+  ).toBeVisible();
+  await expect(
+    menu.getByRole('link', { name: 'Financial Reports', exact: true }),
   ).toBeVisible();
 });
 
@@ -172,6 +178,83 @@ test('shareholder documents filter locally and retain empty categories', async (
   await expect(page.getByRole('status')).toHaveText('1 shareholder document.');
 });
 
+test('financial reports group into year dropdowns and expose safe files', async ({
+  page,
+}) => {
+  await page.route(
+    'http://strapi.test/api/financial-reports**',
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('populate[0]')).toBe('file');
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              documentId: 'full-2025',
+              year: 2025,
+              report_type: 'Full Year',
+              quarter: null,
+              file: null,
+            },
+            {
+              documentId: 'quarter-2025',
+              year: 2025,
+              report_type: 'Quarter',
+              quarter: 2,
+              file: {
+                name: 'quarter-two',
+                ext: '.pdf',
+                url: '/uploads/quarter-two.pdf',
+                size: 850,
+              },
+            },
+            {
+              documentId: 'full-2024',
+              year: 2024,
+              report_type: 'Full Year',
+              quarter: null,
+              file: {
+                name: 'annual-2024.pdf',
+                ext: '.pdf',
+                url: 'javascript:alert(1)',
+                size: 2100,
+              },
+            },
+          ],
+          meta: { pagination: { ...pagination, total: 3 } },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/investors/financial-reports/');
+  const groups = page.locator('.year-group');
+  await expect(groups).toHaveCount(1);
+  await expect(groups.locator('summary .year-label')).toHaveText(['2025']);
+  await expect(groups.nth(0)).toHaveAttribute('open', '');
+  await expect(groups.nth(0).locator('.report-period h3')).toHaveText([
+    '2nd Quarter',
+  ]);
+  await expect(
+    page.getByRole('link', { name: /Download Report 2025 — Quarter 2/ }),
+  ).toHaveAttribute('href', 'http://strapi.test/uploads/quarter-two.pdf');
+  await expect(groups.locator('[data-year-count]')).toHaveCount(0);
+  await expect(page.getByText('quarter-two.pdf')).toHaveCount(0);
+  await expect(page.getByText('850 KB')).toHaveCount(0);
+  await expect(page.getByText('Not available')).toHaveCount(0);
+  await expect(page.getByText('Download unavailable')).toHaveCount(0);
+
+  await expect(page.getByRole('status')).toHaveText(
+    'Financial reports loaded.',
+  );
+  await expect(page.getByRole('status')).toHaveClass(/sr-only/);
+  await groups.nth(0).locator('summary').focus();
+  await expect(groups.nth(0).locator('summary')).toBeFocused();
+  await groups.nth(0).locator('summary').press('Enter');
+  await expect(groups.nth(0)).not.toHaveAttribute('open', '');
+});
+
 test('investor pages show errors with retry and have no narrow overflow', async ({
   page,
 }) => {
@@ -228,6 +311,7 @@ test('investor responsive check has no overflow or missing assets', async ({
   for (const path of [
     '/investors/overview/',
     '/investors/shareholder-relation/',
+    '/investors/financial-reports/',
   ]) {
     for (const width of [1280, 768, 390, 320]) {
       const errors: string[] = [];

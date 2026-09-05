@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FinancialReports from '../../components/investors/FinancialReports.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Financial Reports - IndoThai"
+  description="Browse IndoThai quarterly and full-year financial reports by year."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.financialReports} />
+    </div>
+    <FinancialReports />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

@@ -23,6 +23,7 @@ const routes = [
   '/careers/',
   '/investors/overview/',
   '/investors/shareholder-relation/',
+  '/investors/financial-reports/',
   '/close-account/',
   '/procedure-of-closing-account/',
   '/raise-a-ticket/',

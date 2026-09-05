@@ -94,7 +94,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all eleven routes owns the space between sections and before
+The main container on all twelve routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -208,10 +208,10 @@ an explicit catalogue-unavailable explanation, not a blank area or invented data
 
 ### Investor content
 
-Investor Overview and Shareholder Relation use the same restrained secondary-page
+Investor Overview, Shareholder Relation and Financial Reports use the same restrained secondary-page
 language: compact Raleway headings, readable body copy, white bordered cards and
 brand-blue document actions. A small local page navigation sits above each title
-so visitors can switch between the two destinations without reopening the header.
+so visitors can switch between the three destinations without reopening the header.
 The shareholder filter is a labeled native select, matching the source's familiar
 category interaction while preserving keyboard and mobile behavior.
 
@@ -222,9 +222,14 @@ Overview rich text is sanitized and normalized below its card H2. Markdown table
 use bordered rows and a focusable horizontal scroll region so their structure is
 preserved on narrow devices.
 Shareholder filenames and sizes share a compact line; long text wraps instead of
-forcing horizontal overflow. Missing or unsafe file destinations use visible
-“Download unavailable” text. No skeleton, animation, placeholder records or new
-visual theme is introduced.
+forcing horizontal overflow. Missing or unsafe shareholder file destinations use
+visible “Download unavailable” text. Financial Reports uses native year dropdowns
+and orders available periods as 1st–4th Quarter followed by Full Year. Each period
+shows only a compact “Download Report” action; unavailable periods, filename, size
+and per-year counts stay hidden.
+The newest year opens initially, older years stay compact, and the grid becomes
+three columns on tablet and one on phones. No custom accordion script, skeleton,
+animation, placeholder records or new visual theme is introduced.
 
 ### Forms and overlays
 

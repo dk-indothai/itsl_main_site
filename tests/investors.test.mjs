@@ -80,7 +80,54 @@ test('shareholder relation is a static, noindex CMS shell', async () => {
   );
 });
 
-test('investor reads use only the three intended public Strapi collections', async () => {
+test('financial reports is a static, noindex CMS shell', async () => {
+  const { tree, nodes } = await page('investors/financial-reports/index.html');
+  assert.equal(text(nodes('title')[0]), 'Financial Reports - IndoThai');
+  assert.equal(nodes('h1').length, 1);
+  assert.equal(text(nodes('h1')[0]), 'Financial Reports');
+  assert.equal(
+    all(tree, (node) => attr(node, 'data-report-list') !== undefined).length,
+    1,
+  );
+  assert.ok(
+    text(tree).includes('Enable JavaScript to load financial reports.'),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) =>
+        attr(node, 'href') === '/investors/financial-reports/' &&
+        attr(node, 'aria-current') === 'page',
+    ),
+  );
+});
+
+test('financial report years use native dropdown markup', async () => {
+  const source = await readFile(
+    new URL(
+      '../src/components/investors/FinancialReports.astro',
+      import.meta.url,
+    ),
+    'utf8',
+  );
+  assert.ok(source.includes('<details class="year-group">'));
+  assert.ok(source.includes('<summary>'));
+  assert.ok(source.includes('group.element.open = index === 0'));
+  for (const period of [
+    '1st Quarter',
+    '2nd Quarter',
+    '3rd Quarter',
+    '4th Quarter',
+    'Full Year',
+  ])
+    assert.ok(source.includes(period));
+  assert.ok(!source.includes('data-report-year'));
+  assert.ok(!source.includes('data-file-name'));
+  assert.ok(!source.includes('data-file-size'));
+  assert.ok(!source.includes('Not available'));
+  assert.ok(!source.includes('Download unavailable'));
+});
+
+test('investor reads use only the four intended public Strapi collections', async () => {
   const source = await readFile(
     new URL('../src/data/investors.ts', import.meta.url),
     'utf8',
@@ -89,6 +136,7 @@ test('investor reads use only the three intended public Strapi collections', asy
     "'overviews'",
     "'shareholder-relation-categories'",
     "'shareholder-relations'",
+    "'financial-reports'",
   ])
     assert.ok(source.includes(collection));
   assert.ok(source.includes("['file', 'shareholder_relation_category']"));

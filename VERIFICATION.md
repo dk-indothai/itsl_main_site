@@ -1,5 +1,42 @@
 # Website migration verification
 
+## Financial Reports — 5 September 2026
+
+`/investors/financial-reports/` is the third local Investors destination. It
+loads published `financial-report` records from `GET /api/financial-reports`,
+populates each record's `file`, sorts the complete result by newest year and
+groups the already-loaded records in native year dropdowns. The newest year opens
+initially and older years remain collapsed until selected. Each dropdown uses the
+fixed staging order of four quarters followed by Full Year, with only a “Download
+Report” action for available files. Per-year counts, filenames and sizes are not
+shown, and the loaded total is announced without adding visible clutter. Periods
+with missing or unsafe files are omitted.
+
+The route has one H1, unique preview metadata, the shared Investor page navigation,
+loading/empty/error states, manual Retry, a no-JavaScript/configuration explanation
+and contact alternatives. It keeps the static build independent of Strapi and
+introduces no framework, CMS SDK, server adapter, dependency or new design token.
+
+| Check                     | Result                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                                           |
+| Astro/TypeScript          | `npm run check`: 85 files, zero errors, warnings or hints.                                               |
+| Static output/build       | `npm test`: all eight Node test files passed; all twelve static routes built.                            |
+| Production browser tests  | `npm run test:browser`: 192/192 Chromium tests passed, including seven focused Investor tests.           |
+| Development layout/assets | `npm run test:dev`: 31/31 responsive and local-asset checks passed, including all three Investor routes. |
+| Design checks             | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.               |
+| Manual visual check       | The populated latest-year open state and collapsed year row were inspected in the local browser.         |
+
+The running local page loaded five published reports across 2024 and 2025 from
+the existing Strapi endpoint, including a Full Year record with `quarter: null`.
+The latest year opened initially and older years remained collapsed; no Strapi
+record or file was changed. Mocked browser tests additionally verify
+sorting, unsafe URL rejection, multiple year dropdowns and responsive layouts.
+Before release, verify Public Find, populated media access and the approved
+production CORS origin, then review the published years, report types, quarter
+values and files. CMS records remain absent from initial HTML and preview remains
+`noindex, nofollow`.
+
 ## Investor Overview and Shareholder Relation — 5 September 2026
 
 The shared header now exposes an Investors disclosure containing Overview and

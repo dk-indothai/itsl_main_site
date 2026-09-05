@@ -62,10 +62,10 @@ import { site } from '../../data/site';
   import {
     getShareholderCategories,
     getShareholderRelations,
+    investorFileName,
+    investorFileSize,
     investorError,
     publicFileUrl,
-    shareholderFileName,
-    shareholderFileSize,
   } from '../../data/investors';
 
   const root = document.querySelector<HTMLElement>(
@@ -119,8 +119,8 @@ import { site } from '../../data/site';
         card.querySelector('[data-relation-title]')!.textContent =
           relation.title;
         const href = publicFileUrl(relation.file);
-        const filename = shareholderFileName(relation.file);
-        const size = shareholderFileSize(relation.file);
+        const filename = investorFileName(relation.file);
+        const size = investorFileSize(relation.file);
         const meta = card.querySelector<HTMLElement>('[data-file-meta]')!;
         card.querySelector('[data-file-name]')!.textContent = filename;
         card.querySelector('[data-file-size]')!.textContent = size;

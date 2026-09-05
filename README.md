@@ -4,11 +4,11 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`) and Shareholder Relation (`/investors/shareholder-relation/`) are implemented.** Navigation between these eleven static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`), Shareholder Relation (`/investors/shareholder-relation/`) and Financial Reports (`/investors/financial-reports/`) are implemented.** Navigation between these twelve static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, while Shareholder Relation filters Strapi documents by category. All routes reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, Shareholder Relation filters Strapi documents by category, and Financial Reports filters quarterly and full-year files by year. All routes reuse the layout, header, footer, SEO and design tokens.
 
 The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize CMS rich text in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, Raise Ticket, software, Careers and Investor pages use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
@@ -247,7 +247,7 @@ execute downloaded files during verification.
 
 ### Investor pages setup and maintenance
 
-The Investors item in the primary header is a two-link disclosure. On desktop it
+The Investors item in the primary header is a three-link disclosure. On desktop it
 opens on hover and also works by click and keyboard; on smaller screens it opens
 inside the existing navigation menu. Its local pages are:
 
@@ -256,24 +256,32 @@ inside the existing navigation menu. Its local pages are:
   `GET /api/shareholder-relation-categories` and
   `GET /api/shareholder-relations`, populating `file` and
   `shareholder_relation_category`.
+- `/investors/financial-reports/` — reads `GET /api/financial-reports`,
+  populating `file`, and groups the loaded reports into year dropdowns.
 
-`src/data/investors.ts` contains the three typed reads, pagination, response checks
-and safe file helpers. The two named components in `src/components/investors/`
+`src/data/investors.ts` contains the four typed reads, pagination, response checks
+and safe file helpers. The three named components in `src/components/investors/`
 own their markup and small browser interactions. Keep this direct structure; there
 is no CMS SDK or generic content renderer.
 
 Maintain overview titles/descriptions and shareholder categories, titles, files
-and relations in Strapi. Overview descriptions are Markdown/rich text and are
-sanitized before browser insertion. Markdown tables render as accessible HTML
+and relations in Strapi. Maintain financial report year, report type, quarter and
+file in the `financial-report` content type. Quarter is 1–4 for a quarterly report
+and remains empty for a Full Year report. Overview descriptions are Markdown/rich
+text and are sanitized before browser insertion. Markdown tables render as accessible HTML
 tables inside a horizontal scroll region on narrow screens. Each overview title
 is a native dropdown; entries start closed and can be opened independently without
 custom accordion JavaScript. Shareholder categories filter the already loaded
 records without another request. Categories with no document remain available and
 show “No shareholder documents yet.” File links allow only HTTP(S)
 addresses without embedded credentials, and filename plus size appear together
-when Strapi provides them.
+when Strapi provides them. Financial reports sort by newest year first, open the
+newest year initially, and keep older years in native dropdowns. Within each year,
+the display order is 1st–4th Quarter followed by Full Year. The grid shows only
+period labels and “Download Report” actions; it omits per-year counts, filenames
+and sizes. Periods without a safe published file are not displayed.
 
-All three content types need Public Find permission, populated files/relations
+All four content types need Public Find permission, populated files/relations
 must be readable, and Strapi CORS must allow the website origin. The pages use
 `PUBLIC_STRAPI_URL`, no token or cookies, a 20-second timeout and manual Retry.
 Records load only in browser JavaScript, so builds remain independent of Strapi
@@ -343,7 +351,7 @@ previously shared token remains outstanding.
 
 Without JavaScript/configuration, explanations and contact alternatives remain;
 applications cannot submit natively. Job details also disable applications for
-Closed/Filled, missing or unpublished jobs. The eleven static routes retain
+Closed/Filled, missing or unpublished jobs. The twelve static routes retain
 `noindex, nofollow`. Job records are not in initial HTML: the detail page starts
 with generic metadata and updates the document title after loading. This is not
 server-rendered job SEO or a replacement for future production redirect planning.
@@ -383,7 +391,7 @@ src/
 │   ├── close-account/         Account closure request form and browser submission
 │   ├── closing-procedure/     Static semantic account-closing flow
 │   ├── raise-ticket/          Complaint form, optional upload and browser submission
-│   ├── investors/             Investor overview and shareholder document components
+│   ├── investors/             Investor overview, shareholder and financial report components
 │   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
@@ -396,7 +404,7 @@ src/
 │   ├── openings.ts            Typed opening reads and Careers API configuration
 │   └── investors.ts           Typed investor reads and public file helpers
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/                     Eleven static routes, including investor/support workflows
+├── pages/                     Twelve static routes, including investor/support workflows
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
@@ -522,8 +530,8 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the eleven approved static routes; release acceptance remains separate.
-- [ ] Approve published Investor overview/shareholder records, categories, files, Public Find permissions and production CORS.
+- [x] Implement the twelve approved static routes; release acceptance remains separate.
+- [ ] Approve published Investor overview/shareholder/financial report records, categories, files, Public Find permissions and production CORS.
 - [ ] Complete the staged migration of existing resumes and complaint attachments, verify limited-role admin access and remove the verified public copies.
 - [ ] Approve Careers content, private-upload/Candidate permissions, abuse protection, malware scanning and retention without exposing candidate records.
 - [ ] Approve published software, category assignments, attachment URLs and file safety; verify production read permissions/CORS. Listings require JavaScript and are absent from initial HTML.

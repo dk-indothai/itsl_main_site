@@ -11,7 +11,7 @@ export interface ShareholderCategory {
   name: string;
 }
 
-export interface ShareholderFile {
+export interface InvestorFile {
   name?: string | null;
   ext?: string | null;
   url?: string | null;
@@ -21,8 +21,16 @@ export interface ShareholderFile {
 export interface ShareholderRelation {
   documentId: string;
   title: string;
-  file?: ShareholderFile | null;
+  file?: InvestorFile | null;
   shareholder_relation_category?: { documentId?: string } | null;
+}
+
+export interface FinancialReport {
+  documentId: string;
+  year: number;
+  report_type: 'Quarter' | 'Full Year';
+  quarter: number | null;
+  file?: InvestorFile | null;
 }
 
 export const investorsApi = (() => {
@@ -159,6 +167,37 @@ export async function getShareholderRelations(): Promise<
   return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
 }
 
+export async function getFinancialReports(): Promise<FinancialReport[]> {
+  const records = await getAll<FinancialReport>('financial-reports', 'year', [
+    'file',
+  ]);
+  if (
+    records.some(
+      (item) =>
+        typeof item?.documentId !== 'string' ||
+        !item.documentId ||
+        !Number.isInteger(item.year) ||
+        !['Quarter', 'Full Year'].includes(item.report_type) ||
+        (item.report_type === 'Quarter' &&
+          (item.quarter === null ||
+            !Number.isInteger(item.quarter) ||
+            item.quarter < 1 ||
+            item.quarter > 4)) ||
+        (item.report_type === 'Full Year' && item.quarter !== null) ||
+        (item.file != null && typeof item.file !== 'object'),
+    )
+  )
+    throw new Error('The investor service returned an unexpected response.');
+
+  return records.sort(
+    (a, b) =>
+      b.year - a.year ||
+      Number(b.report_type === 'Full Year') -
+        Number(a.report_type === 'Full Year') ||
+      (b.quarter ?? 0) - (a.quarter ?? 0),
+  );
+}
+
 export function investorError(error: unknown): string {
   if (error instanceof DOMException && error.name === 'TimeoutError')
     return 'Loading took too long. Please try again.';
@@ -169,7 +208,7 @@ export function investorError(error: unknown): string {
     : 'Investor information is unavailable. Please try again.';
 }
 
-export function publicFileUrl(file: ShareholderFile | null | undefined) {
+export function publicFileUrl(file: InvestorFile | null | undefined) {
   if (typeof file?.url !== 'string' || !file.url.trim()) return '';
   try {
     const base = investorsApi.replace(/\/api$/, '');
@@ -184,7 +223,7 @@ export function publicFileUrl(file: ShareholderFile | null | undefined) {
   }
 }
 
-export function shareholderFileName(file: ShareholderFile | null | undefined) {
+export function investorFileName(file: InvestorFile | null | undefined) {
   const name = typeof file?.name === 'string' ? file.name.trim() : '';
   const extension =
     typeof file?.ext === 'string' && /^\.[a-z\d.]+$/i.test(file.ext)
@@ -197,7 +236,7 @@ export function shareholderFileName(file: ShareholderFile | null | undefined) {
     : name;
 }
 
-export function shareholderFileSize(file: ShareholderFile | null | undefined) {
+export function investorFileSize(file: InvestorFile | null | undefined) {
   if (
     typeof file?.size !== 'number' ||
     !Number.isFinite(file.size) ||
