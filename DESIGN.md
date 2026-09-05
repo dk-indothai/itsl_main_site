@@ -23,6 +23,7 @@ components:
   investorNavigation: {}
   investorOverview: {}
   shareholderRelations: {}
+  clientRelations: {}
 ---
 
 # IndoThai design guidance
@@ -68,7 +69,7 @@ a breakpoint in the token file updates both utilities and section media queries.
 
 ## Colors
 
-Brand blue owns actions, section headings, the About band and footer. Ink provides
+Brand blue owns actions, section headings, the About band, Investor tab band and footer. Ink provides
 body contrast and the hero’s restrained text gradient. The pale app surface and
 metric icon tiles are secondary roles. White remains the main page
 surface. Dark mode is not part of the source. Forced-colors mode must retain
@@ -94,7 +95,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all fourteen routes owns the space between sections and before
+The main container on all fifteen routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -167,11 +168,13 @@ Header disclosures are non-modal, not focus-trapped drawers. Native details/summ
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
-Raise Ticket, Software Downloads, Careers and all five Investor pages route locally, with the current
+Raise Ticket, Software Downloads, Careers and all six Investor pages route locally, with the current
 page marked in its navigation link. Careers remains active on job details too.
 Investors is a primary disclosure with a hover enhancement on precise pointers and
 native click, touch and keyboard access everywhere. Both its group and current child
-show active state. Downloads remains in the utility menu; other
+show active state. The local Investor navigation uses one brand-blue, rounded tab
+band with a white active tab. Labels stay on one line and the band scrolls horizontally
+instead of wrapping on narrow screens. Downloads remains in the utility menu; other
 destinations remain on their existing services.
 
 The main menu uses an SVG menu/close pair; nested disclosures have a rotating SVG
@@ -209,10 +212,10 @@ an explicit catalogue-unavailable explanation, not a blank area or invented data
 ### Investor content
 
 Investor Overview, Shareholder Relation, Financial Reports, Regulation 46
-Disclosures and Corporate Presentation use the same restrained secondary-page
+Disclosures, Client Relation and Corporate Presentation use the same restrained secondary-page
 language: compact Raleway headings, readable body copy, white bordered cards and
 brand-blue document actions. A small local page navigation sits above each title
-so visitors can switch between the three destinations without reopening the header.
+so visitors can switch between the six destinations without reopening the header.
 The shareholder filter is a labeled native select, matching the source's familiar
 category interaction while preserving keyboard and mobile behavior.
 
@@ -235,6 +238,10 @@ Regulation 46 disclosures use the same white bordered document rows as Sharehold
 Relation, with the disclosure title carrying hierarchy and one compact action at
 the edge. Rows stack the action below the title on phones. No new visual tokens or
 regulatory-themed decoration is introduced.
+Client Relation follows the reference's centered title and simple bordered document
+rows. Each row uses the Strapi title and one compact Download action; rows stack on
+phones and unsafe files remain visibly unavailable. It reuses existing typography,
+border, spacing and focus tokens without adding a separate theme.
 Corporate Presentation follows the staging section: a centered compact heading,
 large rounded 16:9 PDF preview and compact View/Download actions at the lower-right.
 Phones use a taller 4:3 frame so the embedded preview remains useful without page

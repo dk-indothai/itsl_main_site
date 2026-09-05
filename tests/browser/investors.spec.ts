@@ -27,6 +27,9 @@ test('Investors opens on hover and remains keyboard accessible', async ({
     }),
   ).toBeVisible();
   await expect(
+    page.getByRole('link', { name: 'Client Relation', exact: true }),
+  ).toBeVisible();
+  await expect(
     page.getByRole('link', { name: 'Corporate Presentation', exact: true }),
   ).toBeVisible();
 
@@ -61,11 +64,65 @@ test('mobile Investors menu opens by tap', async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(
+    menu.getByRole('link', { name: 'Client Relation', exact: true }),
+  ).toBeVisible();
+  await expect(
     menu.getByRole('link', {
       name: 'Corporate Presentation',
       exact: true,
     }),
   ).toBeVisible();
+});
+
+test('Investor page navigation uses one professional scrollable tab row', async ({
+  page,
+}) => {
+  await page.route(
+    'http://strapi.test/api/client-relations**',
+    async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [],
+          meta: {
+            pagination: { page: 1, pageSize: 100, pageCount: 0, total: 0 },
+          },
+        }),
+      });
+    },
+  );
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/investors/client-relation/');
+  const navigation = page.getByRole('navigation', { name: 'Investor pages' });
+  const list = navigation.locator('ul');
+  const current = navigation.getByRole('link', {
+    name: 'Client Relation',
+    exact: true,
+  });
+  await expect(current).toHaveAttribute('aria-current', 'page');
+  expect(
+    await navigation.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+  ).toBe('rgb(31, 60, 166)');
+  expect(
+    await list.evaluate((element) => getComputedStyle(element).flexWrap),
+  ).toBe('nowrap');
+  expect(
+    await list.evaluate((element) => getComputedStyle(element).overflowX),
+  ).toBe('auto');
+  expect(
+    await current.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+  ).toBe('rgb(255, 255, 255)');
+
+  await page.setViewportSize({ width: 320, height: 800 });
+  expect(
+    await list.evaluate((element) => element.scrollWidth > element.clientWidth),
+  ).toBe(true);
+  await current.focus();
+  await expect(current).toBeFocused();
 });
 
 test('corporate presentation exposes a local preview and two clear actions', async ({
@@ -384,6 +441,56 @@ test('Regulation 46 disclosures distinguish errors from an empty list and retry 
   expect(requests).toBe(2);
 });
 
+test('client relation lists safe Strapi files and keeps invalid files unavailable', async ({
+  page,
+}) => {
+  await page.route(
+    'http://strapi.test/api/client-relations**',
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('populate[0]')).toBe('file');
+      expect(requestUrl.searchParams.get('sort[0]')).toBe('title:asc');
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              documentId: 'policy-2',
+              title: 'Policy for withholding of securities',
+              file: { url: 'javascript:alert(1)' },
+            },
+            {
+              documentId: 'policy-1',
+              title: 'Anti Money Laundering Policy',
+              file: { url: '/uploads/anti-money-laundering-policy.pdf' },
+            },
+          ],
+          meta: { pagination: { ...pagination, total: 2 } },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/investors/client-relation/');
+  await expect(page.locator('.document-row h2')).toHaveText([
+    'Anti Money Laundering Policy',
+    'Policy for withholding of securities',
+  ]);
+  await expect(
+    page.getByRole('link', { name: /Download Anti Money Laundering Policy/ }),
+  ).toHaveAttribute(
+    'href',
+    'http://strapi.test/uploads/anti-money-laundering-policy.pdf',
+  );
+  await expect(page.locator('.unavailable:not([hidden])')).toHaveText(
+    'Download unavailable',
+  );
+  await expect(page.getByRole('status')).toHaveText(
+    'Client relation documents loaded.',
+  );
+  await expect(page.getByRole('status')).toHaveClass(/sr-only/);
+});
+
 test('investor pages show errors with retry and have no narrow overflow', async ({
   page,
 }) => {
@@ -442,6 +549,7 @@ test('investor responsive check has no overflow or missing assets', async ({
     '/investors/shareholder-relation/',
     '/investors/financial-reports/',
     '/investors/disclosures-under-regulation-46/',
+    '/investors/client-relation/',
     '/investors/corporate-presentation/',
   ]) {
     for (const width of [1280, 768, 390, 320]) {

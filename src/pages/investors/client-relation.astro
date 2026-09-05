@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ClientRelations from '../../components/investors/ClientRelations.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Client Relation - IndoThai"
+  description="Access IndoThai client policies, forms and investor information."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.clientRelation} />
+    </div>
+    <ClientRelations />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

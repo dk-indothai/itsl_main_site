@@ -167,6 +167,35 @@ test('corporate presentation uses the local PDF with view and download actions',
   );
 });
 
+test('client relation is a static, noindex CMS shell', async () => {
+  const { tree, nodes } = await page('investors/client-relation/index.html');
+  assert.equal(text(nodes('title')[0]), 'Client Relation - IndoThai');
+  assert.equal(nodes('h1').length, 1);
+  assert.equal(text(nodes('h1')[0]), 'Client Relation');
+  assert.equal(
+    attr(
+      nodes('meta').find((node) => attr(node, 'name') === 'robots'),
+      'content',
+    ),
+    'noindex, nofollow',
+  );
+  assert.equal(
+    all(tree, (node) => attr(node, 'data-client-relation-list') !== undefined)
+      .length,
+    1,
+  );
+  assert.ok(
+    text(tree).includes('Enable JavaScript to load client relation documents.'),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) =>
+        attr(node, 'href') === '/investors/client-relation/' &&
+        attr(node, 'aria-current') === 'page',
+    ),
+  );
+});
+
 test('financial report years use native dropdown markup', async () => {
   const source = await readFile(
     new URL(
@@ -193,7 +222,7 @@ test('financial report years use native dropdown markup', async () => {
   assert.ok(!source.includes('Download unavailable'));
 });
 
-test('investor reads use only the five intended public Strapi collections', async () => {
+test('investor reads use only the six intended public Strapi collections', async () => {
   const source = await readFile(
     new URL('../src/data/investors.ts', import.meta.url),
     'utf8',
@@ -204,6 +233,7 @@ test('investor reads use only the five intended public Strapi collections', asyn
     "'shareholder-relations'",
     "'financial-reports'",
     "'disclosure-2015s'",
+    "'client-relations'",
   ])
     assert.ok(source.includes(collection));
   assert.ok(source.includes("['file', 'shareholder_relation_category']"));

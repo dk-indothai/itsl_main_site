@@ -1,5 +1,39 @@
 # Website migration verification
 
+## Client Relation and Investor navigation — 5 September 2026
+
+`/investors/client-relation/` is the sixth local Investors destination and the
+fifteenth static route. It reads published `client-relation` records from
+`GET /api/client-relations`, populates each required `file`, sorts the complete
+paginated result by title and renders a simple document list. Safe HTTP(S) files
+receive a Download action; missing or unsafe files remain visible as unavailable.
+
+The shared Investor page navigation is now one rounded brand-blue tab band with
+white labels and a clear white active tab. It remains a single row and scrolls
+inside the band on narrow screens, with a slim high-contrast scrollbar; the page
+itself does not overflow. The Client Relation page has one H1, unique preview
+metadata, loading/empty/error states, manual Retry, contact alternatives and a
+no-JavaScript/configuration explanation. No Strapi code, schema, record,
+permission or configuration was changed.
+
+| Check                     | Result                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                                          |
+| Astro/TypeScript          | `npm run check`: 91 files, zero errors, warnings or hints.                                              |
+| Static output/build       | `npm test`: all eight Node test files passed; all fifteen static routes built.                          |
+| Production browser tests  | `npm run test:browser`: 197/197 Chromium tests passed, including Client Relation and narrow navigation. |
+| Development layout/assets | `npm run test:dev`: 31/31 responsive and local-asset checks passed across all six Investor routes.      |
+| Design checks             | Strict frontend audit found zero findings; DESIGN.md lint reported zero errors and warnings.            |
+| Manual visual check       | The populated local Overview and revised shared tab band were inspected at the available browser width. |
+
+The staging Investor Client Relation tab was inspected for its document-row
+pattern. The running local browser loaded one published Client Relation record
+and its populated file through the existing Strapi endpoint; no Strapi data was
+changed. API pagination, sorting, unsafe URL handling and empty/error states are
+additionally covered with mocked browser responses. Before release, verify the
+production CORS origin and review all published titles/files. CMS records remain
+absent from initial HTML and preview remains `noindex, nofollow`.
+
 ## Corporate Presentation — 5 September 2026
 
 `/investors/corporate-presentation/` is the fifth local Investors destination

@@ -39,6 +39,12 @@ export interface Regulation46Disclosure {
   link: string;
 }
 
+export interface ClientRelation {
+  documentId: string;
+  title: string;
+  file?: InvestorFile | null;
+}
+
 export const investorsApi = (() => {
   try {
     const url = new URL(PUBLIC_STRAPI_URL ?? '');
@@ -220,6 +226,24 @@ export async function getRegulation46Disclosures(): Promise<
         !item.title.trim() ||
         typeof item.link !== 'string' ||
         !item.link.trim(),
+    )
+  )
+    throw new Error('The investor service returned an unexpected response.');
+  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
+}
+
+export async function getClientRelations(): Promise<ClientRelation[]> {
+  const records = await getAll<ClientRelation>('client-relations', 'title', [
+    'file',
+  ]);
+  if (
+    records.some(
+      (item) =>
+        typeof item?.documentId !== 'string' ||
+        !item.documentId ||
+        typeof item.title !== 'string' ||
+        !item.title.trim() ||
+        (item.file != null && typeof item.file !== 'object'),
     )
   )
     throw new Error('The investor service returned an unexpected response.');

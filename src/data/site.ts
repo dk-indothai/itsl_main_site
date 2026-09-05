@@ -10,6 +10,7 @@ export const links = {
   shareholderRelation: '/investors/shareholder-relation/',
   financialReports: '/investors/financial-reports/',
   regulation46Disclosures: '/investors/disclosures-under-regulation-46/',
+  clientRelation: '/investors/client-relation/',
   corporatePresentation: '/investors/corporate-presentation/',
   blog: `${staging}/blog/`,
   openAccount: 'https://ekyc.indothai.co.in:447/',
