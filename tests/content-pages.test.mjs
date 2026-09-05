@@ -21,6 +21,8 @@ const routes = [
   '/mutual-funds/',
   '/downloads/',
   '/careers/',
+  '/investors/overview/',
+  '/investors/shareholder-relation/',
   '/close-account/',
   '/procedure-of-closing-account/',
   '/raise-a-ticket/',

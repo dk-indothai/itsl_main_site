@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import ShareholderRelations from '../../components/investors/ShareholderRelations.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Shareholder Relation - IndoThai"
+  description="Browse IndoThai shareholder relation documents and company disclosures by category."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.shareholderRelation} />
+    </div>
+    <ShareholderRelations />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

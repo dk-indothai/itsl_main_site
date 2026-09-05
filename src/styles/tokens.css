@@ -128,6 +128,7 @@
   --header-about-surface: rgb(255 255 255 / 50%);
   /* About Us and Mutual Funds: independent scales preserve the homepage. */
   --content-max: 75rem;
+  --overview-table-min: 36rem;
   --text-content-heading: 3rem;
   --leading-content-heading: 1.23;
   --text-content-body: 1.125rem;
@@ -189,6 +190,7 @@
   --text-careers-card: 1.75rem;
   --careers-hero-min: 60vh;
   --form-panel-max: 64rem;
+  --investor-filter-max: 24rem;
   --procedure-image-max: 41.9375rem;
 }
 

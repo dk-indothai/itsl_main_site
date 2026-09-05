@@ -11,6 +11,8 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 const navigationPath = currentPath.startsWith(links.careers)
   ? links.careers
   : currentPath;
+const isCurrentGroup = (children: { href: string }[]) =>
+  children.some((child) => child.href === currentPath);
 ---
 
 <header
@@ -35,12 +37,57 @@ const navigationPath = currentPath.startsWith(links.careers)
         {
           primaryNavigation.map((item) => (
             <li>
-              <a
-                href={item.href}
-                aria-current={item.href === navigationPath ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
+              {'children' in item ? (
+                <details
+                  class="primary-submenu"
+                  data-nav-disclosure
+                  data-hover-disclosure
+                >
+                  <summary
+                    role="button"
+                    aria-current={
+                      isCurrentGroup(item.children) ? 'page' : undefined
+                    }
+                  >
+                    {item.label}
+                    <svg
+                      class="disclosure-chevron"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </summary>
+                  <ul class="primary-submenu-panel">
+                    {item.children.map((child) => (
+                      <li>
+                        <a
+                          href={child.href}
+                          aria-current={
+                            child.href === currentPath ? 'page' : undefined
+                          }
+                        >
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : (
+                <a
+                  href={item.href}
+                  aria-current={
+                    item.href === navigationPath ? 'page' : undefined
+                  }
+                >
+                  {item.label}
+                </a>
+              )}
             </li>
           ))
         }
@@ -51,7 +98,7 @@ const navigationPath = currentPath.startsWith(links.careers)
         <ActionLink href={links.openAccount} small>Open Account</ActionLink>
         <ActionLink href={links.applyIpo} small>Apply IPO</ActionLink>
       </div>
-      <details class="utility-menu" data-nav-disclosure>
+      <details class="utility-menu" data-nav-disclosure data-utility-menu>
         <summary class="menu-toggle" role="button" aria-label="Navigation menu">
           <svg
             class="menu-icon"
@@ -71,14 +118,53 @@ const navigationPath = currentPath.startsWith(links.careers)
             {
               primaryNavigation.map((item) => (
                 <li class="desktop:hidden">
-                  <a
-                    href={item.href}
-                    aria-current={
-                      item.href === navigationPath ? 'page' : undefined
-                    }
-                  >
-                    {item.label}
-                  </a>
+                  {'children' in item ? (
+                    <details class="nested-menu" data-nav-disclosure>
+                      <summary
+                        role="button"
+                        aria-current={
+                          isCurrentGroup(item.children) ? 'page' : undefined
+                        }
+                      >
+                        {item.label}
+                        <svg
+                          class="disclosure-chevron"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </summary>
+                      <ul>
+                        {item.children.map((child) => (
+                          <li>
+                            <a
+                              href={child.href}
+                              aria-current={
+                                child.href === currentPath ? 'page' : undefined
+                              }
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : (
+                    <a
+                      href={item.href}
+                      aria-current={
+                        item.href === navigationPath ? 'page' : undefined
+                      }
+                    >
+                      {item.label}
+                    </a>
+                  )}
                 </li>
               ))
             }
@@ -202,6 +288,39 @@ const navigationPath = currentPath.startsWith(links.careers)
     font-size: var(--text-small);
     font-weight: var(--font-weight-medium);
   }
+  .primary-submenu {
+    position: relative;
+  }
+  .primary-submenu > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: var(--target-min);
+    cursor: pointer;
+  }
+  .primary-submenu-panel {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    min-width: var(--menu-width);
+    padding: var(--space-xs);
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-menu);
+    background: var(--color-white);
+    box-shadow: var(--shadow-menu);
+    transform: translateX(-50%);
+  }
+  .primary-submenu-panel a {
+    display: flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding: var(--space-xs) var(--space-sm);
+    white-space: nowrap;
+  }
+  .primary-submenu-panel a:hover {
+    background: var(--color-soft);
+    text-decoration: none;
+  }
   [aria-current='page'] {
     color: var(--color-brand);
   }
@@ -249,7 +368,8 @@ const navigationPath = currentPath.startsWith(links.careers)
     color: var(--color-brand);
     transition: transform var(--default-transition-duration);
   }
-  .nested-menu[open] > summary .disclosure-chevron {
+  .nested-menu[open] > summary .disclosure-chevron,
+  .primary-submenu[open] > summary .disclosure-chevron {
     transform: rotate(180deg);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -320,15 +440,27 @@ const navigationPath = currentPath.startsWith(links.careers)
     });
   });
   document.addEventListener('pointerdown', (event) => {
-    const menu = disclosures[0];
-    if (event.target instanceof Node && !menu?.contains(event.target)) {
+    const target = event.target;
+    if (target instanceof Node) {
       disclosures
-        .filter((detail) => detail.open)
+        .filter((detail) => detail.open && !detail.contains(target))
         .forEach((detail) =>
           close(detail, detail.contains(document.activeElement)),
         );
     }
   });
+  const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+  for (const detail of document.querySelectorAll<HTMLDetailsElement>(
+    '[data-hover-disclosure]',
+  )) {
+    detail.addEventListener('pointerenter', () => {
+      if (hoverQuery.matches) detail.open = true;
+    });
+    detail.addEventListener('pointerleave', () => {
+      if (hoverQuery.matches && !detail.contains(document.activeElement))
+        close(detail, false);
+    });
+  }
   header?.addEventListener('focusout', (event) => {
     if (
       event.relatedTarget instanceof Node &&

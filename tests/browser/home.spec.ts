@@ -141,7 +141,7 @@ test('keyboard disclosures restore focus and hide closed menu links', async ({
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(toggle.locator('.menu-close')).toBeVisible();
   await expect(toggle.locator('.menu-lines')).toBeHidden();
-  const nested = page.locator('.nested-menu > summary');
+  const nested = page.getByRole('button', { name: 'Modify Account' });
   await nested.focus();
   await page.keyboard.press('Space');
   await expect(nested).toHaveAttribute('aria-expanded', 'true');
@@ -180,7 +180,7 @@ test('mobile menu keeps primary navigation and account actions available', async
     menu.getByRole('link', { name: 'About Us', exact: true }),
   ).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Apply IPO' })).toBeVisible();
-  await menu.locator('.nested-menu > summary').click();
+  await menu.getByRole('button', { name: 'Modify Account' }).click();
   await expect(
     menu.getByRole('link', { name: 'Closing/ Modifications/ Reactivation' }),
   ).toBeVisible();

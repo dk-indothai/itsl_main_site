@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import Overview from '../../components/investors/Overview.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Investor Overview - IndoThai"
+  description="Read IndoThai investor overview information and company updates."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.investorsOverview} />
+    </div>
+    <Overview />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

@@ -4,13 +4,13 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`) and Raise Ticket (`/raise-a-ticket/`) are implemented.** Navigation between these nine static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`) and Shareholder Relation (`/investors/shareholder-relation/`) are implemented.** Navigation between these eleven static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. All routes reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, while Shareholder Relation filters Strapi documents by category. All routes reuse the layout, header, footer, SEO and design tokens.
 
-The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize job descriptions in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, Raise Ticket, software and Careers use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
+The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize CMS rich text in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, Raise Ticket, software, Careers and Investor pages use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
 The previous project, `/home/mrrobot/Projects/itsl-website`, was used read-only for structural reference and byte-verified matching assets. It is not a runtime dependency or the authoritative design.
 
@@ -245,6 +245,44 @@ origin. Production needs an approved HTTPS API origin. Browser tests mock listin
 pagination and failures; live verification is read-only. Never seed entries or
 execute downloaded files during verification.
 
+### Investor pages setup and maintenance
+
+The Investors item in the primary header is a two-link disclosure. On desktop it
+opens on hover and also works by click and keyboard; on smaller screens it opens
+inside the existing navigation menu. Its local pages are:
+
+- `/investors/overview/` — reads every published entry from `GET /api/overviews`.
+- `/investors/shareholder-relation/` — reads
+  `GET /api/shareholder-relation-categories` and
+  `GET /api/shareholder-relations`, populating `file` and
+  `shareholder_relation_category`.
+
+`src/data/investors.ts` contains the three typed reads, pagination, response checks
+and safe file helpers. The two named components in `src/components/investors/`
+own their markup and small browser interactions. Keep this direct structure; there
+is no CMS SDK or generic content renderer.
+
+Maintain overview titles/descriptions and shareholder categories, titles, files
+and relations in Strapi. Overview descriptions are Markdown/rich text and are
+sanitized before browser insertion. Markdown tables render as accessible HTML
+tables inside a horizontal scroll region on narrow screens. Each overview title
+is a native dropdown; entries start closed and can be opened independently without
+custom accordion JavaScript. Shareholder categories filter the already loaded
+records without another request. Categories with no document remain available and
+show “No shareholder documents yet.” File links allow only HTTP(S)
+addresses without embedded credentials, and filename plus size appear together
+when Strapi provides them.
+
+All three content types need Public Find permission, populated files/relations
+must be readable, and Strapi CORS must allow the website origin. The pages use
+`PUBLIC_STRAPI_URL`, no token or cookies, a 20-second timeout and manual Retry.
+Records load only in browser JavaScript, so builds remain independent of Strapi
+and CMS content is absent from initial HTML. Local Strapi availability and actual
+published records must be verified separately before release. When testing from
+another device, replace `localhost` in `PUBLIC_STRAPI_URL` with an HTTPS hostname
+or LAN address that device can reach, then restart Astro and allow that website
+origin in Strapi CORS.
+
 ### Careers setup and maintenance
 
 Careers reuses `PUBLIC_STRAPI_URL`. Publish openings in Strapi and maintain their
@@ -305,7 +343,7 @@ previously shared token remains outstanding.
 
 Without JavaScript/configuration, explanations and contact alternatives remain;
 applications cannot submit natively. Job details also disable applications for
-Closed/Filled, missing or unpublished jobs. The nine static routes retain
+Closed/Filled, missing or unpublished jobs. The eleven static routes retain
 `noindex, nofollow`. Job records are not in initial HTML: the detail page starts
 with generic metadata and updates the document title after loading. This is not
 server-rendered job SEO or a replacement for future production redirect planning.
@@ -345,6 +383,7 @@ src/
 │   ├── close-account/         Account closure request form and browser submission
 │   ├── closing-procedure/     Static semantic account-closing flow
 │   ├── raise-ticket/          Complaint form, optional upload and browser submission
+│   ├── investors/             Investor overview and shareholder document components
 │   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
@@ -354,9 +393,10 @@ src/
 │   ├── about.ts               Company story, directors, timeline, values and gallery
 │   ├── mutual-funds.ts        Introduction, investment steps, benefits and NRI copy
 │   ├── apps.ts                Shared WINVEST copy and store destinations
-│   └── openings.ts            Typed opening reads and Careers API configuration
+│   ├── openings.ts            Typed opening reads and Careers API configuration
+│   └── investors.ts           Typed investor reads and public file helpers
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/                     Nine static routes, including account/support workflows
+├── pages/                     Eleven static routes, including investor/support workflows
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
@@ -374,6 +414,7 @@ tests/
 ├── close-account.test.mjs     Close Account metadata and safe form contract
 ├── closing-procedure.test.mjs Static procedure, links and metadata assertions
 ├── raise-ticket.test.mjs      Raise Ticket metadata and safe form/upload contract
+├── investors.test.mjs         Investor metadata, fallback and CMS-read assertions
 └── browser/                   Responsive, navigation, asset and safety checks
 DESIGN.md                      Reference-led design guidance, not duplicate tokens
 AGENTS.md                      Coding-agent rules
@@ -392,8 +433,8 @@ routes, build-time CMS fetching, fund calculator, financial transactions or Astr
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on every route through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
-- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads, Careers, Close Account, Procedure for Closing an Account and Raise Ticket supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
-- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Close Account and Raise Ticket submission stay in their named components; Careers interactions stay in their three named components; carousel logic is in `src/scripts/carousel.ts`. The closing procedure is static HTML. Keep the default HTML useful without JavaScript.
+- **Page metadata:** `homeMeta` in `site.ts`, `aboutMeta` in `about.ts` and `mutualFundsMeta` in `mutual-funds.ts` feed `BaseLayout.astro` and shared `SEO.astro`. Downloads, Careers, Investor pages, Close Account, Procedure for Closing an Account and Raise Ticket supply route-specific metadata in their page files; job details begin with generic metadata because records load in the browser.
+- **Browser behavior:** navigation enhancement lives with Header; contact submission lives with Contact; Close Account and Raise Ticket submission stay in their named components; Careers interactions stay in their three named components; Investor loading stays in its two named components; carousel logic is in `src/scripts/carousel.ts`. The closing procedure is static HTML. Keep the default HTML useful without JavaScript.
 
 The browser receives compiled CSS, not the Tailwind CDN/runtime. See the [official Tailwind Astro integration](https://tailwindcss.com/docs/installation/framework-guides/astro).
 
@@ -470,7 +511,7 @@ Each generated page includes one meaningful H1, logical section headings, a uniq
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
-Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server. The account-closing procedure remains fully available without Strapi; live contact, closure and complaint requests, software listings, Careers content and applications require the separate Strapi service.
+Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server. The account-closing procedure remains fully available without Strapi; live contact, closure and complaint requests, software listings, Careers content/applications and Investor content require the separate Strapi service.
 
 ## Verification and release checklist
 
@@ -481,7 +522,8 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the nine approved static routes; release acceptance remains separate.
+- [x] Implement the eleven approved static routes; release acceptance remains separate.
+- [ ] Approve published Investor overview/shareholder records, categories, files, Public Find permissions and production CORS.
 - [ ] Complete the staged migration of existing resumes and complaint attachments, verify limited-role admin access and remove the verified public copies.
 - [ ] Approve Careers content, private-upload/Candidate permissions, abuse protection, malware scanning and retention without exposing candidate records.
 - [ ] Approve published software, category assignments, attachment URLs and file safety; verify production read permissions/CORS. Listings require JavaScript and are absent from initial HTML.

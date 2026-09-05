@@ -1,5 +1,44 @@
 # Website migration verification
 
+## Investor Overview and Shareholder Relation — 5 September 2026
+
+The shared header now exposes an Investors disclosure containing Overview and
+Shareholder Relation. Precise desktop pointers open it on hover; native
+details/summary retains click, touch and keyboard operation. Escape closes the
+menu and restores focus, and closed links leave the tab order. Both options route
+locally and the active group/child are identified.
+
+`/investors/overview/` reads published `overviews` in browser JavaScript and
+renders every title as an independently expandable native dropdown. Descriptions
+remain collapsed initially and are sanitized before rendering. Safe Markdown
+tables retain their row and column semantics and scroll horizontally on narrow
+screens. The JavaScript fallback is confined to `noscript`, preventing it from
+flashing or repeating while CMS data loads.
+`/investors/shareholder-relation/` reads shareholder relation categories and
+documents, populates the category and file relations, then filters the loaded
+cards locally. Empty categories retain a useful message; unsafe or missing file
+URLs do not become links. Both pages have unique preview metadata, one H1, a
+no-JavaScript/configuration explanation, 20-second loading timeout, manual Retry
+and contact alternatives.
+
+| Check                     | Result                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Formatting                | `npm run format:check` passed.                                                                         |
+| Astro/TypeScript          | `npm run check`: 83 files, zero errors, warnings or hints.                                             |
+| Static output/build       | `npm test`: all eight Node test files passed; all eleven static routes built.                          |
+| Production browser tests  | `npm run test:browser`: 191/191 Chromium tests passed, including six focused Investor tests.           |
+| Development layout/assets | `npm run test:dev`: 31/31 checks passed, including both Investor routes at four responsive widths.     |
+| Design checks             | Strict frontend audit found zero issues; DESIGN.md lint reported zero errors and warnings.             |
+| Manual visual check       | Both unconfigured/error page states were inspected in the local in-app browser at the available width. |
+
+The local terminal could not connect to `localhost:1337`, so no live overview,
+category, shareholder document or file response was verified and no Strapi record
+was created or changed. API behavior is covered with mocked responses. Before
+release, enable and verify Public Find for all three content types, populated media
+access and the approved production CORS origin, then review the actual published
+copy and documents. Browser-loaded Investor content is absent from initial HTML;
+preview remains `noindex, nofollow`.
+
 ## Private resume and complaint storage — 4 September 2026
 
 Careers and Raise Ticket now send attachments to `POST /api/private-upload`

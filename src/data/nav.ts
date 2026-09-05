@@ -9,12 +9,19 @@ export interface NavGroup {
   label: string;
   children: NavLink[];
 }
-export const primaryNavigation: NavLink[] = [
+export const investorNavigation: NavGroup = {
+  label: 'Investors',
+  children: [
+    { label: 'Overview', href: links.investorsOverview },
+    { label: 'Shareholder Relation', href: links.shareholderRelation },
+  ],
+};
+export const primaryNavigation: (NavLink | NavGroup)[] = [
   { label: 'Home', href: links.home },
   { label: 'About Us', href: links.about },
   { label: 'Mutual Funds', href: links.mutualFunds },
   { label: 'Careers', href: links.careers },
-  { label: 'Investors', href: links.investors },
+  investorNavigation,
 ];
 export const accountNavigation: NavGroup = {
   label: 'Modify Account',

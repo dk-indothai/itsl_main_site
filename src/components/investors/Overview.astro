@@ -1,0 +1,349 @@
+---
+import { investorsApi } from '../../data/investors';
+import { site } from '../../data/site';
+---
+
+<section
+  class="investor-overview page-shell"
+  aria-labelledby="investor-overview-title"
+  data-investor-overview
+  data-api={investorsApi}
+>
+  <h1 id="investor-overview-title">Investor Overview</h1>
+  <p class="intro">
+    Company information and updates for IndoThai investors and shareholders.
+  </p>
+  <div class="feedback">
+    <p
+      role="status"
+      aria-atomic="true"
+      data-overview-status
+      hidden={Boolean(investorsApi)}
+    >
+      {
+        investorsApi
+          ? ''
+          : 'Investor information is not configured yet. Please contact us for assistance.'
+      }
+    </p>
+    {
+      investorsApi && (
+        <noscript>
+          <p>Enable JavaScript to load the investor overview.</p>
+        </noscript>
+      )
+    }
+    <button type="button" class="action" data-overview-retry hidden>
+      Retry
+    </button>
+  </div>
+  <div class="overview-list" data-overview-list aria-busy="false"></div>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.complianceEmail}`}>{site.complianceEmail}</a
+    >.
+  </p>
+  <template data-overview-template>
+    <details class="overview-card">
+      <summary>
+        <h2 data-overview-heading></h2>
+        <svg class="overview-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </summary>
+      <div class="overview-content">
+        <div class="rich-text" data-overview-description></div>
+      </div>
+    </details>
+  </template>
+</section>
+
+<script>
+  import DOMPurify from 'dompurify';
+  import { marked } from 'marked';
+  import { getInvestorOverviews, investorError } from '../../data/investors';
+
+  const root = document.querySelector<HTMLElement>('[data-investor-overview]')!;
+  const list = root.querySelector<HTMLElement>('[data-overview-list]')!;
+  const status = root.querySelector<HTMLElement>('[data-overview-status]')!;
+  const retry = root.querySelector<HTMLButtonElement>('[data-overview-retry]')!;
+  const template = root.querySelector<HTMLTemplateElement>(
+    '[data-overview-template]',
+  )!;
+  let loading = false;
+
+  function safeDescription(markdown: string) {
+    const fragment = DOMPurify.sanitize(
+      marked.parse(markdown, { async: false }),
+      {
+        ALLOWED_TAGS: [
+          'p',
+          'br',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+          'ul',
+          'ol',
+          'li',
+          'strong',
+          'em',
+          'blockquote',
+          'a',
+          'hr',
+          'table',
+          'thead',
+          'tbody',
+          'tfoot',
+          'tr',
+          'th',
+          'td',
+          'caption',
+        ],
+        ALLOWED_ATTR: ['href', 'title'],
+        ALLOW_DATA_ATTR: false,
+        ALLOW_ARIA_ATTR: false,
+        RETURN_DOM_FRAGMENT: true,
+      },
+    );
+
+    for (const heading of fragment.querySelectorAll('h1,h2,h3,h4,h5,h6')) {
+      const replacement = document.createElement('h3');
+      replacement.append(...heading.childNodes);
+      heading.replaceWith(replacement);
+    }
+    for (const link of fragment.querySelectorAll('a')) {
+      try {
+        const url = new URL(link.getAttribute('href') ?? '');
+        if (
+          !['http:', 'https:', 'mailto:'].includes(url.protocol) ||
+          url.username ||
+          url.password
+        )
+          throw new Error();
+        link.rel = 'noopener noreferrer';
+      } catch {
+        link.removeAttribute('href');
+      }
+    }
+    for (const table of fragment.querySelectorAll('table')) {
+      for (const heading of table.querySelectorAll('thead th')) {
+        heading.setAttribute('scope', 'col');
+      }
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-scroll';
+      wrapper.tabIndex = 0;
+      wrapper.setAttribute('role', 'region');
+      wrapper.setAttribute('aria-label', 'Scrollable overview table');
+      table.replaceWith(wrapper);
+      wrapper.append(table);
+    }
+    return fragment;
+  }
+
+  async function loadOverview() {
+    if (loading) return;
+    loading = true;
+    retry.disabled = true;
+    list.setAttribute('aria-busy', 'true');
+    status.hidden = false;
+    status.textContent = 'Loading investor overview…';
+    try {
+      const records = await getInvestorOverviews();
+      const cards = records.map((record) => {
+        const card = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+        card.querySelector('[data-overview-heading]')!.textContent =
+          record.title;
+        card
+          .querySelector('[data-overview-description]')!
+          .append(safeDescription(record.description));
+        return card;
+      });
+      list.replaceChildren(...cards);
+      status.textContent = records.length
+        ? `${records.length} ${records.length === 1 ? 'overview entry' : 'overview entries'}.`
+        : 'No overview information yet.';
+      retry.hidden = true;
+    } catch (error) {
+      status.textContent = investorError(error);
+      retry.hidden = false;
+    } finally {
+      list.setAttribute('aria-busy', 'false');
+      retry.disabled = false;
+      loading = false;
+    }
+  }
+
+  retry.addEventListener('click', loadOverview);
+  if (root.dataset.api) void loadOverview();
+</script>
+
+<style>
+  @reference '../../styles/tokens.css';
+  .investor-overview {
+    max-width: var(--content-max);
+  }
+  h1 {
+    font-size: var(--text-section);
+    line-height: var(--leading-section);
+  }
+  .intro {
+    max-width: var(--about-introduction-max);
+    margin-top: var(--space-md);
+    color: var(--color-muted);
+  }
+  .feedback {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .overview-list {
+    display: grid;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+    min-width: 0;
+  }
+  .overview-card {
+    min-width: 0;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-testimonial);
+    box-shadow: var(--shadow-card);
+  }
+  .overview-card summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    cursor: pointer;
+    list-style: none;
+    border-radius: inherit;
+  }
+  .overview-card summary::-webkit-details-marker {
+    display: none;
+  }
+  .overview-card summary:hover,
+  .overview-card[open] summary {
+    background: var(--color-footer);
+  }
+  .overview-card[open] summary {
+    border-radius: var(--radius-testimonial) var(--radius-testimonial) 0 0;
+  }
+  .overview-card h2 {
+    color: var(--color-brand);
+    font-size: var(--text-content-card);
+  }
+  .overview-chevron {
+    width: var(--icon-control);
+    height: var(--icon-control);
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: calc(var(--border-thin) * 2);
+    transition: transform var(--default-transition-duration);
+  }
+  .overview-card[open] .overview-chevron {
+    transform: rotate(180deg);
+  }
+  .overview-content {
+    min-width: 0;
+    padding: 0 var(--space-lg) var(--space-lg);
+    border-top: var(--border-thin) solid var(--color-subtle);
+  }
+  .rich-text {
+    min-width: 0;
+    padding-top: var(--space-lg);
+    overflow-wrap: anywhere;
+  }
+  .rich-text :global(* + *) {
+    margin-top: var(--space-sm);
+  }
+  .rich-text :global(h3) {
+    margin-top: var(--space-md);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-semibold);
+  }
+  .rich-text :global(ul),
+  .rich-text :global(ol) {
+    padding-left: var(--space-md);
+  }
+  .rich-text :global(ul) {
+    list-style: disc;
+  }
+  .rich-text :global(ol) {
+    list-style: decimal;
+  }
+  .rich-text :global(.table-scroll) {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-card);
+  }
+  .rich-text :global(.table-scroll:focus-visible) {
+    outline: var(--border-focus) solid var(--color-brand);
+    outline-offset: var(--focus-offset);
+  }
+  .rich-text :global(table) {
+    width: 100%;
+    min-width: var(--overview-table-min);
+    border-collapse: collapse;
+    background: var(--color-white);
+  }
+  .rich-text :global(table *) {
+    margin-top: 0;
+  }
+  .rich-text :global(th),
+  .rich-text :global(td) {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: var(--border-thin) solid var(--color-subtle);
+    text-align: left;
+    vertical-align: top;
+  }
+  .rich-text :global(th) {
+    background: var(--color-footer);
+    color: var(--color-brand);
+    font-weight: var(--font-weight-semibold);
+  }
+  .rich-text :global(tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  .rich-text :global(a),
+  .contact-alternatives a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
+  }
+  .contact-alternatives {
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    overflow-wrap: anywhere;
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .overview-card summary {
+      padding: var(--space-md);
+    }
+    .overview-content {
+      padding: 0 var(--space-md) var(--space-md);
+    }
+    .rich-text {
+      padding-top: var(--space-md);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .overview-chevron {
+      transition: none;
+    }
+  }
+</style>

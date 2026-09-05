@@ -20,6 +20,9 @@ components:
   closingProcedure: {}
   raiseTicketForm: {}
   applicationForm: {}
+  investorNavigation: {}
+  investorOverview: {}
+  shareholderRelations: {}
 ---
 
 # IndoThai design guidance
@@ -29,7 +32,7 @@ components:
 ### Creative North Star
 
 Recreate the supplied WordPress Home, About Us, Mutual Funds, Close Account,
-Procedure for Closing an Account, Raise Ticket, Software Downloads and Careers pages: graph-paper hero, generous Raleway
+Procedure for Closing an Account, Raise Ticket, Software Downloads, Careers and Investor pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
 not a new brand direction. The corresponding staging pages are authoritative; the previous
@@ -91,7 +94,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all nine routes owns the space between sections and before
+The main container on all eleven routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -164,9 +167,11 @@ Header disclosures are non-modal, not focus-trapped drawers. Native details/summ
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
-Raise Ticket, Software Downloads and Careers route locally, with the current
+Raise Ticket, Software Downloads, Careers, Investor Overview and Shareholder Relation route locally, with the current
 page marked in its navigation link. Careers remains active on job details too.
-Downloads remains in the utility menu; other
+Investors is a primary disclosure with a hover enhancement on precise pointers and
+native click, touch and keyboard access everywhere. Both its group and current child
+show active state. Downloads remains in the utility menu; other
 destinations remain on their existing services.
 
 The main menu uses an SVG menu/close pair; nested disclosures have a rotating SVG
@@ -200,6 +205,26 @@ fake software, modal or automatic download is introduced. Contact links remain
 available in all states. CMS content is plain text; only the first attachment is
 offered (or the single media object in the current schema). No JavaScript means
 an explicit catalogue-unavailable explanation, not a blank area or invented data.
+
+### Investor content
+
+Investor Overview and Shareholder Relation use the same restrained secondary-page
+language: compact Raleway headings, readable body copy, white bordered cards and
+brand-blue document actions. A small local page navigation sits above each title
+so visitors can switch between the two destinations without reopening the header.
+The shareholder filter is a labeled native select, matching the source's familiar
+category interaction while preserving keyboard and mobile behavior.
+
+CMS loading, empty/error feedback and Retry use the existing muted caption and
+action patterns. Each Overview card is a native details/summary disclosure: its
+blue title and chevron form the trigger, entries start closed and open independently.
+Overview rich text is sanitized and normalized below its card H2. Markdown tables
+use bordered rows and a focusable horizontal scroll region so their structure is
+preserved on narrow devices.
+Shareholder filenames and sizes share a compact line; long text wraps instead of
+forcing horizontal overflow. Missing or unsafe file destinations use visible
+“Download unavailable” text. No skeleton, animation, placeholder records or new
+visual theme is introduced.
 
 ### Forms and overlays
 

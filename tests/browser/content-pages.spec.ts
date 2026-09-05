@@ -259,7 +259,7 @@ for (const route of ['about-us', 'mutual-funds']) {
       'href',
       `/${route}/`,
     );
-    const nested = menu.locator('.nested-menu > summary');
+    const nested = menu.getByRole('button', { name: 'Modify Account' });
     await nested.focus();
     await page.keyboard.press('Space');
     await page.keyboard.press('Tab');
