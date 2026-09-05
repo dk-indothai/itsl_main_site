@@ -26,6 +26,9 @@ test('Investors opens on hover and remains keyboard accessible', async ({
       exact: true,
     }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Corporate Presentation', exact: true }),
+  ).toBeVisible();
 
   await investors.focus();
   await page.keyboard.press('Escape');
@@ -57,6 +60,30 @@ test('mobile Investors menu opens by tap', async ({ page }) => {
       exact: true,
     }),
   ).toBeVisible();
+  await expect(
+    menu.getByRole('link', {
+      name: 'Corporate Presentation',
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+test('corporate presentation exposes a local preview and two clear actions', async ({
+  page,
+}) => {
+  await page.goto('/investors/corporate-presentation/');
+  await expect(
+    page.getByRole('heading', { name: 'Corporate Presentation', level: 1 }),
+  ).toBeVisible();
+  await expect(
+    page.getByTitle('IndoThai corporate presentation PDF preview'),
+  ).toHaveAttribute('src', /\/_astro\/corporate-presentation_\..+\.pdf#/);
+  await expect(
+    page.getByRole('link', { name: /View corporate presentation/ }),
+  ).toHaveAttribute('target', '_blank');
+  await expect(
+    page.getByRole('link', { name: /Download corporate presentation PDF/ }),
+  ).toHaveAttribute('download', '');
 });
 
 test('overview titles open as accessible dropdowns with sanitized rich text', async ({
@@ -415,6 +442,7 @@ test('investor responsive check has no overflow or missing assets', async ({
     '/investors/shareholder-relation/',
     '/investors/financial-reports/',
     '/investors/disclosures-under-regulation-46/',
+    '/investors/corporate-presentation/',
   ]) {
     for (const width of [1280, 768, 390, 320]) {
       const errors: string[] = [];

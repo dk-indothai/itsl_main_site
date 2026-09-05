@@ -94,7 +94,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all thirteen routes owns the space between sections and before
+The main container on all fourteen routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -167,7 +167,7 @@ Header disclosures are non-modal, not focus-trapped drawers. Native details/summ
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
-Raise Ticket, Software Downloads, Careers and all four Investor pages route locally, with the current
+Raise Ticket, Software Downloads, Careers and all five Investor pages route locally, with the current
 page marked in its navigation link. Careers remains active on job details too.
 Investors is a primary disclosure with a hover enhancement on precise pointers and
 native click, touch and keyboard access everywhere. Both its group and current child
@@ -208,8 +208,8 @@ an explicit catalogue-unavailable explanation, not a blank area or invented data
 
 ### Investor content
 
-Investor Overview, Shareholder Relation, Financial Reports and Regulation 46
-Disclosures use the same restrained secondary-page
+Investor Overview, Shareholder Relation, Financial Reports, Regulation 46
+Disclosures and Corporate Presentation use the same restrained secondary-page
 language: compact Raleway headings, readable body copy, white bordered cards and
 brand-blue document actions. A small local page navigation sits above each title
 so visitors can switch between the three destinations without reopening the header.
@@ -235,6 +235,11 @@ Regulation 46 disclosures use the same white bordered document rows as Sharehold
 Relation, with the disclosure title carrying hierarchy and one compact action at
 the edge. Rows stack the action below the title on phones. No new visual tokens or
 regulatory-themed decoration is introduced.
+Corporate Presentation follows the staging section: a centered compact heading,
+large rounded 16:9 PDF preview and compact View/Download actions at the lower-right.
+Phones use a taller 4:3 frame so the embedded preview remains useful without page
+overflow. The component uses only existing panel, spacing and action tokens; the
+PDF itself is a local build asset and no client script or CMS loading state is needed.
 
 ### Forms and overlays
 

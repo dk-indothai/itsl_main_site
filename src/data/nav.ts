@@ -19,6 +19,10 @@ export const investorNavigation: NavGroup = {
       label: 'Disclosures under Regulation 46 of SEBI (LODR) Regulations, 2015',
       href: links.regulation46Disclosures,
     },
+    {
+      label: 'Corporate Presentation',
+      href: links.corporatePresentation,
+    },
   ],
 };
 export const primaryNavigation: (NavLink | NavGroup)[] = [

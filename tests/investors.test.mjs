@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { parse } from 'parse5';
 
@@ -123,6 +123,45 @@ test('Regulation 46 disclosures is a static, noindex CMS shell', async () => {
     nodes('a').some(
       (node) =>
         attr(node, 'href') === '/investors/disclosures-under-regulation-46/' &&
+        attr(node, 'aria-current') === 'page',
+    ),
+  );
+});
+
+test('corporate presentation uses the local PDF with view and download actions', async () => {
+  const { nodes } = await page('investors/corporate-presentation/index.html');
+  assert.equal(text(nodes('title')[0]), 'Corporate Presentation - IndoThai');
+  assert.equal(nodes('h1').length, 1);
+  assert.equal(text(nodes('h1')[0]), 'Corporate Presentation');
+  assert.equal(
+    attr(
+      nodes('meta').find((node) => attr(node, 'name') === 'robots'),
+      'content',
+    ),
+    'noindex, nofollow',
+  );
+  const preview = nodes('iframe').find((node) =>
+    attr(node, 'title')?.includes('corporate presentation'),
+  );
+  assert.ok(preview);
+  assert.match(
+    attr(preview, 'src'),
+    /^\/_astro\/corporate-presentation_\..+\.pdf#/,
+  );
+  const presentationLinks = nodes('a').filter((node) =>
+    attr(node, 'href')?.includes('/_astro/corporate-presentation_.'),
+  );
+  assert.equal(presentationLinks.length, 2);
+  assert.equal(attr(presentationLinks[0], 'target'), '_blank');
+  assert.ok(attr(presentationLinks[0], 'rel').includes('noopener'));
+  assert.notEqual(attr(presentationLinks[1], 'download'), undefined);
+  await access(
+    new URL(`../dist${attr(presentationLinks[0], 'href')}`, import.meta.url),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) =>
+        attr(node, 'href') === '/investors/corporate-presentation/' &&
         attr(node, 'aria-current') === 'page',
     ),
   );

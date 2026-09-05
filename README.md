@@ -4,11 +4,11 @@ A static Astro migration of [IndoThai’s staging website](https://staging-e356-
 
 ## Status and scope
 
-**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`), Shareholder Relation (`/investors/shareholder-relation/`), Financial Reports (`/investors/financial-reports/`) and Regulation 46 Disclosures (`/investors/disclosures-under-regulation-46/`) are implemented.** Navigation between these thirteen static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
+**Home (`/`), About Us (`/about-us/`), Mutual Funds (`/mutual-funds/`), Software Downloads (`/downloads/`), Careers (`/careers/`), job details (`/careers/job/`), Close Account (`/close-account/`), Procedure for Closing an Account (`/procedure-of-closing-account/`), Raise Ticket (`/raise-a-ticket/`), Investor Overview (`/investors/overview/`), Shareholder Relation (`/investors/shareholder-relation/`), Financial Reports (`/investors/financial-reports/`), Regulation 46 Disclosures (`/investors/disclosures-under-regulation-46/`) and Corporate Presentation (`/investors/corporate-presentation/`) are implemented.** Navigation between these fourteen static routes is local; all other unbuilt pages still point to staging. This workspace has not been deployed.
 
 The homepage includes the header and nested navigation, hero, nine services, About introduction, final statistics, account-opening steps, both apps, six testimonials, contact form, and regulatory/company footer.
 
-About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, Shareholder Relation filters Strapi documents by category, Financial Reports groups quarterly and full-year files by year, and Regulation 46 Disclosures lists the corresponding Strapi titles and links. All routes reuse the layout, header, footer, SEO and design tokens.
+About Us includes the photographic hero, complete company story, six directors, the original responsive milestone artwork with an accessible 11-event transcript, vision, three values, business profile, four group-company links and five gallery images. Mutual Funds includes the hero/artwork, introduction, five investment steps, six benefits, WINVEST promotion, six NRI support cards and the shared contact form. Downloads provides live Strapi categories and software files. Careers lists published openings and provides job details and a PDF application form. Close Account provides a four-field Strapi request form. Procedure for Closing an Account displays the original staging flowchart from a local full-resolution image with an accessible text transcript. Raise Ticket provides the existing complaint fields and an optional supporting attachment. Investor Overview displays sanitized Strapi rich text, Shareholder Relation filters Strapi documents by category, Financial Reports groups quarterly and full-year files by year, Regulation 46 Disclosures lists the corresponding Strapi titles and links, and Corporate Presentation embeds the local presentation PDF with View and Download actions. All routes reuse the layout, header, footer, SEO and design tokens.
 
 The five requirements remain the design constraints: human maintainability without AI; familiar pages/layouts/components/data/styles structure; simple static builds and deployment; one shared design-token source; and sound technical SEO. No React, UI kit, CMS SDK, server adapter or carousel package is required. The approved `marked` and DOMPurify dependencies format and sanitize CMS rich text in the browser. Playwright and the HTML parser are development-only test dependencies. Contact, Close Account, Raise Ticket, software, Careers and Investor pages use the owner's existing self-hosted Strapi endpoints; builds remain independent of Strapi.
 
@@ -247,7 +247,7 @@ execute downloaded files during verification.
 
 ### Investor pages setup and maintenance
 
-The Investors item in the primary header is a four-link disclosure. On desktop it
+The Investors item in the primary header is a five-link disclosure. On desktop it
 opens on hover and also works by click and keyboard; on smaller screens it opens
 inside the existing navigation menu. Its local pages are:
 
@@ -260,11 +260,13 @@ inside the existing navigation menu. Its local pages are:
   populating `file`, and groups the loaded reports into year dropdowns.
 - `/investors/disclosures-under-regulation-46/` — reads
   `GET /api/disclosure-2015s` and lists each disclosure title and link.
+- `/investors/corporate-presentation/` — displays the local presentation PDF and
+  provides View and Download actions without Strapi or browser JavaScript.
 
 `src/data/investors.ts` contains the five typed reads, pagination, response checks
-and safe URL helpers. The four named content components in `src/components/investors/`
-own their markup and small browser interactions. Keep this direct structure; there
-is no CMS SDK or generic content renderer.
+and safe URL helpers. The five named content components in `src/components/investors/`
+own their markup and any small browser interactions. Keep this direct structure;
+there is no CMS SDK or generic content renderer.
 
 Maintain overview titles/descriptions and shareholder categories, titles, files
 and relations in Strapi. Maintain financial report year, report type, quarter and
@@ -285,6 +287,11 @@ and sizes. Periods without a safe published file are not displayed.
 Regulation 46 disclosures sort alphabetically and show one “View Disclosure”
 action for each safe HTTP(S) link. Invalid destinations remain visible as
 “Link unavailable” rather than becoming clickable.
+
+Corporate Presentation imports `src/assets/docs/corporate-presentation_.pdf`
+directly, so Astro copies the document into the static build. Replace that file
+to update the presentation, keeping the filename unchanged, then rebuild. Its
+preview, View link and Download link all use the same generated local asset URL.
 
 All five content types need Public Find permission, populated files/relations
 must be readable, and Strapi CORS must allow the website origin. The pages use
@@ -356,7 +363,7 @@ previously shared token remains outstanding.
 
 Without JavaScript/configuration, explanations and contact alternatives remain;
 applications cannot submit natively. Job details also disable applications for
-Closed/Filled, missing or unpublished jobs. The thirteen static routes retain
+Closed/Filled, missing or unpublished jobs. The fourteen static routes retain
 `noindex, nofollow`. Job records are not in initial HTML: the detail page starts
 with generic metadata and updates the document title after loading. This is not
 server-rendered job SEO or a replacement for future production redirect planning.
@@ -396,7 +403,7 @@ src/
 │   ├── close-account/         Account closure request form and browser submission
 │   ├── closing-procedure/     Static semantic account-closing flow
 │   ├── raise-ticket/          Complaint form, optional upload and browser submission
-│   ├── investors/             Investor overview, shareholder and financial report components
+│   ├── investors/             Investor data pages and static corporate presentation
 │   ├── shared/                Header, Footer, SEO, Contact and StoreBadges
 │   └── ui/                    Shared ActionLink primitive
 ├── data/
@@ -409,7 +416,7 @@ src/
 │   ├── openings.ts            Typed opening reads and Careers API configuration
 │   └── investors.ts           Typed investor reads and public file helpers
 ├── layouts/BaseLayout.astro   Document shell, fonts, header, footer and SEO
-├── pages/                     Twelve static routes, including investor/support workflows
+├── pages/                     Fourteen static routes, including investor/support workflows
 ├── scripts/carousel.ts        Progressive carousel interaction
 └── styles/
     ├── tokens.css             Sole shared design-value owner
@@ -442,7 +449,7 @@ routes, build-time CMS fetching, fund calculator, financial transactions or Astr
 - **Repeated content:** edit `src/data/home.ts`, `src/data/about.ts` or `src/data/mutual-funds.ts`. Keep the arrays typed and all original entries intact. Shared WINVEST text belongs in `src/data/apps.ts`.
 - **One-off content and order:** edit the named component in the appropriate page folder; reorder imports/components in its `src/pages/` route. Contact and store badges are shared components.
 - **Company information and destinations:** edit `src/data/site.ts`. Avoid repeated literal URLs in components. `nav.ts` controls navigation labels and grouping.
-- **Images:** replace/import files in `src/assets/images/`, keeping accurate alt text, intrinsic dimensions and responsive `sizes`. Astro generates optimized images at build time. Decorative icons/backgrounds do not need descriptive alt text.
+- **Images and documents:** replace/import images in `src/assets/images/`, keeping accurate alt text, intrinsic dimensions and responsive `sizes`. Astro generates optimized images at build time. Decorative icons/backgrounds do not need descriptive alt text. The Corporate Presentation PDF lives in `src/assets/docs/` and is copied into the static build through its component import.
 - **Typography and design:** change `src/styles/tokens.css`. It owns families, sizes, weights, line heights, colors, spacing, widths, borders, shadows and motion. `@theme` supplies Tailwind utilities; responsive custom properties live in the same file. Component CSS consumes tokens for special geometry. See `DESIGN.md`.
 - **Section spacing and header buttons:** the responsive `--space-section-gap` token drives the gap between logical sections and the space before the footer on every route through `#main-content`. The separate `--space-section` token retains internal padding in colored bands. Avoid adding another outer margin to individual sections. Dedicated `--header-action-*` tokens control the compact account/IPO buttons without shrinking other calls to action. Secondary-page type and geometry have separate tokens so editing them does not change Home.
 - **About Us hero and header:** `--about-hero-height` fills the small viewport height, with the photo cropped using `object-fit: cover`. `--header-about-surface` sets only this route's header background to 50% opacity. Its logo, text, actions and open dropdown remain opaque; Home and Mutual Funds retain solid headers.
@@ -524,7 +531,7 @@ Each generated page includes one meaningful H1, logical section headings, a uniq
 
 Deployment will consist of publishing `dist/` to a static host. No running Astro/Node application server is required for visitors. No hosting provider or deployment workflow has been selected, and no deployment was performed.
 
-Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server. The account-closing procedure remains fully available without Strapi; live contact, closure and complaint requests, software listings, Careers content/applications and Investor content require the separate Strapi service.
+Resolve hosting, production-domain routing alongside WordPress, and the production Strapi origin/security requirements before release. Keep preview builds noindex; changing indexing is a deliberate release step, not something `npm run build` silently enables. Serving static files needs no Astro server. The account-closing procedure and Corporate Presentation remain fully available without Strapi; live contact, closure and complaint requests, software listings, Careers content/applications and CMS-backed Investor content require the separate Strapi service.
 
 ## Verification and release checklist
 
@@ -535,7 +542,7 @@ See `VERIFICATION.md` for the measured results and remaining limitations of this
 Before release:
 
 - [ ] Approve visual fidelity across desktop, tablet and phone, including heading wraps and crops.
-- [x] Implement the thirteen approved static routes; release acceptance remains separate.
+- [x] Implement the fourteen approved static routes; release acceptance remains separate.
 - [ ] Approve published Investor overview/shareholder/financial report records, categories, files, Public Find permissions and production CORS.
 - [ ] Complete the staged migration of existing resumes and complaint attachments, verify limited-role admin access and remove the verified public copies.
 - [ ] Approve Careers content, private-upload/Candidate permissions, abuse protection, malware scanning and retention without exposing candidate records.

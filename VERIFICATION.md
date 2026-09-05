@@ -1,5 +1,34 @@
 # Website migration verification
 
+## Corporate Presentation — 5 September 2026
+
+`/investors/corporate-presentation/` is the fifth local Investors destination
+and the fourteenth static route. It imports the owner-supplied
+`src/assets/docs/corporate-presentation_.pdf`, embeds it in a responsive preview
+and provides separate View and Download actions using the same generated local
+asset URL. It makes no Strapi request and adds no page JavaScript or dependency.
+
+The staging IndoThai Investors reference was inspected with its Corporate
+Presentation tab selected. The implemented page follows its centered heading,
+large rounded 16:9 preview and View/Download pattern while retaining the migrated
+site's shared Investor navigation and design tokens. The phone frame becomes 4:3
+so both actions stay visible and the page does not overflow.
+
+| Check                     | Result                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| PDF inspection            | `pdfinfo`/`file`: valid 31-page PDF, optimized, not encrypted and no embedded JavaScript.               |
+| Astro/TypeScript          | `npm run check`: 89 files checked with no errors, warnings or hints.                                    |
+| Static output/build       | `npm test`: all eight Node test files passed; all fourteen static routes built.                         |
+| Production browser tests  | `npm run test:browser`: 195/195 Chromium tests passed, including the local preview/actions check.       |
+| Development layout/assets | `npm run test:dev`: 31/31 responsive and local-asset checks passed, including all five Investor pages.  |
+| Design checks             | Strict frontend audit found zero findings; DESIGN.md lint completed successfully.                       |
+| Manual visual check       | Desktop and 390px phone layouts were inspected; heading, frame, actions and navigation remained usable. |
+
+The embedded preview depends on the browser's built-in PDF support. View and
+Download remain available if inline preview is unsupported. The supplied PDF is
+not tagged, so accessibility remediation of the document itself remains a release
+requirement. Preview metadata remains `noindex, nofollow`; nothing was deployed.
+
 ## Regulation 46 Disclosures — 5 September 2026
 
 `/investors/disclosures-under-regulation-46/` is the fourth local Investors

@@ -1,0 +1,89 @@
+---
+import presentationPdf from '../../assets/docs/corporate-presentation_.pdf?url';
+
+const previewUrl = `${presentationPdf}#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
+---
+
+<section
+  class="corporate-presentation page-shell"
+  aria-labelledby="corporate-presentation-title"
+>
+  <h1 id="corporate-presentation-title">Corporate Presentation</h1>
+  <div class="presentation-frame">
+    <iframe
+      src={previewUrl}
+      title="IndoThai corporate presentation PDF preview"
+      loading="eager"></iframe>
+    <div class="presentation-actions" aria-label="Presentation actions">
+      <a
+        class="action action-light"
+        href={presentationPdf}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View<span class="sr-only">
+          corporate presentation (opens in a new tab)</span
+        >
+      </a>
+      <a class="action action-light" href={presentationPdf} download>
+        Download<span class="sr-only"> corporate presentation PDF</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  @reference '../../styles/tokens.css';
+  .corporate-presentation {
+    display: grid;
+    max-width: var(--content-max);
+    gap: var(--space-xl);
+  }
+  h1 {
+    color: var(--color-brand);
+    font-size: var(--text-section);
+    line-height: var(--leading-section);
+    text-align: center;
+  }
+  .presentation-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: var(--border-thin) solid var(--color-subtle);
+    border-radius: var(--radius-panel);
+    background: var(--color-footer);
+    box-shadow: var(--shadow-card);
+  }
+  iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .presentation-actions {
+    position: absolute;
+    right: var(--space-lg);
+    bottom: var(--space-lg);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+  }
+  .presentation-actions .action {
+    min-width: auto;
+    padding-inline: var(--space-md);
+    box-shadow: var(--shadow-menu);
+  }
+  @media (width < theme(--breakpoint-tablet)) {
+    .corporate-presentation {
+      gap: var(--space-lg);
+    }
+    .presentation-frame {
+      aspect-ratio: 4 / 3;
+    }
+    .presentation-actions {
+      right: var(--space-sm);
+      bottom: var(--space-sm);
+    }
+  }
+</style>

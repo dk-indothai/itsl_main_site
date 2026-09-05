@@ -1,0 +1,29 @@
+---
+import CorporatePresentation from '../../components/investors/CorporatePresentation.astro';
+import InvestorPageNav from '../../components/investors/InvestorPageNav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { links } from '../../data/site';
+---
+
+<BaseLayout
+  title="Corporate Presentation - IndoThai"
+  description="View or download the IndoThai corporate presentation."
+  contentPage
+>
+  <div class="investor-page">
+    <div class="page-shell investor-navigation">
+      <InvestorPageNav current={links.corporatePresentation} />
+    </div>
+    <CorporatePresentation />
+  </div>
+</BaseLayout>
+
+<style>
+  .investor-page {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .investor-navigation {
+    padding-top: var(--space-lg);
+  }
+</style>

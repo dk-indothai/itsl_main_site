@@ -35,7 +35,7 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the thirteen approved routes are generated', async () => {
+test('only the fourteen approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
@@ -47,6 +47,7 @@ test('only the thirteen approved routes are generated', async () => {
       'close-account/index.html',
       'downloads/index.html',
       'index.html',
+      'investors/corporate-presentation/index.html',
       'investors/disclosures-under-regulation-46/index.html',
       'investors/financial-reports/index.html',
       'investors/overview/index.html',
@@ -186,6 +187,7 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
           '/investors/shareholder-relation/',
           '/investors/financial-reports/',
           '/investors/disclosures-under-regulation-46/',
+          '/investors/corporate-presentation/',
           '/close-account/',
           '/procedure-of-closing-account/',
           '/raise-a-ticket/',
@@ -215,6 +217,11 @@ test('migrated routes link locally and remaining pages stay on staging', () => {
     nodes('a').some(
       (node) =>
         attr(node, 'href') === '/investors/disclosures-under-regulation-46/',
+    ),
+  );
+  assert.ok(
+    nodes('a').some(
+      (node) => attr(node, 'href') === '/investors/corporate-presentation/',
     ),
   );
   assert.ok(
