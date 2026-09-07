@@ -21,6 +21,7 @@ export interface InvestorFile {
 export interface ShareholderRelation {
   documentId: string;
   title: string;
+  original_created_at?: string | null;
   file?: InvestorFile | null;
   shareholder_relation_category?: { documentId?: string } | null;
 }
@@ -71,6 +72,7 @@ async function getAll<T>(
   collection: string,
   sortField: string,
   populate: string[] = [],
+  sortDirection: 'asc' | 'desc' = 'asc',
 ): Promise<T[]> {
   const records: T[] = [];
   const signal = AbortSignal.timeout(20_000);
@@ -79,7 +81,7 @@ async function getAll<T>(
     const url = new URL(`${investorsApi}/${collection}`);
     url.searchParams.set('pagination[page]', String(page));
     url.searchParams.set('pagination[pageSize]', '100');
-    url.searchParams.set('sort[0]', `${sortField}:asc`);
+    url.searchParams.set('sort[0]', `${sortField}:${sortDirection}`);
     populate.forEach((field, index) =>
       url.searchParams.set(`populate[${index}]`, field),
     );
@@ -160,8 +162,9 @@ export async function getShareholderRelations(): Promise<
 > {
   const records = await getAll<ShareholderRelation>(
     'shareholder-relations',
-    'title',
+    'original_created_at',
     ['file', 'shareholder_relation_category'],
+    'desc',
   );
   if (
     records.some(
@@ -176,7 +179,24 @@ export async function getShareholderRelations(): Promise<
     )
   )
     throw new Error('The investor service returned an unexpected response.');
-  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
+  return records.sort((a, b) => {
+    const aDate =
+      typeof a.original_created_at === 'string'
+        ? Date.parse(a.original_created_at)
+        : NaN;
+    const bDate =
+      typeof b.original_created_at === 'string'
+        ? Date.parse(b.original_created_at)
+        : NaN;
+    if (Number.isFinite(aDate) && Number.isFinite(bDate) && aDate !== bDate)
+      return bDate - aDate;
+    if (Number.isFinite(aDate) !== Number.isFinite(bDate))
+      return Number.isFinite(aDate) ? -1 : 1;
+    return (
+      a.title.localeCompare(b.title, 'en-IN') ||
+      a.documentId.localeCompare(b.documentId, 'en-IN')
+    );
+  });
 }
 
 export async function getFinancialReports(): Promise<FinancialReport[]> {

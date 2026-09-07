@@ -1,5 +1,29 @@
 # Website migration verification
 
+## Shareholder original-date ordering — 7 September 2026
+
+The Shareholder Relation page now requests `original_created_at:desc` and sorts the
+complete paginated result by the custom original creation date before building
+cards. Dated records appear newest first, equal dates use title and document ID
+for stable ordering, and undated records remain visible at the end. Filtering a
+category preserves this order. The date is not rendered in the interface.
+
+The accompanying Strapi schema and seed script add and populate the optional
+`original_created_at` field without conflicting with Strapi's system `createdAt`
+database column. Migration values
+are required in `YYYY-MM-DD HH:mm:ss` format and are normalized from
+Asia/Kolkata time. No live seed was run; Strapi must be restarted before the
+owner reruns the script to backfill existing records.
+
+| Check                    | Result                                                                                  |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| Strapi seed tests        | All six Strapi test files passed, including fixture date validation and payload checks. |
+| Strapi TypeScript        | `npm run typecheck` passed.                                                             |
+| Website formatting       | `npm run format:check` passed.                                                          |
+| Website Astro/TypeScript | `npm run check`: 98 files, zero errors, warnings or hints.                              |
+| Static output/build      | `npm test`: all nine Node test files passed; all seventeen static routes built.         |
+| Browser tests            | Full 206/206 and all 13 focused Investor tests passed with newest-first behavior.       |
+
 ## Blog listing and post pages — 7 September 2026
 
 `/blog/` and `/blog/post/?id=<documentId>` are the sixteenth and seventeenth

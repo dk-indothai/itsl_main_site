@@ -297,9 +297,13 @@ and safe URL helpers. The six named content components in `src/components/invest
 own their markup and any small browser interactions. Keep this direct structure;
 there is no CMS SDK or generic content renderer.
 
-Maintain overview titles/descriptions and shareholder categories, titles, files
-and relations in Strapi. Maintain financial report year, report type, quarter and
-file in the `financial-report` content type. Quarter is 1–4 for a quarterly report
+Maintain overview titles/descriptions and shareholder categories, titles, files,
+relations and original `original_created_at` values in Strapi. The migration JSON
+keeps its source key named `created_at`; the seed script maps it to this
+non-conflicting Strapi field. Shareholder documents are
+shown newest first using that custom field; undated records remain visible after
+dated records and the date itself is not displayed. Maintain financial report
+year, report type, quarter and file in the `financial-report` content type. Quarter is 1–4 for a quarterly report
 and remains empty for a Full Year report. Overview descriptions are Markdown/rich
 text and are sanitized before browser insertion. Markdown tables render as accessible HTML
 tables inside a horizontal scroll region on narrow screens. Each overview title

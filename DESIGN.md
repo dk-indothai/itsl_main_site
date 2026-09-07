@@ -245,7 +245,9 @@ use bordered rows and a focusable horizontal scroll region so their structure is
 preserved on narrow devices.
 Shareholder filenames and sizes share a compact line; long text wraps instead of
 forcing horizontal overflow. Missing or unsafe shareholder file destinations use
-visible “Download unavailable” text. Financial Reports uses native year dropdowns
+visible “Download unavailable” text. Cards use the original creation date for
+newest-first ordering, but the date remains hidden to keep the existing compact
+document-row design. Financial Reports uses native year dropdowns
 and orders available periods as 1st–4th Quarter followed by Full Year. Each period
 shows only a compact “Download Report” action; unavailable periods, filename, size
 and per-year counts stay hidden.

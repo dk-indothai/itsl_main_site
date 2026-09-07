@@ -134,7 +134,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   custom accordion script. Preserve safe Markdown table tags and the focusable
   horizontal table wrapper used on narrow screens. Shareholder Relation populates `file`
   and `shareholder_relation_category`, filters already-loaded records locally and
-  exposes only safe HTTP(S) file URLs. Financial Reports populates `file`, sorts
+  exposes only safe HTTP(S) file URLs. It orders the complete list by the custom
+  `original_created_at` field, newest first, with undated records last; do not display the
+  date or confuse it with Strapi's system `createdAt`. Financial Reports populates `file`, sorts
   newest year first and groups records in native year dropdowns, with only the
   newest year expanded initially. Each expanded year keeps the staging-style fixed
   order: 1st, 2nd, 3rd and 4th Quarter, then Full Year. Show only the period and

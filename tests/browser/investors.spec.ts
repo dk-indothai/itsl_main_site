@@ -227,6 +227,9 @@ test('shareholder documents filter locally and retain empty categories', async (
     'http://strapi.test/api/shareholder-relations**',
     async (route) => {
       const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('sort[0]')).toBe(
+        'original_created_at:desc',
+      );
       expect(requestUrl.searchParams.get('populate[0]')).toBe('file');
       expect(requestUrl.searchParams.get('populate[1]')).toBe(
         'shareholder_relation_category',
@@ -238,6 +241,7 @@ test('shareholder documents filter locally and retain empty categories', async (
             {
               documentId: 'report-1',
               title: 'Annual Report 2025',
+              original_created_at: '2025-08-01T10:00:00.000Z',
               file: {
                 name: 'annual-report',
                 ext: '.pdf',
@@ -272,6 +276,111 @@ test('shareholder documents filter locally and retain empty categories', async (
   ).toBeHidden();
   await page.getByLabel('Document category').selectOption('annual');
   await expect(page.getByRole('status')).toHaveText('1 shareholder document.');
+});
+
+test('shareholder documents sort newest first across pages and after filtering', async ({
+  page,
+}) => {
+  await page.route(
+    'http://strapi.test/api/shareholder-relation-categories**',
+    async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            { documentId: 'notices', name: 'Notices' },
+            { documentId: 'annual', name: 'Annual Reports' },
+          ],
+          meta: { pagination: { ...pagination, total: 2 } },
+        }),
+      });
+    },
+  );
+  await page.route(
+    'http://strapi.test/api/shareholder-relations**',
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('sort[0]')).toBe(
+        'original_created_at:desc',
+      );
+      const requestedPage = Number(
+        requestUrl.searchParams.get('pagination[page]'),
+      );
+      const data =
+        requestedPage === 1
+          ? [
+              {
+                documentId: 'undated',
+                title: 'Undated Report',
+                original_created_at: null,
+                file: null,
+                shareholder_relation_category: { documentId: 'annual' },
+              },
+              {
+                documentId: 'same-zulu',
+                title: 'Zulu Same Date',
+                original_created_at: '2025-06-01T10:00:00.000Z',
+                file: null,
+                shareholder_relation_category: { documentId: 'annual' },
+              },
+            ]
+          : [
+              {
+                documentId: 'older',
+                title: 'Older Notice',
+                original_created_at: '2024-01-01T10:00:00.000Z',
+                file: null,
+                shareholder_relation_category: { documentId: 'notices' },
+              },
+              {
+                documentId: 'newest',
+                title: 'Newest Annual Report',
+                original_created_at: '2026-01-01T10:00:00.000Z',
+                file: null,
+                shareholder_relation_category: { documentId: 'annual' },
+              },
+              {
+                documentId: 'same-alpha',
+                title: 'Alpha Same Date',
+                original_created_at: '2025-06-01T10:00:00.000Z',
+                file: null,
+                shareholder_relation_category: { documentId: 'annual' },
+              },
+            ];
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data,
+          meta: {
+            pagination: {
+              page: requestedPage,
+              pageSize: 100,
+              pageCount: 2,
+              total: 5,
+            },
+          },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/investors/shareholder-relation/');
+  const visibleTitles = page.locator('.relation-card:not([hidden]) h2');
+  await expect(visibleTitles).toHaveText([
+    'Newest Annual Report',
+    'Alpha Same Date',
+    'Zulu Same Date',
+    'Older Notice',
+    'Undated Report',
+  ]);
+
+  await page.getByLabel('Document category').selectOption('annual');
+  await expect(visibleTitles).toHaveText([
+    'Newest Annual Report',
+    'Alpha Same Date',
+    'Zulu Same Date',
+    'Undated Report',
+  ]);
 });
 
 test('financial reports group into year dropdowns and expose safe files', async ({
