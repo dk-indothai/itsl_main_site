@@ -1,5 +1,42 @@
 # Website migration verification
 
+## Blog listing and post pages — 7 September 2026
+
+`/blog/` and `/blog/post/?id=<documentId>` are the sixteenth and seventeenth
+static routes. They read published records from `GET /api/blogs`; the list
+follows pagination, populates the optional banner and sorts the complete result
+by newest `publish_date`. Each post page fetches one public document and renders
+its `content` as sanitized Markdown. Tables retain their structure and scroll
+inside the article on narrow screens; unsafe links, images, scripts and forms are
+removed.
+
+Both routes use the shared header, footer, preview metadata and design tokens.
+The listing follows the source's single-column banner, title, excerpt, Read More
+and date pattern. Loading, empty, missing, malformed, permission and network
+states remain distinct, with manual Retry and honest configuration/no-JavaScript
+fallbacks. The Blog navigation destination is local and remains current on an
+individual post. No Strapi code, schema, record, permission or configuration was
+changed.
+
+| Check                     | Result                                                                                         |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                                 |
+| Astro/TypeScript          | `npm run check`: 98 files, zero errors, warnings or hints.                                     |
+| Static output/build       | `npm test`: all nine Node test files passed; all seventeen static routes built.                |
+| Production browser tests  | `npm run test:browser`: 205/205 Chromium tests passed, including eight focused Blog tests.     |
+| Development layout/assets | `npm run test:dev`: 35/35 responsive and local-asset checks passed, including four Blog sizes. |
+| Design checks             | Strict frontend audit found zero findings; DESIGN.md lint reported zero errors and warnings.   |
+| Reference review          | The live IndoThai Blog listing and its desktop layout were inspected without changing content. |
+
+The local Strapi service was unavailable during implementation, so no live Blog
+response or banner was verified and no record was created or changed. Mocked
+browser tests cover pagination, sorting, missing banners, safe Markdown, errors
+and responsive layouts. Before release, verify Public Find for Blog, populated
+banner access, production CORS and all published copy/images. CMS records and
+per-post metadata are absent from initial HTML because this deliberately simple
+static implementation loads them in browser JavaScript; preview remains
+`noindex, nofollow`.
+
 ## Client Relation and Investor navigation — 5 September 2026
 
 `/investors/client-relation/` is the sixth local Investors destination and the

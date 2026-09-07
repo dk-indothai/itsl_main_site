@@ -1,0 +1,330 @@
+---
+import { blogApi } from '../../data/blogs';
+import { links, site } from '../../data/site';
+---
+
+<section class="blog-post page-shell" data-blog-post data-api={blogApi}>
+  <a class="back-link" href={links.blog}>← Back to Blog</a>
+  <h1 tabindex="-1" data-post-title>Blog post</h1>
+  <p class="feedback" role="status" aria-atomic="true" data-post-status>
+    {
+      blogApi
+        ? 'Enable JavaScript to load this blog post.'
+        : 'Blog posts are not configured yet. Please contact us for assistance.'
+    }
+  </p>
+  <button type="button" class="action" data-post-retry hidden>Retry</button>
+  <article data-post-content hidden>
+    <header>
+      <time data-post-date></time>
+    </header>
+    <img class="post-banner" data-post-banner alt="" decoding="async" hidden />
+    <div class="post-body" data-post-body></div>
+  </article>
+  <p class="contact-alternatives">
+    Need help? <a href={site.telephone.href}>{site.telephone.label}</a> or <a
+      href={`mailto:${site.marketingEmail}`}>{site.marketingEmail}</a
+    >.
+  </p>
+</section>
+
+<script>
+  import { marked } from 'marked';
+  import DOMPurify from 'dompurify';
+  import {
+    blogError,
+    blogImage,
+    formatBlogDate,
+    getBlogPost,
+  } from '../../data/blogs';
+
+  const root = document.querySelector<HTMLElement>('[data-blog-post]')!;
+  const article = root.querySelector<HTMLElement>('[data-post-content]')!;
+  const title = root.querySelector<HTMLElement>('[data-post-title]')!;
+  const status = root.querySelector<HTMLElement>('[data-post-status]')!;
+  const retry = root.querySelector<HTMLButtonElement>('[data-post-retry]')!;
+  const id = new URLSearchParams(location.search).get('id') ?? '';
+  let loading = false;
+
+  function safeContent(markdown: string): DocumentFragment {
+    const content = DOMPurify.sanitize(
+      marked.parse(markdown, { async: false }),
+      {
+        ALLOWED_TAGS: [
+          'p',
+          'br',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+          'ul',
+          'ol',
+          'li',
+          'strong',
+          'em',
+          'del',
+          'blockquote',
+          'pre',
+          'code',
+          'a',
+          'hr',
+          'table',
+          'thead',
+          'tbody',
+          'tr',
+          'th',
+          'td',
+          'img',
+        ],
+        ALLOWED_ATTR: ['href', 'title', 'src', 'alt', 'width', 'height'],
+        ALLOW_DATA_ATTR: false,
+        ALLOW_ARIA_ATTR: false,
+        RETURN_DOM_FRAGMENT: true,
+      },
+    );
+
+    const headings = [...content.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+    const firstLevel = Number(headings[0]?.tagName.slice(1) ?? 1);
+    let previousLevel = 1;
+    for (const heading of headings) {
+      const requested = Number(heading.tagName.slice(1));
+      const level = Math.min(
+        6,
+        previousLevel + 1,
+        Math.max(2, requested - firstLevel + 2),
+      );
+      const replacement = document.createElement(`h${level}`);
+      replacement.append(...heading.childNodes);
+      heading.replaceWith(replacement);
+      previousLevel = level;
+    }
+    for (const link of content.querySelectorAll('a')) {
+      try {
+        const href = link.getAttribute('href');
+        if (!href) throw new Error();
+        const url = new URL(href, location.origin);
+        if (
+          !['http:', 'https:', 'mailto:'].includes(url.protocol) ||
+          url.username ||
+          url.password
+        )
+          throw new Error();
+        link.href = url.href;
+        if (url.origin !== location.origin) link.rel = 'noopener noreferrer';
+      } catch {
+        link.removeAttribute('href');
+      }
+    }
+    for (const image of content.querySelectorAll('img')) {
+      try {
+        const src = image.getAttribute('src');
+        if (!src) throw new Error();
+        const url = new URL(src, root.dataset.api);
+        if (
+          !['http:', 'https:'].includes(url.protocol) ||
+          url.username ||
+          url.password
+        )
+          throw new Error();
+        image.src = url.href;
+        image.alt = image.alt ?? '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+      } catch {
+        image.remove();
+      }
+    }
+    return content;
+  }
+
+  async function loadPost() {
+    if (loading) return;
+    const retryHadFocus = document.activeElement === retry;
+    loading = true;
+    retry.disabled = true;
+    status.textContent = 'Loading blog post…';
+    try {
+      const post = await getBlogPost(id);
+      if (!post) {
+        title.textContent = 'Blog post unavailable';
+        document.title = 'Blog post unavailable - IndoThai';
+        status.textContent =
+          'This blog post could not be found or is no longer published.';
+        article.hidden = true;
+        retry.hidden = true;
+        if (retryHadFocus) title.focus();
+        return;
+      }
+      title.textContent = post.title;
+      document.title = `${post.title} - IndoThai`;
+      const time = root.querySelector<HTMLTimeElement>('[data-post-date]')!;
+      time.dateTime = post.publish_date;
+      time.textContent = formatBlogDate(post.publish_date);
+      root
+        .querySelector('[data-post-body]')!
+        .replaceChildren(safeContent(post.content));
+
+      const banner =
+        root.querySelector<HTMLImageElement>('[data-post-banner]')!;
+      const image = blogImage(post.banner);
+      banner.hidden = !image;
+      if (image) {
+        banner.src = image.url;
+        banner.alt = image.alt;
+        if (image.width) banner.width = image.width;
+        if (image.height) banner.height = image.height;
+      }
+      article.hidden = false;
+      status.textContent = '';
+      retry.hidden = true;
+      if (retryHadFocus) title.focus();
+    } catch (error) {
+      article.hidden = true;
+      status.textContent = blogError(error);
+      retry.hidden = false;
+      document.title = 'Blog post unavailable - IndoThai';
+    } finally {
+      loading = false;
+      retry.disabled = false;
+    }
+  }
+
+  retry.addEventListener('click', loadPost);
+  if (root.dataset.api) void loadPost();
+</script>
+
+<style>
+  @reference '../../styles/tokens.css';
+  .blog-post {
+    max-width: var(--blog-content-max);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    margin-bottom: var(--space-xl);
+    color: var(--color-brand);
+    font-size: var(--text-caption);
+  }
+  .feedback {
+    color: var(--color-muted);
+    font-size: var(--text-small);
+    text-align: center;
+  }
+  [data-post-retry] {
+    display: block;
+    margin: var(--space-md) auto 0;
+  }
+  article header {
+    text-align: center;
+  }
+  h1 {
+    text-align: center;
+    color: var(--color-ink);
+    font-size: var(--text-content-heading);
+    line-height: var(--leading-content-heading);
+    overflow-wrap: anywhere;
+  }
+  time {
+    display: block;
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+  }
+  .post-banner {
+    width: 100%;
+    max-height: var(--blog-banner-max-height);
+    margin-top: var(--space-xl);
+    border-radius: var(--radius-card);
+    object-fit: cover;
+  }
+  .post-body {
+    margin-top: var(--space-xl);
+    font-size: var(--text-content-body);
+    line-height: var(--leading-body);
+    overflow-wrap: anywhere;
+  }
+  .post-body :global(p),
+  .post-body :global(ul),
+  .post-body :global(ol),
+  .post-body :global(blockquote),
+  .post-body :global(pre),
+  .post-body :global(table) {
+    margin-block: var(--space-md);
+  }
+  .post-body :global(h2),
+  .post-body :global(h3),
+  .post-body :global(h4),
+  .post-body :global(h5),
+  .post-body :global(h6) {
+    margin-top: var(--space-xl);
+    color: var(--color-ink);
+    line-height: var(--leading-section);
+  }
+  .post-body :global(h2) {
+    font-size: var(--text-content-card);
+  }
+  .post-body :global(h3),
+  .post-body :global(h4),
+  .post-body :global(h5),
+  .post-body :global(h6) {
+    font-size: var(--text-body);
+  }
+  .post-body :global(ul),
+  .post-body :global(ol) {
+    padding-left: var(--space-lg);
+  }
+  .post-body :global(ul) {
+    list-style: disc;
+  }
+  .post-body :global(ol) {
+    list-style: decimal;
+  }
+  .post-body :global(blockquote) {
+    padding-left: var(--space-md);
+    border-left: var(--border-focus) solid var(--color-brand);
+    color: var(--color-muted);
+  }
+  .post-body :global(pre) {
+    overflow-x: auto;
+    padding: var(--space-md);
+    border-radius: var(--radius-control);
+    background: var(--color-footer);
+  }
+  .post-body :global(a) {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
+  }
+  .post-body :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: var(--space-lg) auto;
+    border-radius: var(--radius-control);
+  }
+  .post-body :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+  .post-body :global(th),
+  .post-body :global(td) {
+    padding: var(--space-sm);
+    border: var(--border-thin) solid var(--color-subtle);
+    text-align: left;
+  }
+  .contact-alternatives {
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    text-align: center;
+  }
+  .contact-alternatives a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
+  }
+</style>

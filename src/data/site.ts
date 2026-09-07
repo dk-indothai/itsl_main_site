@@ -12,7 +12,7 @@ export const links = {
   regulation46Disclosures: '/investors/disclosures-under-regulation-46/',
   clientRelation: '/investors/client-relation/',
   corporatePresentation: '/investors/corporate-presentation/',
-  blog: `${staging}/blog/`,
+  blog: '/blog/',
   openAccount: 'https://ekyc.indothai.co.in:447/',
   applyIpo: 'https://indothai.webappreports.com/applyipo/',
   login: 'https://backoffice.indothai.co.in:1467/capexweb/capexweb/index.html',

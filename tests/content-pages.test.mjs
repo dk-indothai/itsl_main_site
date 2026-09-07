@@ -18,6 +18,8 @@ const hasClass = (node, value) =>
 const routes = [
   '/',
   '/about-us/',
+  '/blog/',
+  '/blog/post/',
   '/mutual-funds/',
   '/downloads/',
   '/careers/',

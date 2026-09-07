@@ -11,6 +11,9 @@ const currentPath = `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 const navigationPath = currentPath.startsWith(links.careers)
   ? links.careers
   : currentPath;
+const utilityPath = currentPath.startsWith(links.blog)
+  ? links.blog
+  : currentPath;
 const isCurrentGroup = (children: { href: string }[]) =>
   children.some((child) => child.href === currentPath);
 ---
@@ -244,7 +247,7 @@ const isCurrentGroup = (children: { href: string }[]) =>
                       target={item.newTab ? '_blank' : undefined}
                       rel={item.newTab ? 'noopener noreferrer' : undefined}
                       aria-current={
-                        item.href === currentPath ? 'page' : undefined
+                        item.href === utilityPath ? 'page' : undefined
                       }
                     >
                       {item.label}

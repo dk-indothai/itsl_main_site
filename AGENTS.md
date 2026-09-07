@@ -12,9 +12,10 @@ Overview (`/investors/overview/`) and Shareholder Relation
 (`/investors/financial-reports/`) and Regulation 46 Disclosures
 (`/investors/disclosures-under-regulation-46/`), Client Relation
 (`/investors/client-relation/`) and Corporate Presentation
-(`/investors/corporate-presentation/`) routes are implemented and link locally.
-Downloads, Careers and five Investor pages load CMS records in browser JavaScript;
-Corporate Presentation is fully static.
+(`/investors/corporate-presentation/`), Blog (`/blog/`) and blog post
+(`/blog/post/?id=<documentId>`) routes are implemented and link locally.
+Downloads, Careers, Blog and five Investor pages load CMS records in browser
+JavaScript; Corporate Presentation is fully static.
 All other unbuilt pages still link to staging. The previous project remains
 read-only. Nothing has been deployed. Read `README.md`, `DESIGN.md`
 and `VERIFICATION.md` before changes; distinguish implementation from release approval.
@@ -44,7 +45,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   (`/investors/financial-reports/`) and Regulation 46 Disclosures
   (`/investors/disclosures-under-regulation-46/`), Client Relation
   (`/investors/client-relation/`) and Corporate Presentation
-  (`/investors/corporate-presentation/`).
+  (`/investors/corporate-presentation/`), Blog (`/blog/`) and blog post
+  (`/blog/post/?id=<documentId>`).
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -110,6 +112,16 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   inline validation. Never serialize/log applicant data or read existing candidates.
   Ask separately before live synthetic uploads/applications. Strapi owns private
   storage and server enforcement; the browser checks remain usability feedback.
+- Blog uses two explicit components, `BlogList.astro` and `BlogPost.astro`, with
+  typed browser reads in `src/data/blogs.ts`. Read published `blogs`, populate
+  only `banner`, follow pagination and sort the complete list by newest
+  `publish_date`. Use `/blog/post/?id=<documentId>` so new posts need no website
+  rebuild. Render list excerpts as plain text. Sanitize post Markdown with the
+  existing marked and DOMPurify packages, normalize headings below the page H1,
+  preserve safe tables and allow only validated HTTP(S)/mailto links and HTTP(S)
+  images. Non-image, missing or unsafe banners stay hidden. Keep loading, empty,
+  error, Retry and no-JavaScript/configuration states; do not add a CMS SDK,
+  adapter, placeholder posts, build-time fetch or Strapi changes.
 - Investors is a six-item primary navigation disclosure. Desktop opens it on
   hover while native details/summary preserves click, touch and keyboard access.
   Keep Overview, Shareholder Relation, Financial Reports, Regulation 46
@@ -268,9 +280,10 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the fifteen approved static routes into `dist/`. Software, opening and
-  investor records require JavaScript and are absent from initial HTML; retain
-  preview noindex and do not claim per-job server-rendered metadata.
+  Build the seventeen approved static routes into `dist/`. Software, opening,
+  Blog and investor records require JavaScript and are absent from initial HTML;
+  retain preview noindex and do not claim per-job or per-post server-rendered
+  metadata.
 - Inspect `package.json` before running commands. Run `npm run format:check`,
   `npm run check`, `npm test`, and `npm run test:browser` after application changes.
   Browser tests need the development-only Playwright Chromium installation.

@@ -192,6 +192,8 @@
   --form-panel-max: 64rem;
   --investor-filter-max: 24rem;
   --procedure-image-max: 41.9375rem;
+  --blog-content-max: 64rem;
+  --blog-banner-max-height: 30rem;
 }
 
 @media (width < theme(--breakpoint-desktop)) {

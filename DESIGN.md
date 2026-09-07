@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: IndoThai
-description: Reference-led IndoThai marketing pages, account services, investor support, Software Downloads and Careers.
+description: Reference-led IndoThai marketing pages, Blog, account services, investor support, Software Downloads and Careers.
 omitted:
   - section: colors
     reason: Canonical values live only in src/styles/tokens.css.
@@ -24,6 +24,8 @@ components:
   investorOverview: {}
   shareholderRelations: {}
   clientRelations: {}
+  blogList: {}
+  blogPost: {}
 ---
 
 # IndoThai design guidance
@@ -33,7 +35,7 @@ components:
 ### Creative North Star
 
 Recreate the supplied WordPress Home, About Us, Mutual Funds, Close Account,
-Procedure for Closing an Account, Raise Ticket, Software Downloads, Careers and Investor pages: graph-paper hero, generous Raleway
+Procedure for Closing an Account, Raise Ticket, Software Downloads, Careers, Blog and Investor pages: graph-paper hero, generous Raleway
 headlines, blue investment-service identity, actual office and app imagery,
 clearly presented statistics, and a substantial regulatory footer. This is a migration,
 not a new brand direction. The corresponding staging pages are authoritative; the previous
@@ -95,7 +97,7 @@ Testimonial cards show three, two or one at the token-owned breakpoints. Their
 height follows the longest quote with a modest minimum, not an oversized fixed
 blank area. Keep intrinsic image dimensions.
 
-The main container on all fifteen routes owns the space between sections and before
+The main container on all seventeen routes owns the space between sections and before
 the footer using `--space-section-gap` from `tokens.css`. The owner requested a
 more generous rhythm across all three pages after their migration. This outer-gap
 token is independent of `--space-section`, which retains internal padding in
@@ -168,8 +170,9 @@ Header disclosures are non-modal, not focus-trapped drawers. Native details/summ
 provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
 focus restoration and expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
-Raise Ticket, Software Downloads, Careers and all six Investor pages route locally, with the current
-page marked in its navigation link. Careers remains active on job details too.
+Raise Ticket, Software Downloads, Careers, Blog and all six Investor pages route
+locally, with the current page marked in its navigation link. Careers remains
+active on job details and Blog remains active on individual posts.
 Investors is a primary disclosure with a hover enhancement on precise pointers and
 native click, touch and keyboard access everywhere. Both its group and current child
 show active state. The local Investor navigation uses one brand-blue, rounded tab
@@ -208,6 +211,21 @@ fake software, modal or automatic download is introduced. Contact links remain
 available in all states. CMS content is plain text; only the first attachment is
 offered (or the single media object in the current schema). No JavaScript means
 an explicit catalogue-unavailable explanation, not a blank area or invented data.
+
+### Blog
+
+Blog follows the source's restrained editorial stream rather than introducing a
+generic multi-column magazine layout. A compact centered heading with a brand-blue
+rule leads into one readable column of banner-led posts. Each card keeps the title,
+plain-text excerpt, Read More action and publish date visually distinct. Borders,
+subtle elevation, typography and controls reuse existing tokens; the only new
+geometry tokens own the editorial width and banner height.
+
+Individual posts use the same column, a clear Back to Blog link, one H1, date,
+optional banner and readable Markdown body. Tables scroll inside the article on
+narrow screens. Missing or non-image banners do not create empty placeholders.
+Loading, empty, error and Retry states use the established CMS patterns. Motion is
+limited to a slight banner hover scale and is disabled for reduced motion.
 
 ### Investor content
 
