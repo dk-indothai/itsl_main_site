@@ -667,6 +667,7 @@ test('Regulation 46 disclosures distinguish errors from an empty list and retry 
 test('client relation lists safe Strapi files and keeps invalid files unavailable', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1024, height: 800 });
   await page.route(
     'http://strapi.test/api/client-relations**',
     async (route) => {
@@ -712,6 +713,42 @@ test('client relation lists safe Strapi files and keeps invalid files unavailabl
     'Client relation documents loaded.',
   );
   await expect(page.getByRole('status')).toHaveClass(/sr-only/);
+
+  const firstRow = page.locator('.document-row').first();
+  const title = firstRow.getByRole('heading');
+  const download = firstRow.getByRole('link');
+  const desktopTitleBox = await title.boundingBox();
+  const desktopDownloadBox = await download.boundingBox();
+  expect(desktopTitleBox).not.toBeNull();
+  expect(desktopDownloadBox).not.toBeNull();
+  expect(desktopTitleBox!.x).toBeLessThan(desktopDownloadBox!.x);
+  expect(
+    Math.abs(
+      desktopTitleBox!.y +
+        desktopTitleBox!.height / 2 -
+        (desktopDownloadBox!.y + desktopDownloadBox!.height / 2),
+    ),
+  ).toBeLessThanOrEqual(1);
+  await expect(title).toHaveCSS('text-align', 'left');
+
+  await page.setViewportSize({ width: 390, height: 800 });
+  const mobileTitleBox = await title.boundingBox();
+  const mobileDownloadBox = await download.boundingBox();
+  expect(mobileTitleBox).not.toBeNull();
+  expect(mobileDownloadBox).not.toBeNull();
+  expect(
+    Math.abs(mobileTitleBox!.x - mobileDownloadBox!.x),
+  ).toBeLessThanOrEqual(1);
+  expect(mobileDownloadBox!.y).toBeGreaterThan(
+    mobileTitleBox!.y + mobileTitleBox!.height,
+  );
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test('investor pages show errors with retry and have no narrow overflow', async ({

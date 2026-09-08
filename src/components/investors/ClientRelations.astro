@@ -161,9 +161,9 @@ import { site } from '../../data/site';
     margin: var(--space-xl) auto 0;
   }
   .document-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-lg);
     padding: var(--space-md) var(--space-lg);
     border: var(--border-thin) solid var(--color-border);
@@ -172,16 +172,17 @@ import { site } from '../../data/site';
     overflow-wrap: anywhere;
   }
   .document-row h2 {
-    flex: 1;
+    min-width: 0;
     font-family: var(--font-body);
     font-size: var(--text-body);
     font-weight: var(--font-weight-medium);
-    text-align: center;
+    line-height: var(--leading-body);
+    text-align: left;
   }
   .download-link {
     display: inline-flex;
     align-items: center;
-    flex-shrink: 0;
+    justify-self: end;
     gap: var(--space-xs);
     min-height: var(--target-min);
     color: var(--color-brand);
@@ -224,13 +225,12 @@ import { site } from '../../data/site';
   }
   @media (width < theme(--breakpoint-tablet)) {
     .document-row {
-      align-items: stretch;
-      flex-direction: column;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-sm);
       padding: var(--space-md);
     }
     .download-link {
-      justify-content: center;
+      justify-self: start;
     }
   }
 </style>
