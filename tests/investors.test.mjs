@@ -237,7 +237,9 @@ test('investor reads use only the six intended public Strapi collections', async
   ])
     assert.ok(source.includes(collection));
   assert.ok(source.includes("['file', 'shareholder_relation_category']"));
-  assert.ok(source.includes("'original_created_at'"));
+  assert.ok(source.includes("['original_created_at:desc']"));
+  assert.ok(source.includes("'order:asc'"));
+  assert.ok(source.includes("'createdAt:desc'"));
   assert.ok(
     source.includes(
       "'filters[shareholder_relation_category][documentId][$eq]'",

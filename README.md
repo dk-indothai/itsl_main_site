@@ -103,6 +103,13 @@ Shareholder Relation selects the first alphabetical document category after
 loading. It intentionally does not provide an All Categories option and requests
 documents from Strapi only when their category is selected.
 
+Overview, Regulation 46 Disclosures and Client Relation are ordered through each
+record's required integer `order` field. Smaller values appear first. Equal values
+use Strapi's automatic `createdAt` timestamp, newest first, followed by title and
+document ID for stable ordering. Legacy records whose `order` remains null or
+missing are treated as `0` until an editor saves an explicit value. These fields
+control placement only and are not shown on the website.
+
 ## Project structure
 
 ```text

@@ -246,6 +246,10 @@ blue title and chevron form the trigger, entries start closed and open independe
 Overview rich text is sanitized and normalized below its card H2. Markdown tables
 use bordered rows and a focusable horizontal scroll region so their structure is
 preserved on narrow devices.
+Overview, Regulation 46 Disclosure and Client Relation records use the same
+CMS-managed placement rule without adding visible metadata: lower `order` values
+appear first, equal values use the newest Strapi `createdAt`, and title plus
+document ID keep exact ties stable across paginated responses.
 Shareholder filenames and sizes share a compact line; long text wraps instead of
 forcing horizontal overflow. Missing or unsafe shareholder file destinations use
 visible “Download unavailable” text. Cards use the original creation date for

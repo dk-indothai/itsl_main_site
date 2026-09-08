@@ -1,5 +1,38 @@
 # Website migration verification
 
+## CMS-controlled Investor ordering — 8 September 2026
+
+Overview, Regulation 46 Disclosure and Client Relation records now request the
+CMS-managed `order` field from lowest to highest and use Strapi's automatic
+`createdAt` timestamp, newest first, when values match. After every API page is
+loaded, the browser reapplies that ordering to the complete result and uses title
+and document ID as deterministic final tie-breakers. Neither ordering field is
+displayed. Shareholder Relation, Financial Reports and category ordering were not
+changed.
+
+Existing local records were observed returning `order: null` after the schema
+addition. The browser treats legacy null or missing values as `0`, while still
+rejecting non-integer values, so those records remain visible until an editor
+saves an explicit order.
+
+The corresponding Strapi schemas define `order` as a required integer with
+default `0`, and the generated content-type declarations were refreshed. No live
+records, permissions, endpoints or Draft & Publish settings were changed. Before
+starting the updated Strapi instance against an existing database, take a database
+backup; Strapi must then be restarted so schema synchronization can create the new
+columns.
+
+| Check                       | Result                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| Strapi schema tests         | All 15 Node tests passed, including the three required integer/default checks.          |
+| Strapi TypeScript and build | `npm run typecheck` and the production admin build passed.                              |
+| Website formatting          | `npm run format:check` passed.                                                          |
+| Website Astro/TypeScript    | `npm run check`: 98 files, zero errors, warnings or hints.                              |
+| Static output/build         | `npm test`: all 48 checks passed; all seventeen static routes built.                    |
+| Investor browser tests      | All 15 passed, including ordering across pages and exact timestamp/title/document ties. |
+| Complete browser tests      | `npm run test:browser`: 208/208 Chromium tests passed.                                  |
+| Frontend static audit       | Strict audit completed with zero errors, warnings or unresolved findings.               |
+
 ## Shareholder category loading and original-date ordering — 8 September 2026
 
 The Shareholder Relation page now requests `original_created_at:desc` and sorts the

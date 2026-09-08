@@ -147,6 +147,9 @@ test('overview titles open as accessible dropdowns with sanitized rich text', as
   page,
 }) => {
   await page.route('http://strapi.test/api/overviews**', async (route) => {
+    const requestUrl = new URL(route.request().url());
+    expect(requestUrl.searchParams.get('sort[0]')).toBe('order:asc');
+    expect(requestUrl.searchParams.get('sort[1]')).toBe('createdAt:desc');
     await route.fulfill({
       contentType: 'application/json',
       body: JSON.stringify({
@@ -154,6 +157,8 @@ test('overview titles open as accessible dropdowns with sanitized rich text', as
           {
             documentId: 'overview-1',
             title: 'Company Overview',
+            order: null,
+            createdAt: '2026-09-01T10:00:00.000Z',
             description:
               'Trusted since 1995.\n\n## Key facts\n\n- Public company\n\n| Market | Status |\n| --- | --- |\n| Equity | Active |\n\n<script>window.bad = true</script>',
           },
@@ -203,6 +208,125 @@ test('overview titles open as accessible dropdowns with sanitized rich text', as
   await expect(page.getByRole('status')).toHaveText('1 overview entry.');
   await page.keyboard.press('Space');
   await expect(dropdown).not.toHaveAttribute('open', '');
+});
+
+test('CMS-controlled investor collections use order and createdAt across pages', async ({
+  page,
+}) => {
+  const baseRecords = {
+    firstPage: [
+      {
+        documentId: 'low-priority',
+        title: 'Newest but low priority',
+        order: 1,
+        createdAt: '2026-09-05T10:00:00.000Z',
+      },
+      {
+        documentId: 'tie-b',
+        title: 'Alpha tie',
+        order: 5,
+        createdAt: '2026-09-03T10:00:00.000Z',
+      },
+    ],
+    secondPage: [
+      {
+        documentId: 'highest-priority',
+        title: 'Highest priority',
+        order: 10,
+        createdAt: '2025-01-01T10:00:00.000Z',
+      },
+      {
+        documentId: 'tie-zulu',
+        title: 'Zulu tie',
+        order: 5,
+        createdAt: '2026-09-03T10:00:00.000Z',
+      },
+      {
+        documentId: 'tie-a',
+        title: 'Alpha tie',
+        order: 5,
+        createdAt: '2026-09-03T10:00:00.000Z',
+      },
+    ],
+  };
+  const expectedTitles = [
+    'Newest but low priority',
+    'Alpha tie',
+    'Alpha tie',
+    'Zulu tie',
+    'Highest priority',
+  ];
+  const collections: Array<{
+    endpoint: string;
+    path: string;
+    titles: string;
+    record: (
+      value: (typeof baseRecords.firstPage)[number],
+    ) => Record<string, unknown>;
+  }> = [
+    {
+      endpoint: 'overviews',
+      path: '/investors/overview/',
+      titles: '.overview-card h2',
+      record: (value: (typeof baseRecords.firstPage)[number]) => ({
+        ...value,
+        description: 'Overview details',
+      }),
+    },
+    {
+      endpoint: 'disclosure-2015s',
+      path: '/investors/disclosures-under-regulation-46/',
+      titles: '.disclosure-card h2',
+      record: (value: (typeof baseRecords.firstPage)[number]) => ({
+        ...value,
+        link: '/uploads/disclosure.pdf',
+      }),
+    },
+    {
+      endpoint: 'client-relations',
+      path: '/investors/client-relation/',
+      titles: '.document-row h2',
+      record: (value: (typeof baseRecords.firstPage)[number]) => ({
+        ...value,
+        file: null,
+      }),
+    },
+  ];
+
+  for (const collection of collections) {
+    const pattern = `http://strapi.test/api/${collection.endpoint}**`;
+    const requestedPages: number[] = [];
+    await page.route(pattern, async (route) => {
+      const requestUrl = new URL(route.request().url());
+      expect(requestUrl.searchParams.get('sort[0]')).toBe('order:asc');
+      expect(requestUrl.searchParams.get('sort[1]')).toBe('createdAt:desc');
+      const requestedPage = Number(
+        requestUrl.searchParams.get('pagination[page]'),
+      );
+      requestedPages.push(requestedPage);
+      const source =
+        requestedPage === 1 ? baseRecords.firstPage : baseRecords.secondPage;
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: source.map(collection.record),
+          meta: {
+            pagination: {
+              page: requestedPage,
+              pageSize: 100,
+              pageCount: 2,
+              total: 5,
+            },
+          },
+        }),
+      });
+    });
+
+    await page.goto(collection.path);
+    await expect(page.locator(collection.titles)).toHaveText(expectedTitles);
+    expect(requestedPages).toEqual([1, 2]);
+    await page.unroute(pattern);
+  }
 });
 
 test('shareholder documents load the selected category on demand', async ({
@@ -581,7 +705,8 @@ test('Regulation 46 disclosures expose safe links and reject unsafe destinations
     'http://strapi.test/api/disclosure-2015s**',
     async (route) => {
       const requestUrl = new URL(route.request().url());
-      expect(requestUrl.searchParams.get('sort[0]')).toBe('title:asc');
+      expect(requestUrl.searchParams.get('sort[0]')).toBe('order:asc');
+      expect(requestUrl.searchParams.get('sort[1]')).toBe('createdAt:desc');
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
@@ -589,11 +714,15 @@ test('Regulation 46 disclosures expose safe links and reject unsafe destinations
             {
               documentId: 'disclosure-2',
               title: 'Materiality Policy',
+              order: null,
+              createdAt: '2026-09-01T10:00:00.000Z',
               link: 'javascript:alert(1)',
             },
             {
               documentId: 'disclosure-1',
               title: 'Annual Return',
+              order: null,
+              createdAt: '2026-09-02T10:00:00.000Z',
               link: '/uploads/annual-return.pdf',
             },
           ],
@@ -673,7 +802,8 @@ test('client relation lists safe Strapi files and keeps invalid files unavailabl
     async (route) => {
       const requestUrl = new URL(route.request().url());
       expect(requestUrl.searchParams.get('populate[0]')).toBe('file');
-      expect(requestUrl.searchParams.get('sort[0]')).toBe('title:asc');
+      expect(requestUrl.searchParams.get('sort[0]')).toBe('order:asc');
+      expect(requestUrl.searchParams.get('sort[1]')).toBe('createdAt:desc');
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
@@ -681,11 +811,15 @@ test('client relation lists safe Strapi files and keeps invalid files unavailabl
             {
               documentId: 'policy-2',
               title: 'Policy for withholding of securities',
+              order: null,
+              createdAt: '2026-09-01T10:00:00.000Z',
               file: { url: 'javascript:alert(1)' },
             },
             {
               documentId: 'policy-1',
               title: 'Anti Money Laundering Policy',
+              order: null,
+              createdAt: '2026-09-02T10:00:00.000Z',
               file: { url: '/uploads/anti-money-laundering-policy.pdf' },
             },
           ],

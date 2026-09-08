@@ -127,8 +127,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   Keep Overview, Shareholder Relation, Financial Reports, Regulation 46
   Disclosures, Client Relation and Corporate Presentation as separate local routes and mark each
   the group and current child. `src/data/investors.ts` owns only typed browser
-  reads for `overviews`, `shareholder-relation-categories` and
-  `shareholder-relations`, and `financial-reports`; do not turn it into a generic CMS layer. Overview rich
+  reads for `overviews`, `shareholder-relation-categories`,
+  `shareholder-relations`, `financial-reports`, `disclosure-2015s` and
+  `client-relations`; do not turn it into a generic CMS layer. Overview rich
   text must be sanitized before insertion. Render every overview title as an
   independent native details/summary dropdown, closed initially; do not add a
   custom accordion script. Preserve safe Markdown table tags and the focusable
@@ -148,12 +149,17 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   placeholder or false link. Keep its explicit
   `year`, `report_type`, `quarter` and `file` contract: Quarter records require
   1–4 while Full Year records use `null`; do not invent CMS fields.
-  Regulation 46 Disclosures reads `disclosure-2015s`, whose only content fields
-  are required `title` and `link`. Sort titles alphabetically, expose only safe
-  HTTP(S) destinations and keep unsafe destinations non-clickable.
+  Overview, Regulation 46 Disclosures and Client Relation use the CMS-managed
+  required integer `order` field: smaller values appear first, ties use Strapi's
+  system `createdAt` newest first, then title and document ID provide stable
+  ordering across all fetched pages. Treat legacy null or missing `order` values
+  as `0` until the record is updated. Do not display either ordering field.
+  Regulation 46 Disclosures reads `disclosure-2015s` with required `title`,
+  `link` and `order`; expose only safe HTTP(S) destinations and keep unsafe
+  destinations non-clickable.
   Client Relation reads `client-relations`, populates its single required `file`,
-  sorts titles alphabetically and exposes only safe HTTP(S) file URLs. Keep each
-  record as one simple title-and-download row; do not add categories or invented fields.
+  and exposes only safe HTTP(S) file URLs. Keep each record as one simple
+  title-and-download row; do not add categories or invented fields.
   Corporate Presentation is static: import
   `src/assets/docs/corporate-presentation_.pdf` in its named component and retain
   the reference-style preview plus View and Download actions. Do not add Strapi,

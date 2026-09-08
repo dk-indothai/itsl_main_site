@@ -1,8 +1,13 @@
 import { PUBLIC_STRAPI_URL } from 'astro:env/client';
 
-export interface InvestorOverview {
+interface OrderedInvestorRecord {
   documentId: string;
   title: string;
+  order?: number | null;
+  createdAt: string;
+}
+
+export interface InvestorOverview extends OrderedInvestorRecord {
   description: string;
 }
 
@@ -34,15 +39,11 @@ export interface FinancialReport {
   file?: InvestorFile | null;
 }
 
-export interface Regulation46Disclosure {
-  documentId: string;
-  title: string;
+export interface Regulation46Disclosure extends OrderedInvestorRecord {
   link: string;
 }
 
-export interface ClientRelation {
-  documentId: string;
-  title: string;
+export interface ClientRelation extends OrderedInvestorRecord {
   file?: InvestorFile | null;
 }
 
@@ -70,9 +71,8 @@ interface ApiPage<T> {
 
 async function getAll<T>(
   collection: string,
-  sortField: string,
+  sort: string[],
   populate: string[] = [],
-  sortDirection: 'asc' | 'desc' = 'asc',
   query: Record<string, string> = {},
 ): Promise<T[]> {
   const records: T[] = [];
@@ -82,7 +82,9 @@ async function getAll<T>(
     const url = new URL(`${investorsApi}/${collection}`);
     url.searchParams.set('pagination[page]', String(page));
     url.searchParams.set('pagination[pageSize]', '100');
-    url.searchParams.set('sort[0]', `${sortField}:${sortDirection}`);
+    sort.forEach((value, index) =>
+      url.searchParams.set(`sort[${index}]`, value),
+    );
     for (const [key, value] of Object.entries(query))
       url.searchParams.set(key, value);
     populate.forEach((field, index) =>
@@ -124,8 +126,31 @@ async function getAll<T>(
   return records;
 }
 
+function validManagedOrder(record: OrderedInvestorRecord) {
+  return (
+    (record.order == null || Number.isInteger(record.order)) &&
+    typeof record.createdAt === 'string' &&
+    Number.isFinite(Date.parse(record.createdAt))
+  );
+}
+
+function compareManagedOrder(
+  a: OrderedInvestorRecord,
+  b: OrderedInvestorRecord,
+) {
+  return (
+    (a.order ?? 0) - (b.order ?? 0) ||
+    Date.parse(b.createdAt) - Date.parse(a.createdAt) ||
+    a.title.localeCompare(b.title, 'en-IN') ||
+    a.documentId.localeCompare(b.documentId, 'en-IN')
+  );
+}
+
 export async function getInvestorOverviews(): Promise<InvestorOverview[]> {
-  const records = await getAll<InvestorOverview>('overviews', 'title');
+  const records = await getAll<InvestorOverview>('overviews', [
+    'order:asc',
+    'createdAt:desc',
+  ]);
   if (
     records.some(
       (item) =>
@@ -133,11 +158,12 @@ export async function getInvestorOverviews(): Promise<InvestorOverview[]> {
         !item.documentId ||
         typeof item.title !== 'string' ||
         !item.title.trim() ||
-        typeof item.description !== 'string',
+        typeof item.description !== 'string' ||
+        !validManagedOrder(item),
     )
   )
     throw new Error('The investor service returned an unexpected response.');
-  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
+  return records.sort(compareManagedOrder);
 }
 
 export async function getShareholderCategories(): Promise<
@@ -145,7 +171,7 @@ export async function getShareholderCategories(): Promise<
 > {
   const records = await getAll<ShareholderCategory>(
     'shareholder-relation-categories',
-    'name',
+    ['name:asc'],
   );
   if (
     records.some(
@@ -167,9 +193,8 @@ export async function getShareholderRelations(
     throw new Error('The investor service returned an unexpected response.');
   const records = await getAll<ShareholderRelation>(
     'shareholder-relations',
-    'original_created_at',
+    ['original_created_at:desc'],
     ['file', 'shareholder_relation_category'],
-    'desc',
     {
       'filters[shareholder_relation_category][documentId][$eq]':
         categoryDocumentId,
@@ -208,9 +233,11 @@ export async function getShareholderRelations(
 }
 
 export async function getFinancialReports(): Promise<FinancialReport[]> {
-  const records = await getAll<FinancialReport>('financial-reports', 'year', [
-    'file',
-  ]);
+  const records = await getAll<FinancialReport>(
+    'financial-reports',
+    ['year:asc'],
+    ['file'],
+  );
   if (
     records.some(
       (item) =>
@@ -241,28 +268,9 @@ export async function getFinancialReports(): Promise<FinancialReport[]> {
 export async function getRegulation46Disclosures(): Promise<
   Regulation46Disclosure[]
 > {
-  const records = await getAll<Regulation46Disclosure>(
-    'disclosure-2015s',
-    'title',
-  );
-  if (
-    records.some(
-      (item) =>
-        typeof item?.documentId !== 'string' ||
-        !item.documentId ||
-        typeof item.title !== 'string' ||
-        !item.title.trim() ||
-        typeof item.link !== 'string' ||
-        !item.link.trim(),
-    )
-  )
-    throw new Error('The investor service returned an unexpected response.');
-  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
-}
-
-export async function getClientRelations(): Promise<ClientRelation[]> {
-  const records = await getAll<ClientRelation>('client-relations', 'title', [
-    'file',
+  const records = await getAll<Regulation46Disclosure>('disclosure-2015s', [
+    'order:asc',
+    'createdAt:desc',
   ]);
   if (
     records.some(
@@ -271,11 +279,34 @@ export async function getClientRelations(): Promise<ClientRelation[]> {
         !item.documentId ||
         typeof item.title !== 'string' ||
         !item.title.trim() ||
-        (item.file != null && typeof item.file !== 'object'),
+        typeof item.link !== 'string' ||
+        !item.link.trim() ||
+        !validManagedOrder(item),
     )
   )
     throw new Error('The investor service returned an unexpected response.');
-  return records.sort((a, b) => a.title.localeCompare(b.title, 'en-IN'));
+  return records.sort(compareManagedOrder);
+}
+
+export async function getClientRelations(): Promise<ClientRelation[]> {
+  const records = await getAll<ClientRelation>(
+    'client-relations',
+    ['order:asc', 'createdAt:desc'],
+    ['file'],
+  );
+  if (
+    records.some(
+      (item) =>
+        typeof item?.documentId !== 'string' ||
+        !item.documentId ||
+        typeof item.title !== 'string' ||
+        !item.title.trim() ||
+        (item.file != null && typeof item.file !== 'object') ||
+        !validManagedOrder(item),
+    )
+  )
+    throw new Error('The investor service returned an unexpected response.');
+  return records.sort(compareManagedOrder);
 }
 
 export function investorError(error: unknown): string {
