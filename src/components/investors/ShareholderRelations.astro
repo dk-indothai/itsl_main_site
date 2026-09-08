@@ -15,9 +15,7 @@ import { site } from '../../data/site';
   </p> -->
   <div class="category-control">
     <label for="shareholder-category">Document category</label>
-    <select id="shareholder-category" data-category disabled>
-      <option value="">All Categories</option>
-    </select>
+    <select id="shareholder-category" data-category disabled></select>
   </div>
   <div class="feedback">
     <p role="status" aria-atomic="true" data-shareholder-status>
@@ -82,18 +80,6 @@ import { site } from '../../data/site';
   )!;
   let loading = false;
 
-  function filterRelations() {
-    let visible = 0;
-    for (const card of list.children) {
-      if (!(card instanceof HTMLElement)) continue;
-      card.hidden = !!select.value && card.dataset.category !== select.value;
-      if (!card.hidden) visible++;
-    }
-    status.textContent = visible
-      ? `${visible} shareholder ${visible === 1 ? 'document' : 'documents'}.`
-      : 'No shareholder documents yet.';
-  }
-
   async function loadRelations() {
     if (loading) return;
     loading = true;
@@ -102,20 +88,26 @@ import { site } from '../../data/site';
     list.setAttribute('aria-busy', 'true');
     status.textContent = 'Loading shareholder documents…';
     try {
-      const [categories, relations] = await Promise.all([
-        getShareholderCategories(),
-        getShareholderRelations(),
-      ]);
-      select.replaceChildren(new Option('All Categories', ''));
-      for (const category of categories)
-        select.add(new Option(category.name, category.documentId));
+      if (!select.options.length) {
+        const categories = await getShareholderCategories();
+        for (const category of categories)
+          select.add(new Option(category.name, category.documentId));
+        if (!categories.length) {
+          list.replaceChildren();
+          status.textContent = 'No shareholder categories yet.';
+          retry.hidden = true;
+          return;
+        }
+        select.selectedIndex = 0;
+      }
+
+      list.replaceChildren();
+      const relations = await getShareholderRelations(select.value);
 
       const cards = relations.map((relation) => {
         const card = template.content.firstElementChild!.cloneNode(
           true,
         ) as HTMLElement;
-        card.dataset.category =
-          relation.shareholder_relation_category?.documentId ?? '';
         card.querySelector('[data-relation-title]')!.textContent =
           relation.title;
         const href = publicFileUrl(relation.file);
@@ -139,8 +131,9 @@ import { site } from '../../data/site';
         return card;
       });
       list.replaceChildren(...cards);
-      select.disabled = false;
-      filterRelations();
+      status.textContent = relations.length
+        ? `${relations.length} shareholder ${relations.length === 1 ? 'document' : 'documents'}.`
+        : 'No shareholder documents yet.';
       retry.hidden = true;
     } catch (error) {
       status.textContent = investorError(error);
@@ -148,11 +141,12 @@ import { site } from '../../data/site';
     } finally {
       list.setAttribute('aria-busy', 'false');
       retry.disabled = false;
+      select.disabled = select.options.length === 0;
       loading = false;
     }
   }
 
-  select.addEventListener('change', filterRelations);
+  select.addEventListener('change', loadRelations);
   retry.addEventListener('click', loadRelations);
   if (root.dataset.api) void loadRelations();
 </script>

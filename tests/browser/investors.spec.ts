@@ -205,9 +205,10 @@ test('overview titles open as accessible dropdowns with sanitized rich text', as
   await expect(dropdown).not.toHaveAttribute('open', '');
 });
 
-test('shareholder documents filter locally and retain empty categories', async ({
+test('shareholder documents load the selected category on demand', async ({
   page,
 }) => {
+  const requestedCategories: string[] = [];
   await page.route(
     'http://strapi.test/api/shareholder-relation-categories**',
     async (route) => {
@@ -234,30 +235,50 @@ test('shareholder documents filter locally and retain empty categories', async (
       expect(requestUrl.searchParams.get('populate[1]')).toBe(
         'shareholder_relation_category',
       );
+      const category = requestUrl.searchParams.get(
+        'filters[shareholder_relation_category][documentId][$eq]',
+      );
+      expect(category).not.toBeNull();
+      requestedCategories.push(category!);
+      const data =
+        category === 'annual'
+          ? [
+              {
+                documentId: 'report-1',
+                title: 'Annual Report 2025',
+                original_created_at: '2025-08-01T10:00:00.000Z',
+                file: {
+                  name: 'annual-report',
+                  ext: '.pdf',
+                  url: '/uploads/annual-report.pdf',
+                  size: 1250,
+                },
+                shareholder_relation_category: { documentId: 'annual' },
+              },
+            ]
+          : [];
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
-          data: [
-            {
-              documentId: 'report-1',
-              title: 'Annual Report 2025',
-              original_created_at: '2025-08-01T10:00:00.000Z',
-              file: {
-                name: 'annual-report',
-                ext: '.pdf',
-                url: '/uploads/annual-report.pdf',
-                size: 1250,
-              },
-              shareholder_relation_category: { documentId: 'annual' },
+          data,
+          meta: {
+            pagination: {
+              ...pagination,
+              pageCount: data.length ? 1 : 0,
+              total: data.length,
             },
-          ],
-          meta: { pagination },
+          },
         }),
       });
     },
   );
 
   await page.goto('/investors/shareholder-relation/');
+  await expect(page.getByLabel('Document category')).toHaveValue('annual');
+  await expect(
+    page.getByLabel('Document category').getByRole('option'),
+  ).toHaveText(['Annual Reports', 'Notices']);
+  expect(requestedCategories).toEqual(['annual']);
   await expect(
     page.getByRole('heading', { name: 'Annual Report 2025' }),
   ).toBeVisible();
@@ -271,16 +292,19 @@ test('shareholder documents filter locally and retain empty categories', async (
   await expect(page.getByRole('status')).toHaveText(
     'No shareholder documents yet.',
   );
+  expect(requestedCategories).toEqual(['annual', 'empty']);
   await expect(
     page.getByRole('heading', { name: 'Annual Report 2025' }),
   ).toBeHidden();
   await page.getByLabel('Document category').selectOption('annual');
   await expect(page.getByRole('status')).toHaveText('1 shareholder document.');
+  expect(requestedCategories).toEqual(['annual', 'empty', 'annual']);
 });
 
 test('shareholder documents sort newest first across pages and after filtering', async ({
   page,
 }) => {
+  const requestedCategories: string[] = [];
   await page.route(
     'http://strapi.test/api/shareholder-relation-categories**',
     async (route) => {
@@ -306,25 +330,14 @@ test('shareholder documents sort newest first across pages and after filtering',
       const requestedPage = Number(
         requestUrl.searchParams.get('pagination[page]'),
       );
+      const category = requestUrl.searchParams.get(
+        'filters[shareholder_relation_category][documentId][$eq]',
+      );
+      expect(category).not.toBeNull();
+      requestedCategories.push(category!);
       const data =
-        requestedPage === 1
+        category === 'notices'
           ? [
-              {
-                documentId: 'undated',
-                title: 'Undated Report',
-                original_created_at: null,
-                file: null,
-                shareholder_relation_category: { documentId: 'annual' },
-              },
-              {
-                documentId: 'same-zulu',
-                title: 'Zulu Same Date',
-                original_created_at: '2025-06-01T10:00:00.000Z',
-                file: null,
-                shareholder_relation_category: { documentId: 'annual' },
-              },
-            ]
-          : [
               {
                 documentId: 'older',
                 title: 'Older Notice',
@@ -332,21 +345,40 @@ test('shareholder documents sort newest first across pages and after filtering',
                 file: null,
                 shareholder_relation_category: { documentId: 'notices' },
               },
-              {
-                documentId: 'newest',
-                title: 'Newest Annual Report',
-                original_created_at: '2026-01-01T10:00:00.000Z',
-                file: null,
-                shareholder_relation_category: { documentId: 'annual' },
-              },
-              {
-                documentId: 'same-alpha',
-                title: 'Alpha Same Date',
-                original_created_at: '2025-06-01T10:00:00.000Z',
-                file: null,
-                shareholder_relation_category: { documentId: 'annual' },
-              },
-            ];
+            ]
+          : requestedPage === 1
+            ? [
+                {
+                  documentId: 'undated',
+                  title: 'Undated Report',
+                  original_created_at: null,
+                  file: null,
+                  shareholder_relation_category: { documentId: 'annual' },
+                },
+                {
+                  documentId: 'same-zulu',
+                  title: 'Zulu Same Date',
+                  original_created_at: '2025-06-01T10:00:00.000Z',
+                  file: null,
+                  shareholder_relation_category: { documentId: 'annual' },
+                },
+              ]
+            : [
+                {
+                  documentId: 'newest',
+                  title: 'Newest Annual Report',
+                  original_created_at: '2026-01-01T10:00:00.000Z',
+                  file: null,
+                  shareholder_relation_category: { documentId: 'annual' },
+                },
+                {
+                  documentId: 'same-alpha',
+                  title: 'Alpha Same Date',
+                  original_created_at: '2025-06-01T10:00:00.000Z',
+                  file: null,
+                  shareholder_relation_category: { documentId: 'annual' },
+                },
+              ];
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
@@ -355,8 +387,8 @@ test('shareholder documents sort newest first across pages and after filtering',
             pagination: {
               page: requestedPage,
               pageSize: 100,
-              pageCount: 2,
-              total: 5,
+              pageCount: category === 'notices' ? 1 : 2,
+              total: category === 'notices' ? 1 : 4,
             },
           },
         }),
@@ -370,17 +402,13 @@ test('shareholder documents sort newest first across pages and after filtering',
     'Newest Annual Report',
     'Alpha Same Date',
     'Zulu Same Date',
-    'Older Notice',
     'Undated Report',
   ]);
+  expect(requestedCategories).toEqual(['annual', 'annual']);
 
-  await page.getByLabel('Document category').selectOption('annual');
-  await expect(visibleTitles).toHaveText([
-    'Newest Annual Report',
-    'Alpha Same Date',
-    'Zulu Same Date',
-    'Undated Report',
-  ]);
+  await page.getByLabel('Document category').selectOption('notices');
+  await expect(visibleTitles).toHaveText(['Older Notice']);
+  expect(requestedCategories).toEqual(['annual', 'annual', 'notices']);
 });
 
 test('financial reports group into year dropdowns and expose safe files', async ({

@@ -99,6 +99,10 @@ and complaint attachments use the private-upload flow; the website never
 deletes failed or abandoned uploads. Live submission tests require separate
 owner approval and synthetic data.
 
+Shareholder Relation selects the first alphabetical document category after
+loading. It intentionally does not provide an All Categories option and requests
+documents from Strapi only when their category is selected.
+
 ## Project structure
 
 ```text

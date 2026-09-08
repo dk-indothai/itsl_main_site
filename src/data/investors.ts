@@ -73,6 +73,7 @@ async function getAll<T>(
   sortField: string,
   populate: string[] = [],
   sortDirection: 'asc' | 'desc' = 'asc',
+  query: Record<string, string> = {},
 ): Promise<T[]> {
   const records: T[] = [];
   const signal = AbortSignal.timeout(20_000);
@@ -82,6 +83,8 @@ async function getAll<T>(
     url.searchParams.set('pagination[page]', String(page));
     url.searchParams.set('pagination[pageSize]', '100');
     url.searchParams.set('sort[0]', `${sortField}:${sortDirection}`);
+    for (const [key, value] of Object.entries(query))
+      url.searchParams.set(key, value);
     populate.forEach((field, index) =>
       url.searchParams.set(`populate[${index}]`, field),
     );
@@ -157,14 +160,20 @@ export async function getShareholderCategories(): Promise<
   return records.sort((a, b) => a.name.localeCompare(b.name, 'en-IN'));
 }
 
-export async function getShareholderRelations(): Promise<
-  ShareholderRelation[]
-> {
+export async function getShareholderRelations(
+  categoryDocumentId: string,
+): Promise<ShareholderRelation[]> {
+  if (!categoryDocumentId)
+    throw new Error('The investor service returned an unexpected response.');
   const records = await getAll<ShareholderRelation>(
     'shareholder-relations',
     'original_created_at',
     ['file', 'shareholder_relation_category'],
     'desc',
+    {
+      'filters[shareholder_relation_category][documentId][$eq]':
+        categoryDocumentId,
+    },
   );
   if (
     records.some(
@@ -174,8 +183,7 @@ export async function getShareholderRelations(): Promise<
         typeof item.title !== 'string' ||
         !item.title.trim() ||
         (item.file != null && typeof item.file !== 'object') ||
-        (item.shareholder_relation_category != null &&
-          typeof item.shareholder_relation_category.documentId !== 'string'),
+        item.shareholder_relation_category?.documentId !== categoryDocumentId,
     )
   )
     throw new Error('The investor service returned an unexpected response.');

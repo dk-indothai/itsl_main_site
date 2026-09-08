@@ -1,12 +1,15 @@
 # Website migration verification
 
-## Shareholder original-date ordering — 7 September 2026
+## Shareholder category loading and original-date ordering — 8 September 2026
 
 The Shareholder Relation page now requests `original_created_at:desc` and sorts the
 complete paginated result by the custom original creation date before building
 cards. Dated records appear newest first, equal dates use title and document ID
-for stable ordering, and undated records remain visible at the end. Filtering a
-category preserves this order. The date is not rendered in the interface.
+for stable ordering, and undated records remain visible at the end. Each category
+is requested from Strapi only when selected and preserves this order. The date is
+not rendered in the interface.
+The category selector intentionally omits All Categories and selects the first
+alphabetical category after loading.
 
 The accompanying Strapi schema and seed script add and populate the optional
 `original_created_at` field without conflicting with Strapi's system `createdAt`
@@ -22,7 +25,8 @@ owner reruns the script to backfill existing records.
 | Website formatting       | `npm run format:check` passed.                                                          |
 | Website Astro/TypeScript | `npm run check`: 98 files, zero errors, warnings or hints.                              |
 | Static output/build      | `npm test`: all nine Node test files passed; all seventeen static routes built.         |
-| Browser tests            | Full 206/206 and all 13 focused Investor tests passed with newest-first behavior.       |
+| Browser tests            | Full 206/206 and all 13 focused Investor tests passed, including per-category requests. |
+| Development layouts      | `npm run test:dev`: all 35 responsive and local-asset checks passed.                    |
 
 ## Blog listing and post pages — 7 September 2026
 

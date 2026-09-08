@@ -235,7 +235,10 @@ language: compact Raleway headings, readable body copy, white bordered cards and
 brand-blue document actions. A small local page navigation sits above each title
 so visitors can switch between the six destinations without reopening the header.
 The shareholder filter is a labeled native select, matching the source's familiar
-category interaction while preserving keyboard and mobile behavior.
+category interaction while preserving keyboard and mobile behavior. It starts on
+the first alphabetical category and does not include an All Categories option.
+Selecting a category replaces the document list with that category's on-demand
+Strapi response.
 
 CMS loading, empty/error feedback and Retry use the existing muted caption and
 action patterns. Each Overview card is a native details/summary disclosure: its

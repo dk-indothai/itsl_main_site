@@ -67,7 +67,7 @@ test('shareholder relation is a static, noindex CMS shell', async () => {
   );
   assert.ok(select);
   assert.notEqual(attr(select, 'disabled'), undefined);
-  assert.ok(text(tree).includes('All Categories'));
+  assert.ok(!text(tree).includes('All Categories'));
   assert.ok(
     text(tree).includes('Enable JavaScript to load shareholder documents.'),
   );
@@ -238,6 +238,11 @@ test('investor reads use only the six intended public Strapi collections', async
     assert.ok(source.includes(collection));
   assert.ok(source.includes("['file', 'shareholder_relation_category']"));
   assert.ok(source.includes("'original_created_at'"));
+  assert.ok(
+    source.includes(
+      "'filters[shareholder_relation_category][documentId][$eq]'",
+    ),
+  );
   assert.ok(source.includes("credentials: 'omit'"));
   assert.ok(!source.includes('Authorization'));
   assert.ok(!source.includes('POST'));
