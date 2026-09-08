@@ -301,6 +301,92 @@ test('shareholder documents load the selected category on demand', async ({
   expect(requestedCategories).toEqual(['annual', 'empty', 'annual']);
 });
 
+test('shareholder page contains long CMS content without document overflow', async ({
+  page,
+}) => {
+  const longCategory =
+    'Corporate Governance Reports and Shareholder Communications for Regulatory Compliance';
+  const longTitle =
+    'DisclosureUnderRegulationFortySixForShareholdersWithAnUnusuallyLongUnbrokenTitle';
+  const longFilename =
+    'shareholder_relation_regulatory_disclosure_with_an_unusually_long_filename_for_mobile_devices.pdf';
+
+  await page.route(
+    'http://strapi.test/api/shareholder-relation-categories**',
+    async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [{ documentId: 'long-category', name: longCategory }],
+          meta: { pagination },
+        }),
+      });
+    },
+  );
+  await page.route(
+    'http://strapi.test/api/shareholder-relations**',
+    async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              documentId: 'long-report',
+              title: longTitle,
+              original_created_at: '2026-01-01T10:00:00.000Z',
+              file: {
+                name: longFilename.replace('.pdf', ''),
+                ext: '.pdf',
+                url: '/uploads/long-report.pdf',
+                size: 1250,
+              },
+              shareholder_relation_category: {
+                documentId: 'long-category',
+              },
+            },
+          ],
+          meta: { pagination },
+        }),
+      });
+    },
+  );
+
+  for (const width of [320, 360, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/investors/shareholder-relation/');
+    await expect(page.getByRole('heading', { name: longTitle })).toBeVisible();
+    await expect(page.getByText(longFilename)).toBeVisible();
+
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+
+    for (const locator of [
+      page.getByLabel('Document category'),
+      page.locator('.relation-card'),
+      page.getByRole('link', { name: new RegExp(`Download ${longTitle}`) }),
+    ]) {
+      const box = await locator.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+    }
+
+    const investorTabs = page
+      .getByRole('navigation', { name: 'Investor pages' })
+      .locator('ul');
+    expect(
+      await investorTabs.evaluate(
+        (element) => element.scrollWidth > element.clientWidth,
+      ),
+    ).toBe(true);
+  }
+});
+
 test('shareholder documents sort newest first across pages and after filtering', async ({
   page,
 }) => {
