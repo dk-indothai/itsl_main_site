@@ -7,6 +7,10 @@ const html = await readFile(
   new URL('../dist/index.html', import.meta.url),
   'utf8',
 );
+const robots = await readFile(
+  new URL('../public/robots.txt', import.meta.url),
+  'utf8',
+);
 const tree = parse(html);
 const attr = (node, key) =>
   node.attrs?.find((item) => item.name === key)?.value;
@@ -80,7 +84,10 @@ test('only the seventeen approved routes are generated', async () => {
 });
 
 test('preview SEO is explicit and does not invent production URLs', () => {
-  assert.equal(text(nodes('title')[0]), 'Home - IndoThai');
+  assert.equal(
+    text(nodes('title')[0]),
+    'Stock Broking, Trading & Investment Services | IndoThai',
+  );
   const metadata = nodes('meta');
   const content = (key, value) =>
     attr(
@@ -89,12 +96,16 @@ test('preview SEO is explicit and does not invent production URLs', () => {
     );
   assert.equal(content('name', 'robots'), 'noindex, nofollow');
   assert.ok(content('name', 'description').length > 50);
-  assert.equal(content('property', 'og:title'), 'Home - IndoThai');
+  assert.equal(
+    content('property', 'og:title'),
+    'Stock Broking, Trading & Investment Services | IndoThai',
+  );
   assert.equal(content('name', 'twitter:card'), 'summary');
   assert.equal(
     nodes('link').filter((node) => attr(node, 'rel') === 'canonical').length,
     0,
   );
+  assert.ok(!robots.includes('Sitemap:'));
 });
 
 test('all services, final statistics, testimonials and regulatory details are rendered', () => {

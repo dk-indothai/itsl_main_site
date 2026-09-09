@@ -9,11 +9,15 @@ const previewUrl = `${presentationPdf}#page=1&view=FitH&toolbar=0&navpanes=0&scr
   aria-labelledby="corporate-presentation-title"
 >
   <h1 id="corporate-presentation-title">Corporate Presentation</h1>
+  <p class="intro">
+    View the IndoThai corporate presentation below, or use the actions to open
+    or download the PDF.
+  </p>
   <div class="presentation-frame">
     <iframe
       src={previewUrl}
       title="IndoThai corporate presentation PDF preview"
-      loading="eager"></iframe>
+      loading="lazy"></iframe>
     <div class="presentation-actions" aria-label="Presentation actions">
       <a
         class="action action-light"
@@ -43,6 +47,12 @@ const previewUrl = `${presentationPdf}#page=1&view=FitH&toolbar=0&navpanes=0&scr
     color: var(--color-brand);
     font-size: var(--text-section);
     line-height: var(--leading-section);
+    text-align: center;
+  }
+  .intro {
+    max-width: var(--about-introduction-max);
+    margin-inline: auto;
+    color: var(--color-muted);
     text-align: center;
   }
   .presentation-frame {

@@ -35,7 +35,9 @@ import { site } from '../../data/site';
           <h2><a data-title-link></a></h2>
           <p class="excerpt" data-excerpt></p>
           <footer>
-            <a class="read-more" data-read-more>Read More</a>
+            <a class="read-more" data-read-more
+              >Read More<span class="sr-only" data-read-more-label></span></a
+            >
             <time data-date></time>
           </footer>
         </div>
@@ -100,6 +102,8 @@ import { site } from '../../data/site';
         ))
           link.href = href;
         card.querySelector('[data-title-link]')!.textContent = post.title;
+        card.querySelector('[data-read-more-label]')!.textContent =
+          ` about ${post.title}`;
         card.querySelector('[data-excerpt]')!.textContent = excerpt(
           post.content,
         );

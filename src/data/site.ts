@@ -82,7 +82,7 @@ export const site = {
 } as const;
 
 export const homeMeta = {
-  title: 'Home - IndoThai',
+  title: 'Stock Broking, Trading & Investment Services | IndoThai',
   description:
     'Tailored financial solutions for your unique needs. Explore IndoThai’s trading, mutual funds, wealth management and investment services.',
 };

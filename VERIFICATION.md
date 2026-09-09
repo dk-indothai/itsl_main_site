@@ -1,5 +1,38 @@
 # Website migration verification
 
+## SEO quick-fix pass — 9 September 2026
+
+The first post-audit implementation pass addressed changes that do not require a
+production origin, redirect approval, Strapi changes or regulated-fact edits.
+Preview remains `noindex, nofollow`. Its `robots.txt` no longer advertises the
+production sitemap. Home, Careers and Blog have clearer search titles; Careers
+also has a descriptive H1. Downloads, the five CMS-backed Investor pages and
+Corporate Presentation now retain a short useful introduction before browser
+records load.
+
+Corporate Presentation uses native lazy loading for its local PDF preview.
+Financial-report years are H2 headings. Close Account links to its procedure,
+Raise Ticket exposes official SCORES/SMART ODR resources, and Blog “Read More”
+links gain post-specific accessible context. Job Details hides its inactive
+application panel before enhanced rendering, reserves the loading viewport and
+keeps the disabled explanatory form available without JavaScript. A new mobile
+PerformanceObserver regression enforces CLS at or below 0.1.
+
+The five Investor static-test expectations now match the documented unconfigured
+fallback. The Raise Ticket native-select test uses Playwright's deterministic
+native selection API; application markup and browser behavior were not replaced
+with a custom select. The Close Account busy-state regression compares button
+dimensions rather than viewport-relative position after browser scrolling.
+
+| Check                   | Result                                                                     |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Formatting              | `npm run format:check` passed.                                             |
+| Astro/TypeScript        | `npm run check`: 98 files, zero errors, warnings or hints.                 |
+| Static output/build     | `npm test`: 49/49 passed; all seventeen static routes built.               |
+| Complete browser tests  | `npm run test:browser`: 209/209 Chromium tests passed.                     |
+| Development asset tests | `npm run test:dev`: 35/35 responsive and local-asset checks passed.        |
+| Safety                  | No live form, upload, candidate, complaint or closure request was created. |
+
 ## Full-page phone navigation — 8 September 2026
 
 At widths below the existing 48rem tablet breakpoint, opening the shared

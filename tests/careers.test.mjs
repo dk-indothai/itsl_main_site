@@ -15,7 +15,7 @@ const text = (node) =>
     : (node.childNodes || []).map(text).join('');
 
 for (const [route, title] of [
-  ['careers', 'Careers - IndoThai'],
+  ['careers', 'Careers & Current Job Openings | IndoThai Securities'],
   ['careers/job', 'Job details and application - IndoThai'],
 ]) {
   const html = await readFile(
@@ -135,4 +135,14 @@ test('careers keeps API operations in browser scripts and never reads candidates
   );
   assert.ok(application.includes('/private-upload'));
   assert.ok(application.includes("body.append('purpose', 'resume')"));
+});
+
+test('job detail prevents the enhanced first-paint form collapse', async () => {
+  const source = await readFile(
+    new URL('../src/components/careers/JobDetails.astro', import.meta.url),
+    'utf8',
+  );
+  assert.ok(source.includes('@media (scripting: enabled)'));
+  assert.ok(source.includes("section.dataset.enhanced = ''"));
+  assert.ok(source.includes('.job-details:not([data-enhanced]) #apply-panel'));
 });

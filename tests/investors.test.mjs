@@ -44,7 +44,14 @@ test('investor overview is a static, noindex CMS shell', async () => {
     1,
   );
   assert.ok(
-    text(tree).includes('Enable JavaScript to load the investor overview.'),
+    text(tree).includes(
+      'Investor information is not configured yet. Please contact us for assistance.',
+    ),
+  );
+  assert.ok(
+    text(tree).includes(
+      'Company information and updates for IndoThai investors and shareholders.',
+    ),
   );
   assert.ok(
     nodes('a').some(
@@ -69,7 +76,14 @@ test('shareholder relation is a static, noindex CMS shell', async () => {
   assert.notEqual(attr(select, 'disabled'), undefined);
   assert.ok(!text(tree).includes('All Categories'));
   assert.ok(
-    text(tree).includes('Enable JavaScript to load shareholder documents.'),
+    text(tree).includes(
+      'Shareholder documents are not configured yet. Please contact us for assistance.',
+    ),
+  );
+  assert.ok(
+    text(tree).includes(
+      'Browse shareholder documents and company disclosures by category.',
+    ),
   );
   assert.ok(
     nodes('a').some(
@@ -90,7 +104,14 @@ test('financial reports is a static, noindex CMS shell', async () => {
     1,
   );
   assert.ok(
-    text(tree).includes('Enable JavaScript to load financial reports.'),
+    text(tree).includes(
+      'Financial reports are not configured yet. Please contact us for assistance.',
+    ),
+  );
+  assert.ok(
+    text(tree).includes(
+      'Browse IndoThai quarterly and full-year financial reports.',
+    ),
   );
   assert.ok(
     nodes('a').some(
@@ -117,7 +138,14 @@ test('Regulation 46 disclosures is a static, noindex CMS shell', async () => {
     1,
   );
   assert.ok(
-    text(tree).includes('Enable JavaScript to load Regulation 46 disclosures.'),
+    text(tree).includes(
+      'Regulation 46 disclosures are not configured yet. Please contact us for assistance.',
+    ),
+  );
+  assert.ok(
+    text(tree).includes(
+      'Access IndoThai disclosures published under Regulation 46 of the SEBI Listing Obligations and Disclosure Requirements Regulations, 2015.',
+    ),
   );
   assert.ok(
     nodes('a').some(
@@ -144,6 +172,7 @@ test('corporate presentation uses the local PDF with view and download actions',
     attr(node, 'title')?.includes('corporate presentation'),
   );
   assert.ok(preview);
+  assert.equal(attr(preview, 'loading'), 'lazy');
   assert.match(
     attr(preview, 'src'),
     /^\/_astro\/corporate-presentation_\..+\.pdf#/,
@@ -185,7 +214,14 @@ test('client relation is a static, noindex CMS shell', async () => {
     1,
   );
   assert.ok(
-    text(tree).includes('Enable JavaScript to load client relation documents.'),
+    text(tree).includes(
+      'Client relation documents are not configured yet. Please contact us for assistance.',
+    ),
+  );
+  assert.ok(
+    text(tree).includes(
+      'Access IndoThai client policies, forms and investor information.',
+    ),
   );
   assert.ok(
     nodes('a').some(
@@ -206,6 +242,7 @@ test('financial report years use native dropdown markup', async () => {
   );
   assert.ok(source.includes('<details class="year-group">'));
   assert.ok(source.includes('<summary>'));
+  assert.ok(source.includes('<h2 class="year-label" data-year-label></h2>'));
   assert.ok(source.includes('group.element.open = index === 0'));
   for (const period of [
     '1st Quarter',

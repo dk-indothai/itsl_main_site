@@ -104,6 +104,31 @@ const status = (page: Page) => page.locator('[data-application-status]');
 const submit = (page: Page) =>
   page.getByRole('button', { name: 'Submit application' });
 
+test('job detail avoids a poor first-paint layout shift', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    const auditWindow = window as typeof window & { __auditCls: number };
+    auditWindow.__auditCls = 0;
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const shift = entry as PerformanceEntry & {
+          hadRecentInput: boolean;
+          value: number;
+        };
+        if (!shift.hadRecentInput) auditWindow.__auditCls += shift.value;
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
+  });
+  await mockCareers(page);
+  await page.goto('/careers/job/?id=open-job');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(job.title);
+  await page.waitForTimeout(250);
+  const cls = await page.evaluate(
+    () => (window as typeof window & { __auditCls: number }).__auditCls,
+  );
+  expect(cls).toBeLessThanOrEqual(0.1);
+});
+
 test('lists all statuses, tags and sorted jobs with shareable local links', async ({
   page,
 }) => {

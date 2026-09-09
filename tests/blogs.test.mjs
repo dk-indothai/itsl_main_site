@@ -15,7 +15,7 @@ const text = (node) =>
     : (node.childNodes || []).map(text).join('');
 
 for (const [route, title, heading] of [
-  ['blog', 'Blog - IndoThai', 'Blog'],
+  ['blog', 'Investment Insights & Market Updates | IndoThai', 'Blog'],
   ['blog/post', 'Blog post - IndoThai', 'Blog post'],
 ]) {
   const html = await readFile(

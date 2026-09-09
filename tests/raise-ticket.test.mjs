@@ -118,4 +118,9 @@ test('raise-a-ticket uses local navigation and a safe client contract', () => {
     ),
   );
   assert.ok(nodes('a').some((node) => attr(node, 'href')?.startsWith('tel:')));
+  for (const href of [
+    'https://scores.sebi.gov.in/',
+    'https://smartodr.in/login',
+  ])
+    assert.ok(nodes('a').some((node) => attr(node, 'href') === href));
 });

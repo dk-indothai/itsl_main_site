@@ -98,4 +98,9 @@ test('close-account uses the local navigation destination and safe client contra
     ),
   );
   assert.ok(nodes('a').some((node) => attr(node, 'href')?.startsWith('tel:')));
+  assert.ok(
+    nodes('a').some(
+      (node) => attr(node, 'href') === '/procedure-of-closing-account/',
+    ),
+  );
 });

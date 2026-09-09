@@ -8,6 +8,7 @@ import ApplicationForm from './ApplicationForm.astro';
   class="job-details page-shell"
   data-job-details
   data-api={careersApi}
+  data-loading={careersApi ? '' : undefined}
   aria-labelledby="job-title"
 >
   <a class="back-link" href={links.careers}>← Back to Careers</a>
@@ -240,6 +241,7 @@ import ApplicationForm from './ApplicationForm.astro';
       document.title = 'Job details unavailable - IndoThai';
       retry.hidden = false;
     } finally {
+      delete section.dataset.loading;
       loading = false;
       retry.disabled = false;
     }
@@ -250,12 +252,14 @@ import ApplicationForm from './ApplicationForm.astro';
   });
   retry.addEventListener('click', loadJob);
   panels[1].hidden = true;
+  section.dataset.enhanced = '';
   if (section.dataset.api) void loadJob();
 </script>
 <style>
   @reference '../../styles/tokens.css';
   .job-details {
     max-width: var(--content-max);
+    min-height: calc(100svh - var(--header-height));
     padding-top: var(--space-xl);
     overflow-wrap: anywhere;
   }
@@ -339,6 +343,16 @@ import ApplicationForm from './ApplicationForm.astro';
     padding: var(--space-xl);
     border: var(--border-thin) solid var(--color-subtle);
     border-radius: var(--radius-testimonial);
+  }
+  /* Hide the inactive form before module execution to prevent first-paint CLS.
+     With scripting disabled, the explanatory disabled form stays readable. */
+  @media (scripting: enabled) {
+    .job-details:not([data-enhanced]) #apply-panel {
+      display: none;
+    }
+    .job-details[data-loading] .contact-alternatives {
+      display: none;
+    }
   }
   .job-description {
     font-size: var(--text-content-body);

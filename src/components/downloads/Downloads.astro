@@ -25,6 +25,10 @@ try {
   data-api-base={apiBase}
 >
   <h1 id="downloads-title">Software Downloads</h1>
+  <p class="downloads-intro">
+    Browse IndoThai software downloads by category. Contact the helpdesk if you
+    need assistance choosing or using a published file.
+  </p>
   <div
     class="category-filters"
     role="group"
@@ -405,9 +409,14 @@ try {
     font-size: var(--text-small);
   }
   h1 {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-sm);
     font-size: var(--text-section);
     line-height: var(--leading-section);
+  }
+  .downloads-intro {
+    max-width: var(--about-introduction-max);
+    margin-bottom: var(--space-xl);
+    color: var(--color-muted);
   }
   .category-filters {
     display: flex;

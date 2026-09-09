@@ -1,6 +1,6 @@
 ---
 import { PUBLIC_STRAPI_URL } from 'astro:env/client';
-import { site } from '../../data/site';
+import { links, site } from '../../data/site';
 
 let endpoint: string | undefined;
 try {
@@ -34,6 +34,11 @@ try {
     <p>
       Enter the details registered with IndoThai. Submitting this form creates a
       closure request; it does not confirm that your account has been closed.
+    </p>
+    <p class="procedure-link">
+      Before submitting, review the <a href={links.closeProcedure}
+        >procedure for closing an account</a
+      >.
     </p>
   </header>
 
@@ -297,11 +302,17 @@ try {
     font-size: var(--text-content-heading);
     line-height: var(--leading-content-heading);
   }
-  .close-account-intro > p:last-child {
+  .close-account-intro > p:not(.eyebrow) {
     max-width: 46rem;
     margin: var(--space-md) auto 0;
     color: var(--color-muted);
     font-size: var(--text-small);
+  }
+  .procedure-link a {
+    color: var(--color-brand);
+    font-weight: var(--font-weight-medium);
+    text-decoration: underline;
+    text-underline-offset: var(--focus-offset);
   }
   .request-card {
     max-width: var(--form-panel-max);
@@ -402,7 +413,7 @@ try {
     .close-account-intro {
       text-align: left;
     }
-    .close-account-intro > p:last-child {
+    .close-account-intro > p:not(.eyebrow) {
       margin-inline: 0;
     }
     .request-card {

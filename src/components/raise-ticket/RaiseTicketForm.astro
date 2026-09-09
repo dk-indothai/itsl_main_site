@@ -1,6 +1,6 @@
 ---
 import { PUBLIC_STRAPI_URL } from 'astro:env/client';
-import { site } from '../../data/site';
+import { links, site } from '../../data/site';
 
 const issues = [
   'Account Opening',
@@ -208,6 +208,16 @@ try {
         Email <a href={`mailto:${site.complianceEmail}`}
           >{site.complianceEmail}</a
         > or call <a href={site.telephone.href}>{site.telephone.label}</a>.
+      </p>
+      <p>
+        Official investor-resolution resources: <a
+          href={links.scores}
+          target="_blank"
+          rel="noopener noreferrer"
+          >SEBI SCORES<span class="sr-only"> (opens in a new tab)</span></a
+        > and <a href={links.smartOdr} target="_blank" rel="noopener noreferrer"
+          >SMART ODR<span class="sr-only"> (opens in a new tab)</span></a
+        >.
       </p>
     </aside>
   </div>
@@ -685,6 +695,9 @@ try {
   }
   .support p {
     font-size: var(--text-caption);
+  }
+  .support p + p {
+    margin-top: var(--space-xs);
   }
   .support a {
     color: var(--color-brand);

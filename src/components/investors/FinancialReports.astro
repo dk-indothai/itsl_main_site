@@ -10,9 +10,9 @@ import { site } from '../../data/site';
   data-api={investorsApi}
 >
   <h1 id="financial-reports-title">Financial Reports</h1>
-  <!-- <p class="intro">
+  <p class="intro">
     Browse IndoThai quarterly and full-year financial reports.
-  </p> -->
+  </p>
   <div class="feedback">
     <p role="status" aria-atomic="true" data-report-status>
       {
@@ -34,7 +34,7 @@ import { site } from '../../data/site';
   <template data-year-template>
     <details class="year-group">
       <summary>
-        <span class="year-label" data-year-label></span>
+        <h2 class="year-label" data-year-label></h2>
         <span class="year-summary">
           <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true">
             <path d="m5 7.5 5 5 5-5"></path>
@@ -195,11 +195,11 @@ import { site } from '../../data/site';
     font-size: var(--text-section);
     line-height: var(--leading-section);
   }
-  /* .intro {
+  .intro {
     max-width: var(--about-introduction-max);
     margin-top: var(--space-md);
     color: var(--color-muted);
-  } */
+  }
   .feedback {
     display: flex;
     align-items: center;

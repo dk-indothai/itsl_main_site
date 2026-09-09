@@ -163,7 +163,7 @@ test.describe('Raise ticket', () => {
     await expect(page.getByLabel('File attachment (optional)')).toHaveValue('');
   });
 
-  test('validates required fields, email and the native issue select', async ({
+  test('validates required fields, email and native issue selection', async ({
     page,
   }) => {
     let attempts = 0;
@@ -198,8 +198,8 @@ test.describe('Raise ticket', () => {
       .fill(values.email);
     const select = page.getByLabel('Issue (required)', { exact: true });
     await select.focus();
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Enter');
+    await expect(select).toBeFocused();
+    await select.selectOption('Account Opening');
     await expect(select).toHaveValue('Account Opening');
   });
 

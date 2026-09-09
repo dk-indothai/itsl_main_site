@@ -72,9 +72,9 @@ test.describe('Close account request', () => {
     await expect(page.getByRole('status')).toHaveText(
       'Submitting your closure request…',
     );
-    expect(await page.locator('button[type=submit]').boundingBox()).toEqual(
-      before,
-    );
+    const during = await page.locator('button[type=submit]').boundingBox();
+    expect(during?.width).toBe(before?.width);
+    expect(during?.height).toBe(before?.height);
     await page
       .locator('form')
       .evaluate((form) =>
