@@ -142,6 +142,8 @@ state-management library, or new backend integration without approval.
 
 - Edit repeated marketing content in the relevant `src/data/` file.
 - Edit navigation and external destinations in `src/data/nav.ts` and `site.ts`.
+- The hamburger menu becomes a full-page panel below the header on phone widths;
+  its markup and behavior remain owned by `src/components/shared/Header.astro`.
 - Edit layout or page-specific behavior in the named component under `src/components/`.
 - Change typography, spacing, colors, breakpoints, shadows and motion in `tokens.css`.
 - Replace local images under `src/assets/images/` and keep alt text and dimensions accurate.

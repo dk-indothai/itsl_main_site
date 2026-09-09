@@ -267,6 +267,8 @@ const isCurrentGroup = (children: { href: string }[]) =>
 </header>
 
 <style>
+  @reference '../../styles/global.css';
+
   .site-header {
     position: sticky;
     top: 0;
@@ -412,12 +414,51 @@ const isCurrentGroup = (children: { href: string }[]) =>
     border-left: var(--border-thin) solid var(--color-subtle);
     margin-left: var(--space-sm);
   }
+  @media (width < theme(--breakpoint-tablet)) {
+    .menu-panel {
+      position: fixed;
+      inset: var(--header-height) 0 auto;
+      width: 100%;
+      height: calc(100dvh - var(--header-height));
+      max-height: none;
+      padding: var(--space-md) var(--page-gutter)
+        calc(var(--space-md) + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border: 0;
+      border-top: var(--border-thin) solid var(--color-panel-border);
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .menu-panel > ul {
+      width: min(100%, var(--content-max));
+      margin-inline: auto;
+    }
+    :global(html[data-mobile-menu-open]),
+    :global(html[data-mobile-menu-open] body) {
+      overflow: hidden;
+    }
+  }
 </style>
 <script>
   const header = document.querySelector<HTMLElement>('[data-header]');
+  const utilityMenu = document.querySelector<HTMLDetailsElement>(
+    '[data-utility-menu]',
+  );
+  const utilityPanel = utilityMenu?.querySelector<HTMLElement>('.menu-panel');
   const disclosures = [
     ...document.querySelectorAll<HTMLDetailsElement>('[data-nav-disclosure]'),
   ];
+  const syncMobileMenu = () => {
+    const isFullPageMenu =
+      utilityMenu?.open &&
+      utilityPanel &&
+      getComputedStyle(utilityPanel).position === 'fixed';
+    document.documentElement.toggleAttribute(
+      'data-mobile-menu-open',
+      Boolean(isFullPageMenu),
+    );
+  };
   const close = (detail: HTMLDetailsElement, restoreFocus: boolean) => {
     detail
       .querySelectorAll<HTMLDetailsElement>('details[open]')
@@ -442,6 +483,9 @@ const isCurrentGroup = (children: { href: string }[]) =>
       }
     });
   });
+  utilityMenu?.addEventListener('toggle', syncMobileMenu);
+  window.addEventListener('resize', syncMobileMenu);
+  window.addEventListener('pageshow', syncMobileMenu);
   document.addEventListener('pointerdown', (event) => {
     const target = event.target;
     if (target instanceof Node) {

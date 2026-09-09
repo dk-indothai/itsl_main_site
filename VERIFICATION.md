@@ -1,5 +1,23 @@
 # Website migration verification
 
+## Full-page phone navigation — 8 September 2026
+
+At widths below the existing 48rem tablet breakpoint, opening the shared
+hamburger menu now creates a fixed white panel from the bottom of the header to
+the bottom of the viewport. The header remains visible, the menu scrolls
+internally and the covered document is locked until the menu closes. Tablet and
+desktop widths keep the existing compact dropdown.
+
+| Check                    | Result                                                                                 |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| Formatting               | `npm run format:check` passed.                                                         |
+| Astro/TypeScript         | `npm run check`: 98 files, zero errors, warnings or hints.                             |
+| Static output/build      | `npm test` passed; all seventeen static routes built.                                  |
+| Focused browser tests    | 31/31 passed across Home, About Us and Mutual Funds.                                   |
+| Complete browser tests   | 208/208 Chromium tests passed.                                                         |
+| Responsive menu behavior | Verified viewport bounds, internal scroll, page lock, close/unlock and keyboard paths. |
+| Visual inspection        | The open menu was inspected at a 760px-wide local viewport.                            |
+
 ## CMS-controlled Investor ordering — 8 September 2026
 
 Overview, Regulation 46 Disclosure and Client Relation records now request the

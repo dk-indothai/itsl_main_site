@@ -24,6 +24,9 @@ Owner-approved refinements include aligned statistic cards, quote-first testimon
 cards with compact controls, SVG disclosure icons, compact header actions and a
 centralized section gaps across all three pages. Preserve these changes rather than restoring
 the source's overlaps/backdrop; see `DESIGN.md` for their token ownership.
+On phone widths, the hamburger menu covers the viewport below the visible header,
+scrolls internally and prevents the covered page from scrolling. Keep the compact
+dropdown behavior at tablet and desktop widths.
 The owner requested a static left-to-right NRI flight overlay crossing the heading
 and cards, superseding the earlier separated divider. Keep its line subtle,
 non-interactive and decorative; do not animate the plane or shrink the original icon.

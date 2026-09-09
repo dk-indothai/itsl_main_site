@@ -277,8 +277,11 @@ for (const route of ['about-us', 'mutual-funds']) {
       ),
     ).toBe(true);
     await toggle.click();
-    const menuBounds = await menu.boundingBox();
-    await page.mouse.click(menuBounds!.x - 10, menuBounds!.y + 20);
+    const headerBounds = await page.locator('.header-inner').boundingBox();
+    await page.mouse.click(
+      headerBounds!.x + headerBounds!.width / 2,
+      headerBounds!.y + headerBounds!.height / 2,
+    );
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await toggle.click();
     await menu.getByRole('link', { name: 'Home', exact: true }).click();

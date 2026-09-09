@@ -166,9 +166,12 @@ new-tab notice. Account and IPO actions navigate to existing approved services.
 
 ### Navigation and data display
 
-Header disclosures are non-modal, not focus-trapped drawers. Native details/summary
-provide the no-JavaScript baseline. Enhancements handle Escape, outside dismissal,
-focus restoration and expanded state. Closed descendants leave the tab order.
+Header disclosures are non-modal and not focus trapped. Native details/summary
+provide the no-JavaScript baseline. On phone widths, the main menu fills the
+viewport below the still-visible header and scrolls internally; enhanced browsers
+lock the covered page while it is open. Tablet and desktop widths retain the compact
+dropdown. Enhancements handle Escape, outside dismissal, focus restoration and
+expanded state. Closed descendants leave the tab order.
 Home, About Us, Mutual Funds, Close Account, Procedure for Closing an Account,
 Raise Ticket, Software Downloads, Careers, Blog and all six Investor pages route
 locally, with the current page marked in its navigation link. Careers remains

@@ -174,16 +174,42 @@ test('mobile menu keeps primary navigation and account actions available', async
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Navigation menu' }).click();
+  const toggle = page.getByRole('button', { name: 'Navigation menu' });
+  await toggle.click();
   const menu = page.getByRole('navigation', { name: 'More navigation' });
+  const header = page.locator('.site-header');
+  await expect(menu).toHaveCSS('position', 'fixed');
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-mobile-menu-open',
+    '',
+  );
+  await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+  const headerBox = await header.boundingBox();
+  const menuBox = await menu.boundingBox();
+  expect(menuBox!.x).toBe(0);
+  expect(menuBox!.width).toBe(390);
+  expect(
+    Math.abs(menuBox!.y - (headerBox!.y + headerBox!.height)),
+  ).toBeLessThan(1);
+  expect(Math.abs(menuBox!.y + menuBox!.height - 844)).toBeLessThan(1);
   await expect(
     menu.getByRole('link', { name: 'About Us', exact: true }),
   ).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Apply IPO' })).toBeVisible();
+  await menu.evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  await expect(toggle).toBeVisible();
   await menu.getByRole('button', { name: 'Modify Account' }).click();
   await expect(
     menu.getByRole('link', { name: 'Closing/ Modifications/ Reactivation' }),
   ).toBeVisible();
+  await toggle.click();
+  await expect(page.locator('html')).not.toHaveAttribute(
+    'data-mobile-menu-open',
+    '',
+  );
 });
 
 test('carousel reaches all six quotes, pauses on interaction and resumes', async ({
