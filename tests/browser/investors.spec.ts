@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 const pagination = { page: 1, pageSize: 100, pageCount: 1, total: 1 };
 
@@ -342,8 +342,12 @@ test('shareholder documents load the selected category on demand', async ({
           data: [
             { documentId: 'annual', name: 'Annual Reports' },
             { documentId: 'empty', name: 'Notices' },
+            {
+              documentId: 'reconciliation',
+              name: 'Reconciliation of Share Capital Audit Report',
+            },
           ],
-          meta: { pagination: { ...pagination, total: 2 } },
+          meta: { pagination: { ...pagination, total: 3 } },
         }),
       });
     },
@@ -401,7 +405,11 @@ test('shareholder documents load the selected category on demand', async ({
   await expect(page.getByLabel('Document category')).toHaveValue('annual');
   await expect(
     page.getByLabel('Document category').getByRole('option'),
-  ).toHaveText(['Annual Reports', 'Notices']);
+  ).toHaveText([
+    'Annual Reports',
+    'Notices',
+    'Reconciliation of Share Capital Audit Report',
+  ]);
   expect(requestedCategories).toEqual(['annual']);
   await expect(
     page.getByRole('heading', { name: 'Annual Report 2025' }),
@@ -413,6 +421,9 @@ test('shareholder documents load the selected category on demand', async ({
   ).toHaveAttribute('href', 'http://strapi.test/uploads/annual-report.pdf');
 
   await page.getByLabel('Document category').selectOption('empty');
+  await expect(page).toHaveURL(
+    '/investors/shareholder-relation/?shareholder_type=notices',
+  );
   await expect(page.getByRole('status')).toHaveText(
     'No shareholder documents yet.',
   );
@@ -420,9 +431,29 @@ test('shareholder documents load the selected category on demand', async ({
   await expect(
     page.getByRole('heading', { name: 'Annual Report 2025' }),
   ).toBeHidden();
-  await page.getByLabel('Document category').selectOption('annual');
-  await expect(page.getByRole('status')).toHaveText('1 shareholder document.');
-  expect(requestedCategories).toEqual(['annual', 'empty', 'annual']);
+
+  await page.getByLabel('Document category').selectOption('reconciliation');
+  await expect(page).toHaveURL(
+    '/investors/shareholder-relation/?shareholder_type=reconciliationreport',
+  );
+  await expect(page.getByRole('status')).toHaveText(
+    'No shareholder documents yet.',
+  );
+  expect(requestedCategories).toEqual(['annual', 'empty', 'reconciliation']);
+
+  await page.goBack();
+  await expect(page.getByLabel('Document category')).toHaveValue('empty');
+  await expect
+    .poll(() => requestedCategories)
+    .toEqual(['annual', 'empty', 'reconciliation', 'empty']);
+
+  await page.goto(
+    '/investors/shareholder-relation/?shareholder_type=reconciliationreport',
+  );
+  await expect(page.getByLabel('Document category')).toHaveValue(
+    'reconciliation',
+  );
+  await expect.poll(() => requestedCategories.at(-1)).toBe('reconciliation');
 });
 
 test('shareholder page contains long CMS content without document overflow', async ({

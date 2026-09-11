@@ -1,0 +1,24 @@
+---
+import { links } from '../../data/site';
+
+const destination = links.shareholderRelation;
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Redirecting to Shareholder Relation - IndoThai</title>
+    <script is:inline define:vars={{ destination }}>
+      window.location.replace(destination);
+    </script>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href={destination}>Shareholder Relation</a>.
+    </p>
+  </body>
+</html>

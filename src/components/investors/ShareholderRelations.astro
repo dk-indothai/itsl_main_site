@@ -78,10 +78,57 @@ import { site } from '../../data/site';
   const template = root.querySelector<HTMLTemplateElement>(
     '[data-relation-template]',
   )!;
+  const shareholderTypeParameter = 'shareholder_type';
   let loading = false;
+  let reloadQueued = false;
+
+  function categoryUrlValue(name: string) {
+    const normalized = name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('en-IN')
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9]+/g, '');
+
+    return normalized === 'reconciliationofsharecapitalauditreport'
+      ? 'reconciliationreport'
+      : normalized;
+  }
+
+  function selectCategoryFromUrl() {
+    const requestedType = new URL(window.location.href).searchParams.get(
+      shareholderTypeParameter,
+    );
+    if (!requestedType) return;
+
+    const option = Array.from(select.options).find(
+      (item) => item.dataset.shareholderType === requestedType,
+    );
+    if (option) {
+      select.value = option.value;
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete(shareholderTypeParameter);
+    window.history.replaceState(window.history.state, '', url);
+  }
+
+  function pushSelectedCategoryToUrl() {
+    const selectedOption = select.selectedOptions[0];
+    const shareholderType = selectedOption?.dataset.shareholderType;
+    if (!shareholderType) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set(shareholderTypeParameter, shareholderType);
+    window.history.pushState(window.history.state, '', url);
+  }
 
   async function loadRelations() {
-    if (loading) return;
+    if (loading) {
+      reloadQueued = true;
+      return;
+    }
     loading = true;
     retry.disabled = true;
     select.disabled = true;
@@ -90,8 +137,11 @@ import { site } from '../../data/site';
     try {
       if (!select.options.length) {
         const categories = await getShareholderCategories();
-        for (const category of categories)
-          select.add(new Option(category.name, category.documentId));
+        for (const category of categories) {
+          const option = new Option(category.name, category.documentId);
+          option.dataset.shareholderType = categoryUrlValue(category.name);
+          select.add(option);
+        }
         if (!categories.length) {
           list.replaceChildren();
           status.textContent = 'No shareholder categories yet.';
@@ -99,10 +149,12 @@ import { site } from '../../data/site';
           return;
         }
         select.selectedIndex = 0;
+        selectCategoryFromUrl();
       }
 
       list.replaceChildren();
-      const relations = await getShareholderRelations(select.value);
+      const categoryDocumentId = select.value;
+      const relations = await getShareholderRelations(categoryDocumentId);
 
       const cards = relations.map((relation) => {
         const card = template.content.firstElementChild!.cloneNode(
@@ -143,10 +195,22 @@ import { site } from '../../data/site';
       retry.disabled = false;
       select.disabled = select.options.length === 0;
       loading = false;
+      if (reloadQueued) {
+        reloadQueued = false;
+        void loadRelations();
+      }
     }
   }
 
-  select.addEventListener('change', loadRelations);
+  select.addEventListener('change', () => {
+    pushSelectedCategoryToUrl();
+    void loadRelations();
+  });
+  window.addEventListener('popstate', () => {
+    select.selectedIndex = 0;
+    selectCategoryFromUrl();
+    void loadRelations();
+  });
   retry.addEventListener('click', loadRelations);
   if (root.dataset.api) void loadRelations();
 </script>

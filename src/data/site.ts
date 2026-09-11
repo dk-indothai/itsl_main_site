@@ -5,7 +5,7 @@ export const links = {
   about: '/about-us/',
   mutualFunds: '/mutual-funds/',
   careers: '/careers/',
-  investors: '/investors/overview/',
+  investors: '/investors/',
   investorsOverview: '/investors/overview/',
   shareholderRelation: '/investors/shareholder-relation/',
   financialReports: '/investors/financial-reports/',

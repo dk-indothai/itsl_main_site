@@ -14,6 +14,9 @@ Overview (`/investors/overview/`) and Shareholder Relation
 (`/investors/client-relation/`) and Corporate Presentation
 (`/investors/corporate-presentation/`), Blog (`/blog/`) and blog post
 (`/blog/post/?id=<documentId>`) routes are implemented and link locally.
+The compatibility route `/investors/` redirects to Shareholder Relation.
+The generated 404 page redirects unknown routes to Home.
+Only Home opens the source Investor Alert on page load; keep it off all other routes.
 Downloads, Careers, Blog and five Investor pages load CMS records in browser
 JavaScript; Corporate Presentation is fully static.
 All other unbuilt pages still link to staging. The previous project remains
@@ -50,6 +53,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   (`/investors/client-relation/`) and Corporate Presentation
   (`/investors/corporate-presentation/`), Blog (`/blog/`) and blog post
   (`/blog/post/?id=<documentId>`).
+- `/investors/` is an approved compatibility redirect to
+  `/investors/shareholder-relation/`.
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.
@@ -143,6 +148,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   `original_created_at` field, newest first, with undated records last; do not display the
   date or confuse it with Strapi's system `createdAt`. The category selector has no
   All Categories option and selects the first alphabetical category after loading.
+  User selections add a readable `shareholder_type` query value, valid incoming
+  values restore the category, and browser history must keep the URL, selector and
+  documents aligned. Keep filtering Strapi with the category document ID.
   Financial Reports populates `file`, sorts
   newest year first and groups records in native year dropdowns, with only the
   newest year expanded initially. Each expanded year keeps the staging-style fixed
@@ -294,7 +302,8 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
 ## Build, verification, and change discipline
 
 - Use npm and preserve `package-lock.json`. Node is pinned in `.nvmrc`.
-  Build the seventeen approved static routes into `dist/`. Software, opening,
+  Build the nineteen approved static outputs into `dist/`, including the Investors
+  compatibility redirect and generated 404 redirect. Software, opening,
   Blog and investor records require JavaScript and are absent from initial HTML;
   retain preview noindex and do not claim per-job or per-post server-rendered
   metadata.

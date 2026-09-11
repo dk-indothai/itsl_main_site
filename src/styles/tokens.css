@@ -12,6 +12,7 @@
   --color-footer: #f6f7f9;
   --color-muted: #54545e;
   --color-error: #a32121;
+  --color-investor-alert: #ff0000;
   --color-panel-border: #dce3ef;
   --color-company-band: #e9ecf7;
   --color-fund-card: #2440a8;
@@ -60,6 +61,7 @@
   --text-quote: 1.0625rem;
   --leading-quote: 1.65;
   --text-small: 1rem;
+  --text-investor-alert-title: 1.5rem;
   --text-caption: 0.875rem;
   --text-fine: 0.75rem;
   --text-stat: 2.5rem;
@@ -194,6 +196,9 @@
   --procedure-image-max: 41.9375rem;
   --blog-content-max: 64rem;
   --blog-banner-max-height: 30rem;
+  --investor-alert-max-width: 39.5rem;
+  --investor-alert-backdrop: rgb(0 0 0 / 80%);
+  --layer-dialog: 50;
 }
 
 @media (width < theme(--breakpoint-desktop)) {

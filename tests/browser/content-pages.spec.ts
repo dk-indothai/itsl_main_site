@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test('Mutual Funds flight is a static, non-interactive overlay across the heading and cards', async ({
   page,

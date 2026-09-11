@@ -3,7 +3,10 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   output: 'static',
-  trailingSlash: 'always',
+  // Keep authored links slash-terminated, but let the custom 404 handle either
+  // form. Astro's dev/preview servers otherwise replace 404.astro with their
+  // own trailing-slash mismatch page before the Home redirect can run.
+  trailingSlash: 'ignore',
   env: {
     schema: {
       PUBLIC_STRAPI_URL: envField.string({

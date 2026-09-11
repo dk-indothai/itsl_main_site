@@ -14,6 +14,12 @@ The following routes are implemented and linked locally:
 `/investors/disclosures-under-regulation-46/`, `/investors/client-relation/`,
 `/investors/corporate-presentation/`, `/blog/`, and `/blog/post/`.
 
+`/investors/` redirects visitors to `/investors/shareholder-relation/`.
+Unknown routes use the generated `404.html` to redirect visitors to Home.
+Astro accepts both slash and non-slash request forms so its development and
+preview servers do not replace that custom fallback with a slash-mismatch page;
+authored internal links remain slash-terminated.
+
 Other navigation still points to staging. The site is static and has not been
 deployed. Preview builds use `noindex, nofollow`.
 
@@ -101,7 +107,10 @@ owner approval and synthetic data.
 
 Shareholder Relation selects the first alphabetical document category after
 loading. It intentionally does not provide an All Categories option and requests
-documents from Strapi only when their category is selected.
+documents from Strapi only when their category is selected. A visitor's category
+selection is added to the URL as `shareholder_type` (for example,
+`?shareholder_type=reconciliationreport`) so it can be shared and restored with
+browser Back and Forward navigation.
 
 Overview, Regulation 46 Disclosures and Client Relation are ordered through each
 record's required integer `order` field. Smaller values appear first. Equal values

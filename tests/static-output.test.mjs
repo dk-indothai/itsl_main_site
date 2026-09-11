@@ -39,12 +39,13 @@ test('component colors and CSS breakpoints use the canonical design tokens', asy
   }
 });
 
-test('only the seventeen approved routes are generated', async () => {
+test('only the nineteen approved routes are generated', async () => {
   assert.deepEqual(
     (await readdir(new URL('../dist/', import.meta.url), { recursive: true }))
       .filter((name) => name.endsWith('.html'))
       .sort(),
     [
+      '404.html',
       'about-us/index.html',
       'blog/index.html',
       'blog/post/index.html',
@@ -57,6 +58,7 @@ test('only the seventeen approved routes are generated', async () => {
       'investors/corporate-presentation/index.html',
       'investors/disclosures-under-regulation-46/index.html',
       'investors/financial-reports/index.html',
+      'investors/index.html',
       'investors/overview/index.html',
       'investors/shareholder-relation/index.html',
       'mutual-funds/index.html',
@@ -81,6 +83,44 @@ test('only the seventeen approved routes are generated', async () => {
     );
     previous = level;
   }
+});
+
+test('the Home-only Investor Alert and compatibility redirects are rendered safely', async () => {
+  const dialogs = nodes('dialog');
+  assert.equal(dialogs.length, 1);
+  assert.equal(attr(dialogs[0], 'data-investor-alert'), '');
+  assert.equal(attr(dialogs[0], 'aria-labelledby'), 'investor-alert-title');
+  assert.ok(pageText.includes('Investor Alert'));
+  assert.ok(
+    pageText.includes(
+      'We caution all investors to be aware of fraudulent groups on social media',
+    ),
+  );
+
+  const shareholderHtml = await readFile(
+    new URL(
+      '../dist/investors/shareholder-relation/index.html',
+      import.meta.url,
+    ),
+    'utf8',
+  );
+  assert.ok(!shareholderHtml.includes('data-investor-alert'));
+
+  const redirect = await readFile(
+    new URL('../dist/investors/index.html', import.meta.url),
+    'utf8',
+  );
+  assert.ok(redirect.includes('0;url=/investors/shareholder-relation/'));
+  assert.ok(redirect.includes('window.location.replace(destination)'));
+  assert.ok(redirect.includes('noindex, nofollow'));
+
+  const notFoundRedirect = await readFile(
+    new URL('../dist/404.html', import.meta.url),
+    'utf8',
+  );
+  assert.ok(notFoundRedirect.includes('0;url=/'));
+  assert.ok(notFoundRedirect.includes('window.location.replace(destination)'));
+  assert.ok(notFoundRedirect.includes('noindex, nofollow'));
 });
 
 test('preview SEO is explicit and does not invent production URLs', () => {

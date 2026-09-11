@@ -21,6 +21,7 @@ components:
   raiseTicketForm: {}
   applicationForm: {}
   investorNavigation: {}
+  investorAlert: {}
   investorOverview: {}
   shareholderRelations: {}
   clientRelations: {}
@@ -241,7 +242,9 @@ The shareholder filter is a labeled native select, matching the source's familia
 category interaction while preserving keyboard and mobile behavior. It starts on
 the first alphabetical category and does not include an All Categories option.
 Selecting a category replaces the document list with that category's on-demand
-Strapi response.
+Strapi response and records the readable `shareholder_type` value in the URL.
+Opening a valid category URL restores that selection, and browser Back and Forward
+keep the URL, control and document list aligned.
 
 CMS loading, empty/error feedback and Retry use the existing muted caption and
 action patterns. Each Overview card is a native details/summary disclosure: its
@@ -279,6 +282,15 @@ overflow. The component uses only existing panel, spacing and action tokens; the
 PDF itself is a local build asset and no client script or CMS loading state is needed.
 
 ### Forms and overlays
+
+The homepage opens the source Investor Alert on every page load. Its white panel,
+red title, dotted copy border and dark backdrop follow the production reference,
+while the native modal keeps background content inert. The close button receives
+initial focus; Tab stays within the dialog, and the close button, Escape or a
+backdrop click dismisses it and restores scrolling. Long copy scrolls inside the
+bounded panel on short viewports. The alert uses the global dialog layer and
+token-owned color, width and backdrop values without animation or browser storage.
+It is intentionally absent from every non-home route.
 
 Careers retains the reference's large text-only hero, bordered opening cards and
 Overview/Apply Now tabs. Its audience is prospective employees; the task is reading

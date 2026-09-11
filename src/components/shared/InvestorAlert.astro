@@ -1,0 +1,160 @@
+<dialog
+  class="investor-alert"
+  data-investor-alert
+  aria-labelledby="investor-alert-title"
+  aria-describedby="investor-alert-copy"
+>
+  <button
+    class="investor-alert-close"
+    type="button"
+    data-investor-alert-close
+    aria-label="Close investor alert"
+    autofocus
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="m6 6 12 12M18 6 6 18"></path>
+    </svg>
+  </button>
+  <h2 class="investor-alert-title" id="investor-alert-title">Investor Alert</h2>
+  <p class="investor-alert-copy" id="investor-alert-copy">
+    We caution all investors to be aware of fraudulent groups on social media
+    platforms like WhatsApp, Telegram, Facebook, Instagram, etc. and advise them
+    not to conduct any financial transactions or invest their money on these
+    platforms without verifying the company/platform. Indo Thai Securities never
+    approaches customers/public through social media/ WhatsApp for any formal
+    business transaction. Neither has authorized any person or entity to collect
+    funds through any WhatsApp groups, social media channels, or any such
+    unauthorized channels.
+  </p>
+</dialog>
+
+<style>
+  .investor-alert {
+    width: min(
+      var(--investor-alert-max-width),
+      calc(100% - 2 * var(--space-md))
+    );
+    max-height: calc(100dvh - 2 * var(--space-md));
+    margin: auto;
+    padding: var(--space-sm);
+    border: 0;
+    border-radius: var(--radius-card);
+    background: var(--color-white);
+    color: var(--color-body);
+    box-shadow: var(--shadow-menu);
+    overflow: hidden;
+    z-index: var(--layer-dialog);
+  }
+  .investor-alert[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .investor-alert::backdrop {
+    background: var(--investor-alert-backdrop);
+  }
+  .investor-alert-close {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--target-min);
+    height: var(--target-min);
+    padding: 0;
+    border: var(--border-thin) solid var(--color-panel-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    color: var(--color-brand);
+  }
+  .investor-alert-close:hover {
+    background: var(--color-soft);
+    border-color: var(--color-brand);
+  }
+  .investor-alert-close:active {
+    background: var(--color-company-band);
+  }
+  .investor-alert-close svg {
+    width: var(--space-md);
+    height: var(--space-md);
+  }
+  .investor-alert-title {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: var(--space-sm) calc(var(--target-min) + var(--space-sm))
+      var(--space-md);
+    color: var(--color-investor-alert);
+    font-family: var(--font-body);
+    font-size: var(--text-investor-alert-title);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-body);
+    text-align: center;
+  }
+  .investor-alert-copy {
+    min-height: 0;
+    padding: var(--space-md);
+    border: var(--border-thin) dotted var(--color-border);
+    border-radius: var(--radius-control);
+    overflow-y: auto;
+    color: var(--color-body);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--leading-body);
+    text-align: center;
+  }
+  :global(html[data-investor-alert-open]),
+  :global(html[data-investor-alert-open] body) {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>(
+    '[data-investor-alert]',
+  );
+  const closeButton = dialog?.querySelector<HTMLButtonElement>(
+    '[data-investor-alert-close]',
+  );
+  const previouslyFocused =
+    document.activeElement instanceof HTMLElement &&
+    document.activeElement !== document.body
+      ? document.activeElement
+      : null;
+  const setOpenState = (open: boolean) =>
+    document.documentElement.toggleAttribute('data-investor-alert-open', open);
+  const closeDialog = () => {
+    if (dialog?.open) dialog.close();
+  };
+
+  if (dialog) {
+    dialog.addEventListener('close', () => {
+      setOpenState(false);
+      previouslyFocused?.focus();
+    });
+    dialog.addEventListener('click', (event) => {
+      const bounds = dialog.getBoundingClientRect();
+      const clickedBackdrop =
+        event.clientX < bounds.left ||
+        event.clientX > bounds.right ||
+        event.clientY < bounds.top ||
+        event.clientY > bounds.bottom;
+      if (clickedBackdrop) closeDialog();
+    });
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        closeButton?.focus();
+      }
+    });
+    closeButton?.addEventListener('click', closeDialog);
+    setOpenState(true);
+    dialog.showModal();
+  }
+</script>

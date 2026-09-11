@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 for (const width of [1280, 768, 729, 390, 320]) {
   test(`homepage has no overflow or missing assets at ${width}px`, async ({
