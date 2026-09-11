@@ -150,9 +150,11 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   `original_created_at` field, newest first, with undated records last; do not display the
   date or confuse it with Strapi's system `createdAt`. The category selector has no
   All Categories option and selects the first alphabetical category after loading.
-  User selections add a readable `shareholder_type` query value, valid incoming
-  values restore the category, and browser history must keep the URL, selector and
-  documents aligned. Keep filtering Strapi with the category document ID.
+  User selections use the category's optional CMS `slug` as the `shareholder_type`
+  query value; never derive it from `name`. Valid incoming slug values restore the
+  category, and browser history must keep the URL, selector and documents aligned.
+  A missing slug omits the query value. Keep filtering Strapi with the category
+  document ID.
   Financial Reports populates `file`, sorts
   newest year first and groups records in native year dropdowns, with only the
   newest year expanded initially. Each expanded year keeps the staging-style fixed

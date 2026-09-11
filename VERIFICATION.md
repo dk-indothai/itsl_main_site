@@ -20,11 +20,15 @@ non-slash request forms so its development and preview servers reach that custom
 page instead of replacing it with their built-in trailing-slash mismatch screen.
 The exact `/sdsd` path was verified in both environments.
 
-Shareholder category changes now add a readable `shareholder_type` query value.
-The Reconciliation of Share Capital Audit Report category uses the requested
-`?shareholder_type=reconciliationreport` value. Valid direct links restore the
+Shareholder category changes now use the category's CMS-managed `slug` as the
+`shareholder_type` query value instead of deriving it from the category name. The
+Reconciliation of Share Capital Audit Report category fixture uses the requested
+`?shareholder_type=reconciliationreport` value, and a deliberately different
+Notices slug verifies the field is authoritative. Valid direct links restore the
 matching category, browser Back and Forward reload the correct records, and the
-Strapi filter continues to use the category document ID.
+Strapi filter continues to use the category document ID. When no query is supplied,
+the first alphabetical category is selected and its slug is added with
+`history.replaceState`, so initial loading does not create a redundant Back entry.
 
 | Check                       | Result                                                                          |
 | --------------------------- | ------------------------------------------------------------------------------- |

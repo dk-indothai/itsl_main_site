@@ -340,14 +340,28 @@ test('shareholder documents load the selected category on demand', async ({
         contentType: 'application/json',
         body: JSON.stringify({
           data: [
-            { documentId: 'annual', name: 'Annual Reports' },
-            { documentId: 'empty', name: 'Notices' },
+            {
+              documentId: 'annual',
+              name: 'Annual Reports',
+              slug: 'annualreports',
+            },
+            {
+              documentId: 'empty',
+              name: 'Notices',
+              slug: 'notice-documents',
+            },
+            {
+              documentId: 'legacy',
+              name: 'Legacy Documents',
+              slug: null,
+            },
             {
               documentId: 'reconciliation',
               name: 'Reconciliation of Share Capital Audit Report',
+              slug: 'reconciliationreport',
             },
           ],
-          meta: { pagination: { ...pagination, total: 3 } },
+          meta: { pagination: { ...pagination, total: 4 } },
         }),
       });
     },
@@ -403,10 +417,14 @@ test('shareholder documents load the selected category on demand', async ({
 
   await page.goto('/investors/shareholder-relation/');
   await expect(page.getByLabel('Document category')).toHaveValue('annual');
+  await expect(page).toHaveURL(
+    '/investors/shareholder-relation/?shareholder_type=annualreports',
+  );
   await expect(
     page.getByLabel('Document category').getByRole('option'),
   ).toHaveText([
     'Annual Reports',
+    'Legacy Documents',
     'Notices',
     'Reconciliation of Share Capital Audit Report',
   ]);
@@ -422,7 +440,7 @@ test('shareholder documents load the selected category on demand', async ({
 
   await page.getByLabel('Document category').selectOption('empty');
   await expect(page).toHaveURL(
-    '/investors/shareholder-relation/?shareholder_type=notices',
+    '/investors/shareholder-relation/?shareholder_type=notice-documents',
   );
   await expect(page.getByRole('status')).toHaveText(
     'No shareholder documents yet.',
@@ -454,6 +472,10 @@ test('shareholder documents load the selected category on demand', async ({
     'reconciliation',
   );
   await expect.poll(() => requestedCategories.at(-1)).toBe('reconciliation');
+
+  await page.getByLabel('Document category').selectOption('legacy');
+  await expect(page).toHaveURL('/investors/shareholder-relation/');
+  await expect.poll(() => requestedCategories.at(-1)).toBe('legacy');
 });
 
 test('shareholder page contains long CMS content without document overflow', async ({
@@ -472,7 +494,13 @@ test('shareholder page contains long CMS content without document overflow', asy
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
-          data: [{ documentId: 'long-category', name: longCategory }],
+          data: [
+            {
+              documentId: 'long-category',
+              name: longCategory,
+              slug: 'governance-communications',
+            },
+          ],
           meta: { pagination },
         }),
       });
@@ -553,8 +581,16 @@ test('shareholder documents sort newest first across pages and after filtering',
         contentType: 'application/json',
         body: JSON.stringify({
           data: [
-            { documentId: 'notices', name: 'Notices' },
-            { documentId: 'annual', name: 'Annual Reports' },
+            {
+              documentId: 'notices',
+              name: 'Notices',
+              slug: 'notices',
+            },
+            {
+              documentId: 'annual',
+              name: 'Annual Reports',
+              slug: 'annualreports',
+            },
           ],
           meta: { pagination: { ...pagination, total: 2 } },
         }),

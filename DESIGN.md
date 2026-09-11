@@ -242,9 +242,10 @@ The shareholder filter is a labeled native select, matching the source's familia
 category interaction while preserving keyboard and mobile behavior. It starts on
 the first alphabetical category and does not include an All Categories option.
 Selecting a category replaces the document list with that category's on-demand
-Strapi response and records the readable `shareholder_type` value in the URL.
-Opening a valid category URL restores that selection, and browser Back and Forward
-keep the URL, control and document list aligned.
+Strapi response and records its CMS-managed category `slug` as the
+`shareholder_type` value in the URL. Opening a valid category URL restores that
+selection, and browser Back and Forward keep the URL, control and document list
+aligned.
 
 CMS loading, empty/error feedback and Retry use the existing muted caption and
 action patterns. Each Overview card is a native details/summary disclosure: its

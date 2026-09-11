@@ -14,6 +14,7 @@ export interface InvestorOverview extends OrderedInvestorRecord {
 export interface ShareholderCategory {
   documentId: string;
   name: string;
+  slug?: string | null;
 }
 
 export interface InvestorFile {
@@ -179,7 +180,9 @@ export async function getShareholderCategories(): Promise<
         typeof item?.documentId !== 'string' ||
         !item.documentId ||
         typeof item.name !== 'string' ||
-        !item.name.trim(),
+        !item.name.trim() ||
+        (item.slug != null &&
+          (typeof item.slug !== 'string' || !item.slug.trim())),
     )
   )
     throw new Error('The investor service returned an unexpected response.');

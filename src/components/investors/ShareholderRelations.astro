@@ -82,19 +82,6 @@ import { site } from '../../data/site';
   let loading = false;
   let reloadQueued = false;
 
-  function categoryUrlValue(name: string) {
-    const normalized = name
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLocaleLowerCase('en-IN')
-      .replace(/&/g, 'and')
-      .replace(/[^a-z0-9]+/g, '');
-
-    return normalized === 'reconciliationofsharecapitalauditreport'
-      ? 'reconciliationreport'
-      : normalized;
-  }
-
   function selectCategoryFromUrl() {
     const requestedType = new URL(window.location.href).searchParams.get(
       shareholderTypeParameter,
@@ -114,14 +101,14 @@ import { site } from '../../data/site';
     window.history.replaceState(window.history.state, '', url);
   }
 
-  function pushSelectedCategoryToUrl() {
+  function syncSelectedCategoryToUrl(historyMode: 'push' | 'replace') {
     const selectedOption = select.selectedOptions[0];
     const shareholderType = selectedOption?.dataset.shareholderType;
-    if (!shareholderType) return;
-
     const url = new URL(window.location.href);
-    url.searchParams.set(shareholderTypeParameter, shareholderType);
-    window.history.pushState(window.history.state, '', url);
+    if (shareholderType)
+      url.searchParams.set(shareholderTypeParameter, shareholderType);
+    else url.searchParams.delete(shareholderTypeParameter);
+    window.history[`${historyMode}State`](window.history.state, '', url);
   }
 
   async function loadRelations() {
@@ -139,7 +126,8 @@ import { site } from '../../data/site';
         const categories = await getShareholderCategories();
         for (const category of categories) {
           const option = new Option(category.name, category.documentId);
-          option.dataset.shareholderType = categoryUrlValue(category.name);
+          if (category.slug)
+            option.dataset.shareholderType = category.slug.trim();
           select.add(option);
         }
         if (!categories.length) {
@@ -150,6 +138,7 @@ import { site } from '../../data/site';
         }
         select.selectedIndex = 0;
         selectCategoryFromUrl();
+        syncSelectedCategoryToUrl('replace');
       }
 
       list.replaceChildren();
@@ -203,7 +192,7 @@ import { site } from '../../data/site';
   }
 
   select.addEventListener('change', () => {
-    pushSelectedCategoryToUrl();
+    syncSelectedCategoryToUrl('push');
     void loadRelations();
   });
   window.addEventListener('popstate', () => {

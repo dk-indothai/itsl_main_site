@@ -108,11 +108,13 @@ deletes failed or abandoned uploads. Live submission tests require separate
 owner approval and synthetic data.
 
 Shareholder Relation selects the first alphabetical document category after
-loading. It intentionally does not provide an All Categories option and requests
-documents from Strapi only when their category is selected. A visitor's category
-selection is added to the URL as `shareholder_type` (for example,
-`?shareholder_type=reconciliationreport`) so it can be shared and restored with
-browser Back and Forward navigation.
+loading and replaces the initial URL with that category's `shareholder_type`.
+It intentionally does not provide an All Categories option and requests documents
+from Strapi only when their category is selected. A visitor's category selection
+uses that category's CMS-managed `slug` in the URL as
+`shareholder_type` (for example, `?shareholder_type=reconciliationreport`) so it
+can be shared and restored with browser Back and Forward navigation. A category
+without the optional slug still loads normally but does not invent a query value.
 
 Overview, Regulation 46 Disclosures and Client Relation are ordered through each
 record's required integer `order` field. Smaller values appear first. Equal values
