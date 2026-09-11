@@ -14,9 +14,19 @@ const text = (node) =>
     ? node.value
     : (node.childNodes || []).map(text).join('');
 
-for (const [route, title] of [
-  ['careers', 'Careers & Current Job Openings | IndoThai Securities'],
-  ['careers/job', 'Job details and application - IndoThai'],
+for (const [route, title, robots, canonical] of [
+  [
+    'careers',
+    'Careers & Current Job Openings | IndoThai Securities',
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    'https://indothai.co.in/careers/',
+  ],
+  [
+    'careers/job',
+    'Job details and application - IndoThai',
+    'noindex, follow',
+    undefined,
+  ],
 ]) {
   const html = await readFile(
     new URL(`../dist/${route}/index.html`, import.meta.url),
@@ -32,7 +42,7 @@ for (const [route, title] of [
         nodes('meta').find((node) => attr(node, 'name') === 'robots'),
         'content',
       ),
-      'noindex, nofollow',
+      robots,
     );
     assert.ok(
       attr(
@@ -40,7 +50,11 @@ for (const [route, title] of [
         'content',
       ).length > 50,
     );
-    assert.ok(!nodes('link').some((node) => attr(node, 'rel') === 'canonical'));
+    const canonicalLinks = nodes('link').filter(
+      (node) => attr(node, 'rel') === 'canonical',
+    );
+    assert.equal(canonicalLinks.length, canonical ? 1 : 0);
+    if (canonical) assert.equal(attr(canonicalLinks[0], 'href'), canonical);
     assert.equal(nodes('header').length, 1);
     assert.equal(nodes('footer').length, 1);
     assert.equal(nodes('astro-island').length, 0);

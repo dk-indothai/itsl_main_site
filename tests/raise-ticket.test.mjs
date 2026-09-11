@@ -27,7 +27,7 @@ const text = (node) =>
     : (node.childNodes || []).map(text).join('');
 const nodes = (tag) => all(tree, (node) => node.tagName === tag);
 
-test('raise-a-ticket has unique preview metadata and shared chrome', () => {
+test('raise-a-ticket has unique production metadata and shared chrome', () => {
   assert.equal(text(nodes('title')[0]), 'Raise a Ticket - IndoThai');
   assert.equal(nodes('h1').length, 1);
   assert.equal(text(nodes('h1')[0]).trim(), 'Raise a Ticket');
@@ -37,7 +37,10 @@ test('raise-a-ticket has unique preview metadata and shared chrome', () => {
       metadata.find((node) => attr(node, key) === value),
       'content',
     );
-  assert.equal(content('name', 'robots'), 'noindex, nofollow');
+  assert.equal(
+    content('name', 'robots'),
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  );
   assert.ok(content('name', 'description').length > 50);
   assert.equal(content('property', 'og:title'), 'Raise a Ticket - IndoThai');
   assert.ok(text(tree).includes('INZ000194938'));

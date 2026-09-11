@@ -51,7 +51,7 @@ for (const [route, title, heading] of [
   const pageText = text(tree).replace(/\s+/g, ' ');
   const main = nodes('main')[0];
 
-  test(`${route} has semantic, unique preview metadata and headings`, () => {
+  test(`${route} has semantic, unique production metadata and headings`, () => {
     assert.equal(nodes('main').length, 1);
     assert.equal(nodes('h1').length, 1);
     assert.equal(text(nodes('h1')[0]).replace(/\s+/g, ' ').trim(), heading);
@@ -64,15 +64,25 @@ for (const [route, title, heading] of [
         ),
         'content',
       );
-    assert.equal(meta('robots'), 'noindex, nofollow');
+    assert.equal(
+      meta('robots'),
+      'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    );
     assert.ok(meta('description').length > 50);
     assert.equal(meta('og:title'), title);
     assert.equal(meta('twitter:title'), title);
     assert.equal(meta('og:description'), meta('description'));
-    assert.equal(meta('og:url'), undefined);
+    assert.equal(meta('og:url'), `https://indothai.co.in${route}`);
     assert.equal(
       nodes('link').filter((node) => attr(node, 'rel') === 'canonical').length,
-      0,
+      1,
+    );
+    assert.equal(
+      attr(
+        nodes('link').find((node) => attr(node, 'rel') === 'canonical'),
+        'href',
+      ),
+      `https://indothai.co.in${route}`,
     );
     let previous = 0;
     for (const node of all(tree, (node) =>
@@ -112,6 +122,7 @@ for (const [route, title, heading] of [
       }
     }
     for (const url of new Set(assets)) {
+      if (url.startsWith('https://indothai.co.in/')) continue;
       assert.ok(url.startsWith('/'), `Remote runtime asset ${url}`);
       await access(new URL(`../dist${url}`, import.meta.url));
     }

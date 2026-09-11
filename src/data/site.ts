@@ -1,5 +1,6 @@
 /** Approved source destinations. Unbuilt pages deliberately remain on WordPress. */
 const staging = 'https://staging-e356-indothaiweb.wpcomstaging.com';
+export const productionOrigin = 'https://indothai.co.in';
 export const links = {
   home: '/',
   about: '/about-us/',
@@ -68,11 +69,21 @@ export const links = {
 export const site = {
   name: 'IndoThai',
   legalName: 'INDO THAI SECURITIES LIMITED',
+  origin: productionOrigin,
+  locale: 'en-IN',
+  socialHandle: '@IndoThaiLtd',
   reference: staging,
   registration: 'INZ000194938',
   researchRegistration: 'INH000024842',
   address:
     'Capital Tower, 2nd Floor, Plot Nos. 169A-171, PU-4, Scheme No. - 54, Indore, Madhya pradesh',
+  structuredAddress: {
+    streetAddress:
+      'Capital Tower, 2nd Floor, Plot Nos. 169A-171, PU-4, Scheme No. - 54',
+    addressLocality: 'Indore',
+    addressRegion: 'Madhya Pradesh',
+    addressCountry: 'IN',
+  },
   helpdesk: { label: '9111801801', href: 'tel:+919111801801' },
   telephone: { label: '(0731) 4255800', href: 'tel:+917314255800' },
   companyPhone: { label: '+91 8269102198', href: 'tel:+918269102198' },

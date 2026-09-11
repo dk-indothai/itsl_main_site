@@ -28,7 +28,7 @@ const text = (node) =>
 const nodes = (tag) => all(tree, (node) => node.tagName === tag);
 const pageText = text(tree).replace(/\s+/g, ' ');
 
-test('closing procedure has unique preview metadata and shared chrome', () => {
+test('closing procedure has unique production metadata and shared chrome', () => {
   assert.equal(
     text(nodes('title')[0]),
     'Procedure for Closing an Account - IndoThai',
@@ -44,7 +44,10 @@ test('closing procedure has unique preview metadata and shared chrome', () => {
       metadata.find((node) => attr(node, key) === value),
       'content',
     );
-  assert.equal(content('name', 'robots'), 'noindex, nofollow');
+  assert.equal(
+    content('name', 'robots'),
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  );
   assert.ok(content('name', 'description').length > 50);
   assert.equal(
     content('property', 'og:title'),

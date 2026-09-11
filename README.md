@@ -1,7 +1,8 @@
 # IndoThai website
 
-Static Astro + TypeScript + Tailwind CSS v4 migration of the [IndoThai staging
-website](https://staging-e356-indothaiweb.wpcomstaging.com/).
+Static Astro + TypeScript + Tailwind CSS v4 website for
+[IndoThai Securities](https://indothai.co.in/), migrated from the
+[WordPress staging website](https://staging-e356-indothaiweb.wpcomstaging.com/).
 
 ## Status
 
@@ -22,8 +23,17 @@ Astro accepts both slash and non-slash request forms so its development and
 preview servers do not replace that custom fallback with a slash-mismatch page;
 authored internal links remain slash-terminated.
 
-Other navigation still points to staging. The site is static and has not been
-deployed. Preview builds use `noindex, nofollow`.
+The project is live at `https://indothai.co.in/`. Other unmigrated navigation
+still points to the owner-approved WordPress staging destinations until their
+production routes are approved.
+
+Production builds emit self-referencing canonicals, indexable robots directives,
+social preview metadata and Organization/WebSite/WebPage JSON-LD on the fifteen
+stable sitemap routes. The query-ID Blog post and Job Details shells remain
+`noindex, follow`: their browser-only architecture cannot provide record-specific
+initial metadata or HTTP status codes. Set `SITE_INDEXING=false` for every public
+branch preview or staging build; this changes normal pages and `robots.txt` back
+to the safe preview policy.
 
 See [DESIGN.md](DESIGN.md) for visual decisions and
 [VERIFICATION.md](VERIFICATION.md) for completed checks and known limitations.
@@ -40,6 +50,13 @@ npm run dev
 ```
 
 Open the URL printed by Astro, normally `http://127.0.0.1:4321`.
+
+Local development is not publicly reachable. For a publicly accessible preview,
+build with indexing disabled:
+
+```sh
+SITE_INDEXING=false npm run build
+```
 
 | Command                     | Purpose                                            |
 | --------------------------- | -------------------------------------------------- |
@@ -133,7 +150,7 @@ src/
 ├── layouts/BaseLayout.astro Document shell, SEO, header and footer
 ├── pages/                   Static route entry points
 └── styles/                  tokens.css, global.css and content.css
-public/                      Fonts and favicon
+public/                      Fonts, favicon and deployment header rules
 scripts/                     Capture helpers
 tests/                       Static and browser tests
 ```
@@ -141,6 +158,7 @@ tests/                       Static and browser tests
 Important files:
 
 - `src/data/site.ts` — company information, destinations and shared metadata.
+- `src/pages/robots.txt.ts` — production/preview-aware robots policy.
 - `src/data/nav.ts` — primary, utility, legal and venture navigation.
 - `src/data/home.ts`, `about.ts`, `mutual-funds.ts`, `apps.ts` — repeated page content.
 - `src/data/openings.ts`, `blogs.ts`, `investors.ts` — typed browser CMS reads.
@@ -168,16 +186,21 @@ be updated together. About Us timeline artwork and text equivalents must also
 remain synchronized. Intentional source-copy, destination and artwork anomalies
 remain pending owner/editorial approval; do not silently correct them.
 
-## Release checklist
+## Deployment and SEO checklist
 
 - [ ] Approve visual fidelity, content, links, imagery and regulatory copy.
 - [ ] Configure and verify production Strapi origin, CORS, permissions and private storage.
 - [ ] Complete privacy, retention, abuse, malware and orphan-upload controls.
 - [ ] Complete accessibility/compliance review, including screen readers, zoom and reflow.
-- [ ] Approve production domain, canonical URLs, social image, redirects, sitemap and robots policy.
+- [x] Configure the approved apex production origin, canonicals, social metadata, sitemap and robots policy.
+- [ ] Configure `www.indothai.co.in` to redirect permanently to the apex hostname.
+- [ ] Approve permanent redirects for legacy WordPress URLs and the `/investors/` compatibility route.
+- [ ] Keep `SITE_INDEXING=false` on every public preview/staging deployment.
 - [ ] Select hosting and document deployment, rollback, caching and asset behavior.
 - [ ] Run the full verification commands and inspect representative desktop and mobile pages.
 
-Deployment is a separate approval step. Publishing `dist/` requires no running
-Astro server, but production indexing must not be enabled until the origin and
-WordPress routing are approved.
+Publishing a new `dist/` remains a separate deployment step. After the SEO build
+is deployed, verify the live robots directive and canonical, submit
+`https://indothai.co.in/sitemap.xml` in Search Console, and request inspection of
+representative stable routes. Do not submit the Blog post or Job Details query
+shells for indexing.

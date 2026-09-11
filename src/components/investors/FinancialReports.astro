@@ -319,6 +319,9 @@ import { site } from '../../data/site';
     }
   }
   @media (width < theme(--breakpoint-tablet)) {
+    .financial-reports[data-api] .year-list {
+      min-height: var(--investor-results-min-height);
+    }
     .report-grid {
       grid-template-columns: 1fr;
     }

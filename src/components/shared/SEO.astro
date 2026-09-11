@@ -1,20 +1,121 @@
 ---
+import { SITE_INDEXING } from 'astro:env/server';
+import socialImage from '../../assets/images/about-us/about-bg.png';
+import { homeMeta, links, site } from '../../data/site';
+
 interface Props {
   title: string;
   description: string;
+  noIndex?: boolean;
 }
-const { title, description } = Astro.props;
-// Preview only: no production canonical, og:url or structured-data URL is invented.
+const { title, description, noIndex = false } = Astro.props;
+const robots = SITE_INDEXING
+  ? noIndex
+    ? 'noindex, follow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+  : 'noindex, nofollow';
+const canonical = noIndex
+  ? undefined
+  : new URL(Astro.url.pathname, site.origin).toString();
+const imageUrl = new URL(socialImage.src, site.origin).toString();
+const organizationId = `${site.origin}/#organization`;
+const websiteId = `${site.origin}/#website`;
+const webpageId = canonical ? `${canonical}#webpage` : undefined;
+const structuredData =
+  canonical && webpageId
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'Organization',
+            '@id': organizationId,
+            name: site.name,
+            legalName: site.legalName,
+            url: `${site.origin}/`,
+            description: homeMeta.description,
+            image: imageUrl,
+            address: {
+              '@type': 'PostalAddress',
+              ...site.structuredAddress,
+            },
+            telephone: '+91-731-4255800',
+            email: site.marketingEmail,
+            contactPoint: {
+              '@type': 'ContactPoint',
+              contactType: 'customer support',
+              telephone: '+91-731-4255800',
+              email: site.marketingEmail,
+              areaServed: 'IN',
+              availableLanguage: 'en',
+            },
+            identifier: [
+              {
+                '@type': 'PropertyValue',
+                propertyID: 'SEBI Stock Broker Registration Number',
+                value: site.registration,
+              },
+              {
+                '@type': 'PropertyValue',
+                propertyID: 'SEBI Research Analyst Registration Number',
+                value: site.researchRegistration,
+              },
+            ],
+            sameAs: [links.facebook, links.twitter, links.linkedin],
+          },
+          {
+            '@type': 'WebSite',
+            '@id': websiteId,
+            url: `${site.origin}/`,
+            name: site.name,
+            alternateName: 'Indo Thai Securities Limited',
+            publisher: { '@id': organizationId },
+            inLanguage: site.locale,
+          },
+          {
+            '@type': 'WebPage',
+            '@id': webpageId,
+            url: canonical,
+            name: title,
+            description,
+            isPartOf: { '@id': websiteId },
+            about: { '@id': organizationId },
+            primaryImageOfPage: {
+              '@type': 'ImageObject',
+              url: imageUrl,
+              width: socialImage.width,
+              height: socialImage.height,
+            },
+            inLanguage: site.locale,
+          },
+        ],
+      }).replaceAll('<', '\\u003c')
+    : undefined;
 ---
 
 <title>{title}</title>
 <meta name="description" content={description} />
-<meta name="robots" content="noindex, nofollow" />
+<meta name="robots" content={robots} />
+{canonical && <link rel="canonical" href={canonical} />}
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="en_IN" />
 <meta property="og:site_name" content="IndoThai" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta name="twitter:card" content="summary" />
+{canonical && <meta property="og:url" content={canonical} />}
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:secure_url" content={imageUrl} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content={socialImage.width.toString()} />
+<meta property="og:image:height" content={socialImage.height.toString()} />
+<meta property="og:image:alt" content="IndoThai Securities office reception" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={site.socialHandle} />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content="IndoThai Securities office reception" />
+{
+  structuredData && (
+    <script type="application/ld+json" is:inline set:html={structuredData} />
+  )
+}

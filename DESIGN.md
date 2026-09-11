@@ -250,6 +250,9 @@ aligned.
 CMS loading, empty/error feedback and Retry use the existing muted caption and
 action patterns. Each Overview card is a native details/summary disclosure: its
 blue title and chevron form the trigger, entries start closed and open independently.
+On phones, configured browser-loaded result containers reserve a token-owned
+`75svh` minimum height while records load. This keeps the footer below the viewport
+and limits insertion shift without creating empty space in unconfigured fallbacks.
 Overview rich text is sanitized and normalized below its card H2. Markdown tables
 use bordered rows and a focusable horizontal scroll region so their structure is
 preserved on narrow devices.

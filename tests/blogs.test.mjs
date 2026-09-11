@@ -14,9 +14,21 @@ const text = (node) =>
     ? node.value
     : (node.childNodes || []).map(text).join('');
 
-for (const [route, title, heading] of [
-  ['blog', 'Investment Insights & Market Updates | IndoThai', 'Blog'],
-  ['blog/post', 'Blog post - IndoThai', 'Blog post'],
+for (const [route, title, heading, robots, canonical] of [
+  [
+    'blog',
+    'Investment Insights & Market Updates | IndoThai',
+    'Blog',
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    'https://indothai.co.in/blog/',
+  ],
+  [
+    'blog/post',
+    'Blog post - IndoThai',
+    'Blog post',
+    'noindex, follow',
+    undefined,
+  ],
 ]) {
   const html = await readFile(
     new URL(`../dist/${route}/index.html`, import.meta.url),
@@ -34,8 +46,13 @@ for (const [route, title, heading] of [
         nodes('meta').find((node) => attr(node, 'name') === 'robots'),
         'content',
       ),
-      'noindex, nofollow',
+      robots,
     );
+    const canonicalLinks = nodes('link').filter(
+      (node) => attr(node, 'rel') === 'canonical',
+    );
+    assert.equal(canonicalLinks.length, canonical ? 1 : 0);
+    if (canonical) assert.equal(attr(canonicalLinks[0], 'href'), canonical);
     assert.ok(
       attr(
         nodes('meta').find((node) => attr(node, 'name') === 'description'),

@@ -325,6 +325,9 @@ import { site } from '../../data/site';
     display: none;
   }
   @media (width < theme(--breakpoint-tablet)) {
+    .shareholder-relations[data-api] .relation-list {
+      min-height: var(--investor-results-min-height);
+    }
     .relation-card {
       align-items: flex-start;
       flex-direction: column;

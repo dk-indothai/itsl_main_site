@@ -20,7 +20,7 @@ const text = (node) =>
 const tree = parse(html);
 const nodes = (tag) => all(tree, (node) => node.tagName === tag);
 
-test('downloads has unique preview metadata, shared chrome and local navigation', () => {
+test('downloads has unique production metadata, shared chrome and local navigation', () => {
   assert.equal(nodes('h1').length, 1);
   assert.equal(text(nodes('h1')[0]), 'Software Downloads');
   assert.equal(text(nodes('title')[0]), 'Software Downloads - IndoThai');
@@ -31,13 +31,19 @@ test('downloads has unique preview metadata, shared chrome and local navigation'
       ),
       'content',
     );
-  assert.equal(meta('robots'), 'noindex, nofollow');
+  assert.equal(
+    meta('robots'),
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  );
   assert.equal(meta('og:title'), 'Software Downloads - IndoThai');
   assert.equal(meta('twitter:title'), meta('og:title'));
   assert.ok(meta('description').length > 50);
   assert.equal(
-    nodes('link').some((node) => attr(node, 'rel') === 'canonical'),
-    false,
+    attr(
+      nodes('link').find((node) => attr(node, 'rel') === 'canonical'),
+      'href',
+    ),
+    'https://indothai.co.in/downloads/',
   );
   assert.equal(nodes('header').length, 1);
   assert.equal(nodes('footer').length, 1);

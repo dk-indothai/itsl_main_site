@@ -189,6 +189,9 @@ import { site } from '../../data/site';
     display: none;
   }
   @media (width < theme(--breakpoint-tablet)) {
+    .regulation-disclosures[data-api] .disclosure-list {
+      min-height: var(--investor-results-min-height);
+    }
     .disclosure-card {
       align-items: stretch;
       flex-direction: column;

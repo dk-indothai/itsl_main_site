@@ -1,5 +1,40 @@
 # Website migration verification
 
+## Production SEO remediation — 12 September 2026
+
+The post-launch audit found that every live sitemap route returned `noindex,
+nofollow`, without a canonical URL, social URL/image metadata or structured data.
+The production build now makes all 15 stable sitemap routes indexable and
+self-canonical at `https://indothai.co.in`, with matching Open Graph metadata and
+a factual Organization, WebSite and WebPage JSON-LD graph. The browser-only Blog
+post and Job Details query shells remain `noindex, follow` because they cannot
+provide record-specific initial metadata or accurate record-level status codes.
+
+`robots.txt` now follows the same build policy and advertises the production
+sitemap only in an indexable build. A deployment `_headers` rule gives hashed
+Astro assets immutable one-year caching. On phones, the five configured
+CMS-backed Investor result areas reserve token-owned space while loading to limit
+footer movement when records arrive. No Strapi code, configuration or record was
+changed, and no live submission was made.
+
+| Check                      | Result                                                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------- |
+| Formatting                 | `npm run format:check` passed.                                                          |
+| Astro/TypeScript           | `npm run check`: 104 files, zero errors, warnings or hints.                             |
+| Static output/build        | `npm test`: 52/52 passed; all nineteen approved outputs built.                          |
+| Production browser tests   | `npm run test:browser`: 215/215 Chromium tests passed.                                  |
+| Development layout/assets  | `npm run test:dev`: 37/37 responsive and local-asset checks passed.                     |
+| Production SEO assertions  | Every sitemap URL is indexable, canonical and machine-readable; query shells excluded.  |
+| Preview indexing safeguard | `SITE_INDEXING=false` build inspected as `noindex, nofollow` with no sitemap directive. |
+| Safety                     | No deployment, CMS mutation or live form/upload submission was performed.               |
+
+The remediation is not live until deployed. External follow-up remains required
+for the failing `www` hostname, Search Console/Bing submission, legacy URL
+redirect decisions, approved replacements for staging legal links and
+compliance-led review of financial claims. CMS records also remain absent from
+initial static HTML under the approved browser-only architecture. The complete
+evidence and ordered handoff are in `FULL-AUDIT-REPORT.md` and `ACTION-PLAN.md`.
+
 ## Investor Alert, redirects and shareholder URLs — 11 September 2026
 
 Home now opens the production reference's Investor Alert on page load. The exact

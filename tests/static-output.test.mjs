@@ -8,7 +8,11 @@ const html = await readFile(
   'utf8',
 );
 const robots = await readFile(
-  new URL('../public/robots.txt', import.meta.url),
+  new URL('../dist/robots.txt', import.meta.url),
+  'utf8',
+);
+const sitemap = await readFile(
+  new URL('../public/sitemap.xml', import.meta.url),
   'utf8',
 );
 const tree = parse(html);
@@ -129,7 +133,7 @@ test('the Home-only Investor Alert and compatibility redirects are rendered safe
   assert.ok(notFoundRedirect.includes('noindex, nofollow'));
 });
 
-test('preview SEO is explicit and does not invent production URLs', () => {
+test('production SEO is indexable, canonical and machine-readable', () => {
   assert.equal(
     text(nodes('title')[0]),
     'Stock Broking, Trading & Investment Services | IndoThai',
@@ -140,18 +144,93 @@ test('preview SEO is explicit and does not invent production URLs', () => {
       metadata.find((node) => attr(node, key) === value),
       'content',
     );
-  assert.equal(content('name', 'robots'), 'noindex, nofollow');
+  assert.equal(
+    content('name', 'robots'),
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  );
   assert.ok(content('name', 'description').length > 50);
   assert.equal(
     content('property', 'og:title'),
     'Stock Broking, Trading & Investment Services | IndoThai',
   );
-  assert.equal(content('name', 'twitter:card'), 'summary');
+  assert.equal(content('property', 'og:url'), 'https://indothai.co.in/');
+  assert.equal(content('name', 'twitter:card'), 'summary_large_image');
+  assert.equal(content('name', 'twitter:site'), '@IndoThaiLtd');
+  assert.ok(
+    content('property', 'og:image').startsWith('https://indothai.co.in/'),
+  );
   assert.equal(
     nodes('link').filter((node) => attr(node, 'rel') === 'canonical').length,
-    0,
+    1,
   );
-  assert.ok(!robots.includes('Sitemap:'));
+  assert.equal(
+    attr(
+      nodes('link').find((node) => attr(node, 'rel') === 'canonical'),
+      'href',
+    ),
+    'https://indothai.co.in/',
+  );
+  const schemas = nodes('script').filter(
+    (node) => attr(node, 'type') === 'application/ld+json',
+  );
+  assert.equal(schemas.length, 1);
+  const graph = JSON.parse(text(schemas[0]))['@graph'];
+  assert.deepEqual(
+    graph.map((entry) => entry['@type']),
+    ['Organization', 'WebSite', 'WebPage'],
+  );
+  assert.ok(robots.includes('Sitemap: https://indothai.co.in/sitemap.xml'));
+});
+
+test('every sitemap URL is a canonical, indexable static page', async () => {
+  const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(urls.length, 15);
+  assert.equal(new Set(urls).size, urls.length);
+
+  for (const value of urls) {
+    const url = new URL(value);
+    assert.equal(url.origin, 'https://indothai.co.in');
+    const output =
+      url.pathname === '/'
+        ? '../dist/index.html'
+        : `../dist${url.pathname}index.html`;
+    const document = parse(
+      await readFile(new URL(output, import.meta.url), 'utf8'),
+    );
+    const pageNodes = (tag) => all(document, (node) => node.tagName === tag);
+    assert.ok(
+      attr(
+        pageNodes('meta').find((node) => attr(node, 'name') === 'robots'),
+        'content',
+      ).startsWith('index, follow'),
+      value,
+    );
+    assert.equal(
+      attr(
+        pageNodes('link').find((node) => attr(node, 'rel') === 'canonical'),
+        'href',
+      ),
+      value,
+    );
+    assert.equal(
+      pageNodes('script').filter(
+        (node) => attr(node, 'type') === 'application/ld+json',
+      ).length,
+      1,
+    );
+  }
+});
+
+test('deployment metadata gives immutable caching only to hashed assets', async () => {
+  const headers = await readFile(
+    new URL('../dist/_headers', import.meta.url),
+    'utf8',
+  );
+  assert.match(headers, /\/_astro\/\*/);
+  assert.match(headers, /max-age=31536000, immutable/);
+  assert.ok(!headers.includes('/*.html'));
 });
 
 test('all services, final statistics, testimonials and regulatory details are rendered', () => {
@@ -218,7 +297,9 @@ test('images, fonts, styles and browser scripts load from local build output', a
     ...nodes('script')
       .map((node) => attr(node, 'src'))
       .filter(Boolean),
-    ...nodes('link').map((node) => attr(node, 'href')),
+    ...nodes('link')
+      .filter((node) => attr(node, 'rel') !== 'canonical')
+      .map((node) => attr(node, 'href')),
   ];
   for (const url of urls) {
     assert.ok(url.startsWith('/'), `Remote asset: ${url}`);

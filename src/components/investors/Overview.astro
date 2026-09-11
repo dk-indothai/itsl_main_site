@@ -211,6 +211,11 @@ import { site } from '../../data/site';
     margin-top: var(--space-lg);
     min-width: 0;
   }
+  @media (width < theme(--breakpoint-tablet)) {
+    .investor-overview[data-api] .overview-list {
+      min-height: var(--investor-results-min-height);
+    }
+  }
   .overview-card {
     min-width: 0;
     border: var(--border-thin) solid var(--color-subtle);

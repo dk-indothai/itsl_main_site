@@ -224,6 +224,9 @@ import { site } from '../../data/site';
     display: none;
   }
   @media (width < theme(--breakpoint-tablet)) {
+    .client-relations[data-api] .document-list {
+      min-height: var(--investor-results-min-height);
+    }
     .document-row {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-sm);

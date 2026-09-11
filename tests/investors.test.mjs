@@ -27,7 +27,7 @@ async function page(path) {
   };
 }
 
-test('investor overview is a static, noindex CMS shell', async () => {
+test('investor overview is an indexable static CMS shell', async () => {
   const { tree, nodes } = await page('investors/overview/index.html');
   assert.equal(text(nodes('title')[0]), 'Investor Overview - IndoThai');
   assert.equal(nodes('h1').length, 1);
@@ -37,7 +37,7 @@ test('investor overview is a static, noindex CMS shell', async () => {
       nodes('meta').find((node) => attr(node, 'name') === 'robots'),
       'content',
     ),
-    'noindex, nofollow',
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   );
   assert.equal(
     all(tree, (node) => attr(node, 'data-overview-list') !== undefined).length,
@@ -62,7 +62,7 @@ test('investor overview is a static, noindex CMS shell', async () => {
   );
 });
 
-test('shareholder relation is a static, noindex CMS shell', async () => {
+test('shareholder relation is an indexable static CMS shell', async () => {
   const { tree, nodes } = await page(
     'investors/shareholder-relation/index.html',
   );
@@ -94,7 +94,7 @@ test('shareholder relation is a static, noindex CMS shell', async () => {
   );
 });
 
-test('financial reports is a static, noindex CMS shell', async () => {
+test('financial reports is an indexable static CMS shell', async () => {
   const { tree, nodes } = await page('investors/financial-reports/index.html');
   assert.equal(text(nodes('title')[0]), 'Financial Reports - IndoThai');
   assert.equal(nodes('h1').length, 1);
@@ -122,7 +122,7 @@ test('financial reports is a static, noindex CMS shell', async () => {
   );
 });
 
-test('Regulation 46 disclosures is a static, noindex CMS shell', async () => {
+test('Regulation 46 disclosures is an indexable static CMS shell', async () => {
   const { tree, nodes } = await page(
     'investors/disclosures-under-regulation-46/index.html',
   );
@@ -166,7 +166,7 @@ test('corporate presentation uses the local PDF with view and download actions',
       nodes('meta').find((node) => attr(node, 'name') === 'robots'),
       'content',
     ),
-    'noindex, nofollow',
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   );
   const preview = nodes('iframe').find((node) =>
     attr(node, 'title')?.includes('corporate presentation'),
@@ -196,7 +196,7 @@ test('corporate presentation uses the local PDF with view and download actions',
   );
 });
 
-test('client relation is a static, noindex CMS shell', async () => {
+test('client relation is an indexable static CMS shell', async () => {
   const { tree, nodes } = await page('investors/client-relation/index.html');
   assert.equal(text(nodes('title')[0]), 'Client Relation - IndoThai');
   assert.equal(nodes('h1').length, 1);
@@ -206,7 +206,7 @@ test('client relation is a static, noindex CMS shell', async () => {
       nodes('meta').find((node) => attr(node, 'name') === 'robots'),
       'content',
     ),
-    'noindex, nofollow',
+    'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   );
   assert.equal(
     all(tree, (node) => attr(node, 'data-client-relation-list') !== undefined)

@@ -143,6 +143,39 @@ test('corporate presentation exposes a local preview and two clear actions', asy
   ).toHaveAttribute('download', '');
 });
 
+test('CMS-backed investor pages reserve mobile result space before records load', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('http://strapi.test/api/**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: [],
+        meta: {
+          pagination: { page: 1, pageSize: 100, pageCount: 0, total: 0 },
+        },
+      }),
+    });
+  });
+
+  for (const [path, selector] of [
+    ['/investors/overview/', '[data-overview-list]'],
+    ['/investors/shareholder-relation/', '[data-relation-list]'],
+    ['/investors/financial-reports/', '[data-report-list]'],
+    ['/investors/disclosures-under-regulation-46/', '[data-disclosure-list]'],
+    ['/investors/client-relation/', '[data-client-relation-list]'],
+  ]) {
+    await page.goto(path);
+    const reservedHeight = await page
+      .locator(selector)
+      .evaluate((element) =>
+        Number.parseFloat(getComputedStyle(element).minHeight),
+      );
+    expect(reservedHeight).toBeGreaterThanOrEqual(600);
+  }
+});
+
 test('overview titles open as accessible dropdowns with sanitized rich text', async ({
   page,
 }) => {
