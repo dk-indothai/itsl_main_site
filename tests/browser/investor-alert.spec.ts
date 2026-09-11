@@ -63,6 +63,27 @@ test('/investors/ redirects to Shareholder Relation', async ({ page }) => {
   ).toBeVisible();
 });
 
+test('/investors/ forwards shareholder_type to Shareholder Relation', async ({
+  page,
+}) => {
+  await page.goto('/investors?shareholder_type=reconciliationreport');
+  await page.waitForURL(
+    '/investors/shareholder-relation/?shareholder_type=reconciliationreport',
+  );
+
+  await page.goto('/investors?shareholder_type=');
+  await page.waitForURL((url) => {
+    return (
+      url.pathname === '/investors/shareholder-relation/' &&
+      url.searchParams.has('shareholder_type') &&
+      url.searchParams.get('shareholder_type') === ''
+    );
+  });
+
+  await page.goto('/investors?unrelated=ignored');
+  await page.waitForURL('/investors/shareholder-relation/');
+});
+
 test('unknown routes redirect to Home', async ({ page }) => {
   await page.goto('/sdsd');
   await page.waitForURL('/');

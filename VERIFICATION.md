@@ -12,11 +12,13 @@ when needed. The alert is absent from non-home routes.
 The new `/investors/` compatibility route immediately replaces itself with
 `/investors/shareholder-relation/`; its meta refresh and direct link preserve the
 redirect when JavaScript is unavailable. The redirect shell remains `noindex,
-nofollow`. The generated `404.html` uses the same safe fallback pattern to send
-unknown routes to Home. Astro now accepts slash and non-slash request forms so
-its development and preview servers reach that custom page instead of replacing
-it with their built-in trailing-slash mismatch screen. The exact `/sdsd` path was
-verified in both environments.
+nofollow`. When `shareholder_type` is present, browser navigation forwards that
+parameter to Shareholder Relation, including an explicitly empty value; unrelated
+parameters are not carried across. The generated `404.html` uses the same safe
+fallback pattern to send unknown routes to Home. Astro now accepts slash and
+non-slash request forms so its development and preview servers reach that custom
+page instead of replacing it with their built-in trailing-slash mismatch screen.
+The exact `/sdsd` path was verified in both environments.
 
 Shareholder category changes now add a readable `shareholder_type` query value.
 The Reconciliation of Share Capital Audit Report category uses the requested
@@ -29,9 +31,9 @@ Strapi filter continues to use the category document ID.
 | Formatting                  | `npm run format:check` passed.                                                  |
 | Astro/TypeScript            | `npm run check`: 103 files, zero errors, warnings or hints.                     |
 | Static output/build         | `PUBLIC_STRAPI_URL= npm test`: 9/9 passed; all nineteen static outputs built.   |
-| Focused browser tests       | 19/19 Investor Alert, redirect and Investor page checks passed.                 |
-| Complete browser tests      | `npm run test:browser`: 213/213 Chromium tests passed.                          |
-| Development layout/assets   | `npm run test:dev`: 36/36 checks passed, including the non-slash 404 redirect.  |
+| Focused browser tests       | 20/20 Investor Alert, redirect and Investor page checks passed.                 |
+| Complete browser tests      | `npm run test:browser`: 214/214 Chromium tests passed.                          |
+| Development layout/assets   | `npm run test:dev`: 37/37 checks passed, including both redirect regressions.   |
 | Frontend static audit       | Strict audit completed with zero findings.                                      |
 | Reference and visual review | Production reference measured; local 760×926 alert and redirect inspected live. |
 

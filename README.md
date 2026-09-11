@@ -14,7 +14,9 @@ The following routes are implemented and linked locally:
 `/investors/disclosures-under-regulation-46/`, `/investors/client-relation/`,
 `/investors/corporate-presentation/`, `/blog/`, and `/blog/post/`.
 
-`/investors/` redirects visitors to `/investors/shareholder-relation/`.
+`/investors/` redirects visitors to `/investors/shareholder-relation/`. When
+`shareholder_type` is present, the redirect carries that parameter to the
+Shareholder Relation URL, including an explicitly empty value.
 Unknown routes use the generated `404.html` to redirect visitors to Home.
 Astro accepts both slash and non-slash request forms so its development and
 preview servers do not replace that custom fallback with a slash-mismatch page;

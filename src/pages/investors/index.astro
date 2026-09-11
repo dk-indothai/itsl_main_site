@@ -13,7 +13,18 @@ const destination = links.shareholderRelation;
     <meta name="robots" content="noindex, nofollow" />
     <title>Redirecting to Shareholder Relation - IndoThai</title>
     <script is:inline define:vars={{ destination }}>
-      window.location.replace(destination);
+      const source = new URL(window.location.href);
+      const target = new URL(destination, window.location.origin);
+      const parameter = 'shareholder_type';
+
+      if (source.searchParams.has(parameter)) {
+        target.searchParams.set(
+          parameter,
+          source.searchParams.get(parameter) ?? '',
+        );
+      }
+
+      window.location.replace(`${target.pathname}${target.search}`);
     </script>
   </head>
   <body>

@@ -54,7 +54,9 @@ Strapi code, schema, permissions, CORS or configuration for this integration.
   (`/investors/corporate-presentation/`), Blog (`/blog/`) and blog post
   (`/blog/post/?id=<documentId>`).
 - `/investors/` is an approved compatibility redirect to
-  `/investors/shareholder-relation/`.
+  `/investors/shareholder-relation/`. Forward `shareholder_type` when it is
+  present, including an explicitly empty value, and do not forward unrelated
+  query parameters.
 - Use the [staging website](https://staging-e356-indothaiweb.wpcomstaging.com/)
   as the design and content reference. Preserve its layouts, typography, imagery,
   content, and approved external links unless the user approves a change.

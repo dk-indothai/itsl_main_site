@@ -111,7 +111,13 @@ test('the Home-only Investor Alert and compatibility redirects are rendered safe
     'utf8',
   );
   assert.ok(redirect.includes('0;url=/investors/shareholder-relation/'));
-  assert.ok(redirect.includes('window.location.replace(destination)'));
+  assert.ok(redirect.includes("const parameter = 'shareholder_type'"));
+  assert.ok(redirect.includes('source.searchParams.has(parameter)'));
+  assert.ok(
+    redirect.includes(
+      'window.location.replace(`${target.pathname}${target.search}`)',
+    ),
+  );
   assert.ok(redirect.includes('noindex, nofollow'));
 
   const notFoundRedirect = await readFile(
