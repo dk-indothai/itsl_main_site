@@ -106,7 +106,9 @@ colored bands. Do not stack section-specific outer margins/padding on top of tha
 rhythm. Other internal spacing (for example the About heading-to-band distance)
 also remains unchanged. Header actions
 have dedicated compact height/padding tokens, with a larger minimum on coarse
-pointers; other calls to action keep their existing dimensions.
+pointers; other calls to action keep their existing dimensions. The shared header
+uses its own full-width `--header-max` token so wide screens retain only the normal
+page gutter instead of inheriting the narrower content container's outer margins.
 
 Secondary routes compose sections from their own folders. `content.css` supplies
 patterns scoped to `.content-page`; its independent content-heading and hero tokens

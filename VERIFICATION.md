@@ -1,5 +1,25 @@
 # Website migration verification
 
+## Wide-screen header gutters — 12 September 2026
+
+The shared header now uses its own token-owned full-width maximum instead of the
+site's narrower `90rem` content maximum. At the reported wide Careers viewport,
+this removes the extra outer margins while preserving the existing 40px desktop
+page gutter around the logo and right-side actions. Tablet and phone gutters,
+navigation behavior, action sizing and the full-page phone menu are unchanged.
+
+| Check                     | Result                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                    |
+| Astro/TypeScript          | `npm run check`: 104 files, zero errors, warnings or hints.                       |
+| Static output/build       | `PUBLIC_STRAPI_URL= npm test`: 9/9 test files passed; all nineteen outputs built. |
+| Focused header tests      | 4/4 passed, including exact 1919px-wide gutter geometry.                          |
+| Production browser tests  | `npm run test:browser`: 222/222 mocked Chromium tests passed.                     |
+| Development layout/assets | `npm run test:dev`: 37/37 responsive and local-asset checks passed.               |
+| Design checks             | DESIGN.md lint and the strict frontend audit completed with zero warnings.        |
+| Live visual review        | The updated wide Careers header was inspected in the local browser.               |
+| Safety                    | No content, Strapi, domain or deployment change was performed.                    |
+
 ## Careers Open-only listing — 12 September 2026
 
 The Careers listing now requests only openings whose `job_status` is `Open` and

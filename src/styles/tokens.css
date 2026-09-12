@@ -79,6 +79,7 @@
   --space-section-gap: 8rem;
   --page-gutter: 2.5rem;
   --page-max: 90rem;
+  --header-max: 100%;
   --hero-max: 71.25rem;
   --hero-min: 90vh;
   --header-height: 5.125rem;
