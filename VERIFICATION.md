@@ -1,5 +1,32 @@
 # Website migration verification
 
+## Careers company-description check — 12 September 2026
+
+Submitting a valid Careers application now opens a native modal before any
+network request. It briefly describes IndoThai Securities and requires the
+applicant to type “stock broking company”. The comparison ignores capitalization
+and repeated or surrounding spaces, but rejects other wording with an inline
+error. Only “Confirm and submit” continues to the existing opening recheck,
+private resume upload and Candidate creation flow.
+
+Cancel, Escape and backdrop dismissal close the modal without sending anything
+and restore focus to Submit application. Initial focus moves to the answer field;
+Tab and Shift+Tab remain inside the modal. The page is scroll-locked while it is
+open, and the heading, input and both actions remain reachable at 760×926 and
+320×600. Existing field/PDF validation still runs before the modal, while the PDF
+signature and job-status checks remain before upload.
+
+| Check                     | Result                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                        |
+| Astro/TypeScript          | `npm run check`: 104 files, zero errors, warnings or hints.                           |
+| Static output/build       | `PUBLIC_STRAPI_URL= npm test`: 9/9 test files passed; all nineteen outputs built.     |
+| Production browser tests  | `npm run test:browser`: 221/221 mocked Chromium tests passed.                         |
+| Development layout/assets | `npm run test:dev`: 37/37 responsive and local-asset checks passed.                   |
+| Frontend static audit     | Strict audit completed with zero findings.                                            |
+| Visual review             | Open modal screenshots at 760×926 and 320×600 were inspected after responsive checks. |
+| Safety                    | No live resume upload, Candidate creation, Strapi change or deployment was performed. |
+
 ## Production SEO remediation — 12 September 2026
 
 The post-launch audit found that every live sitemap route returned `noindex,

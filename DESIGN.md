@@ -321,7 +321,12 @@ Unlike staging, the approved schema requires LinkedIn and allows only PDFs at th
 owner's smaller size limit; no unsupported candidate Location field is added.
 
 Selection is local. Submit validates, rechecks the role, uploads the PDF and creates
-the candidate. Status names these phases; only confirmed creation clears values.
+the candidate. After local field validation and before any request, an accessible
+native modal gives a short company description and requires the applicant to type
+“stock broking company”. Cancel, Escape and backdrop dismissal return focus to the
+application button without sending anything; only the accepted phrase continues
+to the opening check and upload. Status names these phases; only confirmed creation
+clears values.
 Manual retry with the same File reuses its known upload ID. There is no optimistic
 success, automatic retry, resume preview/download link, persistent draft, toast or
 leave-page warning. Uploads can remain unattached after failure; accepted files are

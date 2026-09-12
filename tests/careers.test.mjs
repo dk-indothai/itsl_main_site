@@ -88,17 +88,34 @@ for (const [route, title, robots, canonical] of [
       );
       assert.equal(list.childNodes.length, 0);
     } else {
-      assert.equal(attr(nodes('form')[0], 'method'), 'post');
-      assert.notEqual(attr(nodes('form')[0], 'novalidate'), undefined);
-      assert.notEqual(attr(nodes('fieldset')[0], 'disabled'), undefined);
+      const applicationForm = nodes('form').find(
+        (node) => attr(node, 'data-application-form') !== undefined,
+      );
+      const applicationInputs = all(
+        applicationForm,
+        (node) => node.tagName === 'input',
+      );
+      assert.equal(attr(applicationForm, 'method'), 'post');
+      assert.notEqual(attr(applicationForm, 'novalidate'), undefined);
       assert.notEqual(
         attr(
-          nodes('button').find((node) => attr(node, 'type') === 'submit'),
+          all(applicationForm, (node) => node.tagName === 'fieldset')[0],
           'disabled',
         ),
         undefined,
       );
-      const file = nodes('input').find((node) => attr(node, 'type') === 'file');
+      assert.notEqual(
+        attr(
+          all(applicationForm, (node) => node.tagName === 'button').find(
+            (node) => attr(node, 'type') === 'submit',
+          ),
+          'disabled',
+        ),
+        undefined,
+      );
+      const file = applicationInputs.find(
+        (node) => attr(node, 'type') === 'file',
+      );
       assert.equal(attr(file, 'accept'), '.pdf,application/pdf');
       assert.equal(attr(file, 'multiple'), undefined);
       for (const input of nodes('input'))
@@ -108,7 +125,7 @@ for (const [route, title, robots, canonical] of [
           ),
         );
       assert.deepEqual(
-        nodes('input').map((node) => attr(node, 'name')),
+        applicationInputs.map((node) => attr(node, 'name')),
         [
           'name',
           'email',
@@ -119,6 +136,14 @@ for (const [route, title, robots, canonical] of [
         ],
       );
       assert.ok(text(tree).includes('2,000,000 bytes'));
+      const companyDialog = nodes('dialog').find(
+        (node) => attr(node, 'data-company-check-dialog') !== undefined,
+      );
+      assert.equal(
+        attr(companyDialog, 'aria-labelledby'),
+        'company-check-title',
+      );
+      assert.ok(text(companyDialog).includes('stock broking company'));
     }
   });
 }
