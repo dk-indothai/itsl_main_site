@@ -167,6 +167,8 @@ test('careers keeps API operations in browser scripts and never reads candidates
   );
   assert.ok(!data.includes('populate'));
   assert.ok(!data.includes('candidates'));
+  assert.ok(data.includes("query.set('filters[job_status][$eq]', 'Open')"));
+  assert.ok(data.includes("opening.job_status === 'Open'"));
 
   const application = await readFile(
     new URL('../src/components/careers/ApplicationForm.astro', import.meta.url),

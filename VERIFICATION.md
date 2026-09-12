@@ -1,5 +1,31 @@
 # Website migration verification
 
+## Careers Open-only listing — 12 September 2026
+
+The Careers listing now requests only openings whose `job_status` is `Open` and
+also filters every validated response before rendering. This second check keeps
+Closed or Filled records off the page even if a backend or test response ignores
+the requested filter. Open positions retain their alphabetical ordering, tags,
+status and local job-detail links. When none are available, the page reports
+“No open positions right now.”
+
+Closed and Filled job-detail records remain guarded when reached through an old
+or direct URL: their details can still explain that applications are unavailable,
+and the application form stays disabled. This listing change makes no Strapi
+schema, permission or record change.
+
+| Check                     | Result                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| Formatting                | `npm run format:check` passed.                                                    |
+| Astro/TypeScript          | `npm run check`: 104 files, zero errors, warnings or hints.                       |
+| Static output/build       | `PUBLIC_STRAPI_URL= npm test`: 9/9 test files passed; all nineteen outputs built. |
+| Focused Careers tests     | 65/65 mocked Chromium tests passed.                                               |
+| Production browser tests  | `npm run test:browser`: 221/221 mocked Chromium tests passed.                     |
+| Development layout/assets | `npm run test:dev`: 37/37 responsive and local-asset checks passed.               |
+| Frontend static audit     | Strict audit completed with zero findings.                                        |
+| Live local review         | The configured Careers page displayed one Open position and no non-open roles.    |
+| Safety                    | No application, upload, Strapi change or deployment was performed.                |
+
 ## Careers company-description check — 12 September 2026
 
 Submitting a valid Careers application now opens a native modal before any

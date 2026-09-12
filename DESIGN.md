@@ -306,9 +306,10 @@ alone. No new hero imagery, stock photos, benefits claims or animations are adde
 
 `OpeningList` owns list loading and empty/error feedback; `JobDetails` owns read-only
 description rendering and tabs; `ApplicationForm` owns its explicit fields and
-submission code. They share only typed opening reads/configuration. All published
-statuses are shown; Closed/Filled jobs retain details with Apply disabled and an
-explanation. The form is available only after the script guard and Open job are ready.
+submission code. They share only typed opening reads/configuration. The Careers
+listing shows only Open positions. Closed/Filled job details remain unavailable for
+applications when reached from an old or direct URL. The form is available only after
+the script guard and Open job are ready.
 Tabs use native buttons with selected state, roving focus, arrow/Home/End keys and
 hidden inactive panels. Without JavaScript, the generic detail explanation and
 disabled form remain readable. Missing/configuration/error states keep contact links.

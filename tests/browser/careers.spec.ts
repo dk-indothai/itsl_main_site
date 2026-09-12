@@ -144,24 +144,21 @@ test('job detail avoids a poor first-paint layout shift', async ({ page }) => {
   expect(cls).toBeLessThanOrEqual(0.1);
 });
 
-test('lists all statuses, tags and sorted jobs with shareable local links', async ({
+test('lists only open positions with tags and shareable local links', async ({
   page,
 }) => {
   const requests = await mockCareers(page);
   await page.goto('/careers/');
-  await expect(page.locator('.opening-card h3')).toHaveText([
-    'Analyst',
-    'Operations',
-    job.title,
-  ]);
+  await expect(page.locator('.opening-card h3')).toHaveText([job.title]);
   await expect(page.locator('.opening-card [data-job-status]')).toHaveText([
-    'Closed',
-    'Filled',
     'Open',
   ]);
   await expect(
-    page.locator('.opening-card').last().locator('[data-tags] li'),
+    page.locator('.opening-card').locator('[data-tags] li'),
   ).toHaveText(['Rust', 'Golang', 'Linux']);
+  await expect(page.locator('[data-opening-status]')).toHaveText(
+    '1 open position.',
+  );
   await page
     .getByRole('link', { name: /Software Engineer Intern Open/ })
     .click();
@@ -178,9 +175,15 @@ test('lists all statuses, tags and sorted jobs with shareable local links', asyn
         !request.url().includes('candidates'),
     ),
   ).toBe(true);
+  const listRequest = requests.find(
+    (request) => new URL(request.url()).pathname === '/api/openings',
+  );
+  expect(
+    new URL(listRequest!.url()).searchParams.get('filters[job_status][$eq]'),
+  ).toBe('Open');
 });
 
-test('follows listing pagination, sorts the full list and handles genuine empty results', async ({
+test('follows listing pagination, excludes non-open results and handles an empty open list', async ({
   page,
 }) => {
   await mockCareers(page);
@@ -198,10 +201,7 @@ test('follows listing pagination, sorts the full list and handles genuine empty 
     });
   });
   await page.goto('/careers/');
-  await expect(page.locator('.opening-card h3')).toHaveText([
-    'Analyst',
-    job.title,
-  ]);
+  await expect(page.locator('.opening-card h3')).toHaveText([job.title]);
   await page.route(`${api}/openings?**`, (route) =>
     route.fulfill({
       json: { data: [], meta: { pagination: { page: 1, pageCount: 0 } } },
@@ -209,7 +209,7 @@ test('follows listing pagination, sorts the full list and handles genuine empty 
   );
   await page.reload();
   await expect(page.locator('[data-opening-status]')).toHaveText(
-    'No openings yet.',
+    'No open positions right now.',
   );
   await expect(page.locator('.opening-card')).toHaveCount(0);
 });
@@ -324,7 +324,7 @@ for (const screen of ['list', 'detail']) {
         page.locator(
           screen === 'list' ? '[data-opening-status]' : '[data-job-feedback]',
         ),
-      ).not.toContainText('No openings yet');
+      ).not.toContainText('No open positions right now');
       fail = false;
       await retry.click();
       await expect(retry).toBeHidden();
